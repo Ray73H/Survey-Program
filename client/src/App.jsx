@@ -2,6 +2,10 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import ExperimenterLayout from "./layouts/ExperimenterLayout";
 import ExperimenteeLayout from "./layouts/ExperimenteeLayout";
 import SurveyBuilder from "./pages/SurveyBuilder";
+import Experimenter from "./pages/Experimenter";
+
+
+
 
 function App() {
     return (
@@ -9,9 +13,11 @@ function App() {
             <Routes>
                 {/* Public route */}
 
+
                 {/* Experimenter routes */}
                 <Route element={<ExperimenterLayout />}>
                     <Route path="/surveybuilder" element={<SurveyBuilder />} />
+                    <Route path="/Experimenter" element={<Experimenter />} />
                 </Route>
 
                 {/* Experimentee routes */}
