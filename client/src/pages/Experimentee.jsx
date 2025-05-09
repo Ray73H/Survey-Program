@@ -95,7 +95,6 @@ const Experimentee = () => {
                             backgroundColor: "#bbdefb",
                         },
                     }}
-                    //onClick={() => navigate("/surveybuilder")}
                 >
                 </Box>
             </Box>

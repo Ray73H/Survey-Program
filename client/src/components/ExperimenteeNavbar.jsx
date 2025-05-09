@@ -138,7 +138,7 @@ export default function ExperimenteeNavbar() {
                         </ListItem>  
                         <ListItem disablePadding sx={{ display: "block" }}>
                             <ListItemButton
-                            onClick={() => navigate("/surveybuilder")}
+                            onClick={() => navigate("/join")}
                             sx={{
                                 minHeight: 48,
                                 justifyContent: open ? "initial" : "center",

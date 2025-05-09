@@ -4,6 +4,7 @@ import ExperimenteeLayout from "./layouts/ExperimenteeLayout";
 import SurveyBuilder from "./pages/SurveyBuilder";
 import Experimenter from "./pages/Experimenter";
 import Experimentee from "./pages/Experimentee";
+import JoinSurvey from "./pages/JoinSurvey";
 
 
 
@@ -24,6 +25,7 @@ function App() {
                 {/* Experimentee routes */}
                 <Route element={<ExperimenteeLayout />}>
                     <Route path="/Experimentee" element={<Experimentee />} />
+                    <Route path="/join" element={<JoinSurvey />} />
                 </Route>
             </Routes>
         </Router>
