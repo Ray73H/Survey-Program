@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useNavigate } from "react-router-dom";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
@@ -55,6 +56,27 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" 
 export default function ExperimenterNavbar() {
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
+    const navigate = useNavigate();
+    const navList = ["Dashboard", "Survey Builder", "Import Survey", "Export Survey"];
+
+    const handleNavClick = (index) => {
+        switch (index) {
+            case 0:
+                navigate("/");
+                break;
+            case 1:
+                navigate("/surveybuilder");
+                break;
+            case 2:
+                navigate("/");
+                break;
+            case 3:
+                navigate("/");
+                break;
+            default:
+                break;
+        }
+    };
 
     return (
         <Box sx={{ display: "flex" }}>
@@ -68,30 +90,29 @@ export default function ExperimenterNavbar() {
                 {/* Logo */}
                 <Divider />
                 <List>
-                    {["Dashboard", "Survey Builder", "Import Survey", "Export Survey"].map(
-                        (text, index) => (
-                            <ListItem key={text} disablePadding sx={{ display: "block" }}>
-                                <ListItemButton
+                    {navList.map((text, index) => (
+                        <ListItem key={text} disablePadding sx={{ display: "block" }}>
+                            <ListItemButton
+                                sx={{
+                                    minHeight: 48,
+                                    justifyContent: open ? "initial" : "center",
+                                    px: 2.5,
+                                }}
+                                onClick={() => handleNavClick(index)}
+                            >
+                                <ListItemIcon
                                     sx={{
-                                        minHeight: 48,
-                                        justifyContent: open ? "initial" : "center",
-                                        px: 2.5,
+                                        minWidth: 0,
+                                        mr: open ? 3 : "auto",
+                                        justifyContent: "center",
                                     }}
                                 >
-                                    <ListItemIcon
-                                        sx={{
-                                            minWidth: 0,
-                                            mr: open ? 3 : "auto",
-                                            justifyContent: "center",
-                                        }}
-                                    >
-                                        {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                                    </ListItemIcon>
-                                    <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
-                                </ListItemButton>
-                            </ListItem>
-                        ),
-                    )}
+                                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                                </ListItemIcon>
+                                <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
+                            </ListItemButton>
+                        </ListItem>
+                    ))}
                 </List>
                 <Divider />
             </Drawer>
