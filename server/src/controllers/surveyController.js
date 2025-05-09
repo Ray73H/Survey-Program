@@ -1,4 +1,5 @@
 import Survey from "../models/Survey.js";
+import User from "../models/Users";
 
 export const createSurvey = async (req, res) => {
 	try {
@@ -70,6 +71,41 @@ export const getSurveyById = async (req, res) => {
 
 		if (!survey) {
 			return res.status(404).json({ message: "Survey not found" });
+		}
+
+		res.status(200).json(survey);
+	} catch (error) {
+		res.status(500).json({ message: "Internal server error" });
+	}
+};
+
+export const getPublicSurveys = async (req, res) => {
+	try {
+		const survey = await Survey.find({ public: true });
+		res.status(200).json(survey);
+	} catch (error) {
+		res.status(500).json({ message: "Internal server error" });
+	}
+};
+
+export const getSurveyByPinCode = async (req, res) => {
+	try {
+		const { pinCode } = req.params;
+		const survey = await Survey.find({ pinCode });
+
+		if (!survey) {
+			return res.status(404).json({ message: "Survey not found" });
+		}
+
+		if (req.user?.id) {
+			const user = await User.findById(req.user.id);
+			if (user) {
+				const alreadyHasAccess = user.surveyAccess.some((id) => id.toString() === survey._id.toString());
+				if (!alreadyHasAccess) {
+					user.surveyAccess.push(survey._id);
+					await user.save();
+				}
+			}
 		}
 
 		res.status(200).json(survey);

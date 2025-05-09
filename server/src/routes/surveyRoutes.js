@@ -6,16 +6,25 @@ import {
 	getAllSurveys,
 	getSurveysByUserId,
 	getSurveyById,
+	getPublicSurveys,
+	getSurveyByPinCode,
 } from "../controllers/surveyController.js";
+import { authMiddleware, authOptional } from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.post("/", createSurvey);
-router.put("/:id", updateSurvey);
-router.delete("/:id", deleteSurvey);
+// EXPERIMENTER ROUTES
+router.post("/", authMiddleware, createSurvey);
+router.put("/:id", authMiddleware, updateSurvey);
+router.delete("/:id", authMiddleware, deleteSurvey);
+router.get("/user/:userId", authMiddleware, getSurveysByUserId);
+router.get("/:id", authMiddleware, getSurveyById);
 
-router.get("/", getAllSurveys);
-router.get("/user/:userId", getSurveysByUserId);
-router.get("/:id", getSurveyById);
+// EXPERIMENTEE ROUTES
+router.get("/public", getPublicSurveys);
+router.get("/pinCode/:pinCode", authOptional, getSurveyByPinCode);
+
+// ADMIN ROUTES
+router.get("/", authMiddleware, getAllSurveys);
 
 export default router;

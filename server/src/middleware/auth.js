@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-const authMiddleware = (req, res, next) => {
+export const authMiddleware = (req, res, next) => {
 	const authHeader = req.headers.authorization;
 
 	if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -11,7 +11,7 @@ const authMiddleware = (req, res, next) => {
 
 	try {
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
-		req.user = decoded; // contains e.g., { id, email }
+		req.user = decoded; // contains e.g., { id }
 		next();
 	} catch (err) {
 		console.error("Auth error:", err.message);
@@ -19,4 +19,19 @@ const authMiddleware = (req, res, next) => {
 	}
 };
 
-export default authMiddleware;
+export const authOptional = (req, res, next) => {
+	const authHeader = req.headers.authorization;
+
+	if (authHeader?.startsWith("Bearer ")) {
+		const token = authHeader.split(" ")[1];
+
+		try {
+			const decoded = jwt.verify(token, process.env.JWT_SECRET);
+			req.user = decoded; // e.g., { id: id }
+		} catch (err) {
+			console.warn("Invalid token provided, continuing unauthenticated");
+		}
+	}
+
+	next();
+};
