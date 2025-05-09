@@ -3,6 +3,7 @@ import ExperimenterLayout from "./layouts/ExperimenterLayout";
 import ExperimenteeLayout from "./layouts/ExperimenteeLayout";
 import SurveyBuilder from "./pages/SurveyBuilder";
 import Experimenter from "./pages/Experimenter";
+import Experimentee from "./pages/Experimentee";
 
 
 
@@ -21,7 +22,9 @@ function App() {
                 </Route>
 
                 {/* Experimentee routes */}
-                <Route element={<ExperimenteeLayout />}></Route>
+                <Route element={<ExperimenteeLayout />}>
+                    <Route path="/Experimentee" element={<Experimentee />} />
+                </Route>
             </Routes>
         </Router>
     );
