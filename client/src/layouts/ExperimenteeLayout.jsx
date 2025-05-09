@@ -4,13 +4,14 @@ import ExperimenteeNavbar from "../components/ExperimenteeNavbar";
 
 function ExperimenteeLayout() {
     return (
-        <>
+        <div className="flex">
             <ExperimenteeNavbar />
-            <main>
+            <main className="flex-1">
                 <Outlet />
             </main>
-        </>
+        </div>
     );
 }
+
 
 export default ExperimenteeLayout;
