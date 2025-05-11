@@ -12,6 +12,7 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
+import { createSurvey } from "../services/surveys";
 
 function SurveyBuilder() {
     const [title, setTitle] = React.useState("");
@@ -84,14 +85,18 @@ function SurveyBuilder() {
         );
     };
 
-    const handleSave = (e) => {
+    const handleSave = async (e) => {
         e.preventDefault();
 
         const surveyData = {
+            userId: "6650a9c80c1f5d5b2a6a8e3d", // TEMPORARY
             title,
             description,
-            isPublic,
+            public: isPublic,
         };
+
+        const data = await createSurvey(surveyData);
+        console.log(data);
     };
 
     return (
