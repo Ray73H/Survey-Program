@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-d
 import ExperimenterLayout from "./layouts/ExperimenterLayout";
 import ExperimenteeLayout from "./layouts/ExperimenteeLayout";
 // import SignUpLayout from "./layouts/SignUpLayout";
-import SurveyBuilder from "./pages/SurveyBuilder";
 import SignUp from "./pages/SignUp";
 import LoginLayout from "./layouts/LoginLayout";
 import SurveyBuilder from "./pages/SurveyBuilder";
