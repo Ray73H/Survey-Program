@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 const userSchema = new Schema({
 	email: { type: String, required: true, unique: true },
 	password: { type: String, required: true },
-	name: String,
+	name: { type: String, default: "" },
 	accountType: String,
 	surveyAccess: [{ type: Schema.Types.ObjectId, ref: "Survey" }],
 });
