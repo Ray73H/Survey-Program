@@ -29,7 +29,9 @@ export const UserProvider = ({ children }) => {
                 setAccountTypeContext,
                 logout,
             }}
-        ></UserContext.Provider>
+        >
+            {children}
+        </UserContext.Provider>
     );
 };
 
