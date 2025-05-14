@@ -7,6 +7,8 @@ function generatePinCode() {
 
 export const createSurvey = async (req, res) => {
 	try {
+		const { userId, author } = req.body;
+
 		let pinCode;
 		let isUnique = false;
 		while (!isUnique) {
@@ -15,7 +17,7 @@ export const createSurvey = async (req, res) => {
 			if (!existingSurvey) isUnique = true;
 		}
 
-		const latestSurvey = await Survey.find({ userId: req.body.userId, title: { $regex: /^Survey \d+$/ } })
+		const latestSurvey = await Survey.find({ userId, title: { $regex: /^Survey \d+$/ } })
 			.sort({ title: -1 })
 			.limit(1);
 		let surveyNum = 1;
@@ -25,12 +27,13 @@ export const createSurvey = async (req, res) => {
 		const title = `Survey ${surveyNum}`;
 
 		const newSurvey = new Survey({
-			userId: req.body.userId,
+			userId,
 			title,
 			description: "",
 			public: false,
 			questions: [],
 			pinCode,
+			author,
 		});
 
 		const savedSurvey = await newSurvey.save();
@@ -86,6 +89,16 @@ export const getSurveysByUserId = async (req, res) => {
 	try {
 		const { userId } = req.params;
 		const surveys = await Survey.find({ userId });
+		res.status(200).json(surveys);
+	} catch (error) {
+		res.status(500).json({ message: "Internal server error" });
+	}
+};
+
+export const getThreeSurveys = async (req, res) => {
+	try {
+		const { userId } = req.params;
+		const surveys = await Survey.find({ userId }).sort({ updatedAt: -1 }).limit(3);
 		res.status(200).json(surveys);
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error" });

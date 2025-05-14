@@ -17,17 +17,14 @@ import {
     AccordionSummary,
     AccordionDetails,
     AccordionActions,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { getSurveyById, updateSurvey } from "../services/surveys";
+import { getSurveyById, updateSurvey, deleteSurvey } from "../services/surveys";
 import { useParams } from "react-router-dom";
 import { useUserContext } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
+import { DeleteSurveyDialog } from "../components/DeleteSurveyDialog";
 
 function SurveyBuilder() {
     const navigate = useNavigate();
@@ -165,10 +162,9 @@ function SurveyBuilder() {
     };
 
     const handleDeleteSurvey = async () => {
-        const data = await deleteSurvey(surveyId);
+        await deleteSurvey(surveyId);
         setOpenDeleteDialog(false);
-        console.log(data);
-        //navigate("/dashboard");
+        navigate("/dashboard");
     };
 
     return (
@@ -389,18 +385,11 @@ function SurveyBuilder() {
                 </Box>
             </Box>
 
-            <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
-                <DialogTitle>Confirm Delete</DialogTitle>
-                <DialogContent>
-                    Are you sure you want to delete this survey? This action can't be undone.
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpenDeleteDialog(false)}>Cancel</Button>
-                    <Button color="error" onClick={handleDeleteSurvey}>
-                        Delete
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            <DeleteSurveyDialog
+                open={openDeleteDialog}
+                onClose={() => setOpenDeleteDialog(false)}
+                onConfirm={handleDeleteSurvey}
+            />
         </>
     );
 }
