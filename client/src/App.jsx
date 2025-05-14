@@ -15,11 +15,9 @@ import JoinSurvey from "./pages/JoinSurvey";
 import ExperimenterLogin from "./pages/ExperimenterLogin";
 import ExperimenteeLogin from "./pages/ExperimenteeLogin";
 import SuperUserLogin from "./pages/SuperUserLogin";
-import { UserProvider } from "./contexts/UserContext";
 
 function App() {
     return (
-        <UserProvider>
             <Router>
                 <Routes>
                     {/* Public route */}
@@ -36,7 +34,7 @@ function App() {
 
                     {/* Experimenter routes */}
                     <Route element={<ExperimenterLayout />}>
-                        <Route path="/surveybuilder" element={<SurveyBuilder />} />
+                        <Route path="/survey-builder/:surveyId" element={<SurveyBuilder />} />
                         <Route path="/Experimenter" element={<Experimenter />} />
                     </Route>
 
@@ -60,7 +58,6 @@ function App() {
                     </Route>
                 </Routes>
             </Router>
-        </UserProvider>
     );
 }
 

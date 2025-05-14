@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Box,
     Typography,
@@ -16,38 +16,29 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate } from "react-router-dom";
-
-const surveys = [
-    {
-        id: 1,
-        title: "Survey on Motorbikes 1",
-        description:
-            "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.",
-        author: "Max Muster",
-        date: "24 Mar 2022",
-    },
-    {
-        id: 2,
-        title: "Survey on Motorbikes 2",
-        description:
-            "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.",
-        author: "Max Muster",
-        date: "24 Mar 2022",
-    },
-    {
-        id: 3,
-        title: "Survey on Motorbikes 3",
-        description:
-            "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.",
-        author: "Max Muster",
-        date: "24 Mar 2022",
-    },
-];
+import { useUserContext } from "../contexts/UserContext";
+import { createSurvey, deleteSurvey, getThreeSurveys } from "../services/surveys";
+import { DeleteSurveyDialog } from "../components/DeleteSurveyDialog";
 
 const Experimenter = () => {
     const [anchorEl, setAnchorEl] = useState(null);
     const [menuSurveyId, setMenuSurveyId] = useState(null);
+    const [surveys, setSurveys] = useState([]);
+    const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+    const [deleteSurveyId, setDeleteSurveyId] = useState("");
     const navigate = useNavigate();
+    const { userId, nameContext } = useUserContext();
+
+    // Get the three most recently modified surveys
+    const fetchSurveys = async () => {
+        const response = await getThreeSurveys(userId);
+        console.log(response.data);
+        setSurveys(response.data);
+    };
+
+    useEffect(() => {
+        fetchSurveys();
+    }, [userId]);
 
     const handleMenuOpen = (event, id) => {
         setAnchorEl(event.currentTarget);
@@ -59,126 +50,164 @@ const Experimenter = () => {
         setMenuSurveyId(null);
     };
 
+    const handleCreateSurvey = async () => {
+        const surveyData = { userId, author: nameContext };
+        const response = await createSurvey(surveyData);
+        const surveyId = response.data._id;
+        navigate(`/survey-builder/${surveyId}`);
+    };
+
+    const handleDeleteSurvey = async () => {
+        await deleteSurvey(deleteSurveyId);
+        setOpenDeleteDialog(false);
+        fetchSurveys();
+    };
+
     return (
-        <Box sx={{ padding: 4, flexGrow: 1 }}>
-            <Typography variant="h5" gutterBottom>
-                Welcome Max Musterman
-            </Typography>
+        <>
+            <Box sx={{ padding: 4, flexGrow: 1 }}>
+                <Typography variant="h5" gutterBottom>
+                    Welcome {nameContext}
+                </Typography>
 
-            <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
-                Create new survey
-            </Typography>
+                <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
+                    Create new survey
+                </Typography>
 
-            <Box
-                sx={{
-                    display: "flex",
-                    gap: 2,
-                    overflowX: "auto",
-                    pb: 2,
-                    scrollSnapType: "x mandatory",
-                }}
-            >
                 <Box
                     sx={{
-                        minWidth: 250,
-                        height: 180,
                         display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        backgroundColor: "#e3f2fd",
-                        cursor: "pointer",
-                        borderRadius: 2,
-                        scrollSnapAlign: "start",
-                        flexShrink: 0,
-                        transition: "0.2s",
-                        "&:hover": {
-                            backgroundColor: "#bbdefb",
-                        },
+                        gap: 2,
+                        overflowX: "auto",
+                        pb: 2,
+                        scrollSnapType: "x mandatory",
                     }}
-                    onClick={() => navigate("/surveybuilder")}
                 >
-                    <AddIcon sx={{ fontSize: 40 }} />
+                    <Box
+                        sx={{
+                            minWidth: 250,
+                            height: 180,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            backgroundColor: "#e3f2fd",
+                            cursor: "pointer",
+                            borderRadius: 2,
+                            scrollSnapAlign: "start",
+                            flexShrink: 0,
+                            transition: "0.2s",
+                            "&:hover": {
+                                backgroundColor: "#bbdefb",
+                            },
+                        }}
+                        onClick={handleCreateSurvey}
+                    >
+                        <AddIcon sx={{ fontSize: 40 }} />
+                    </Box>
+                </Box>
+
+                <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
+                    Your Surveys
+                </Typography>
+
+                <Box
+                    sx={{
+                        display: "flex",
+                        gap: 2,
+                        overflowX: "auto",
+                        pb: 2,
+                        scrollSnapType: "x mandatory",
+                    }}
+                >
+                    {surveys.map((survey) => (
+                        <Card
+                            key={survey._id}
+                            sx={{
+                                minWidth: 280,
+                                flexShrink: 0,
+                                scrollSnapAlign: "start",
+                                position: "relative",
+                            }}
+                        >
+                            <IconButton
+                                size="small"
+                                onClick={(e) => handleMenuOpen(e, survey._id)}
+                                sx={{
+                                    position: "absolute",
+                                    top: 8,
+                                    right: 8,
+                                    zIndex: 1,
+                                }}
+                            >
+                                <MoreVertIcon />
+                            </IconButton>
+
+                            <CardMedia
+                                sx={{ height: 140, backgroundColor: "#ccc" }}
+                                image=""
+                                title="Survey Preview"
+                            />
+
+                            <CardContent>
+                                <Typography variant="subtitle2" color="textSecondary">
+                                    {survey.author} •{" "}
+                                    {new Date(survey.createdAt).toLocaleDateString("en-US", {
+                                        year: "numeric",
+                                        month: "short",
+                                        day: "numeric",
+                                    })}
+                                </Typography>
+                                <Typography variant="h6">{survey.title}</Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    {survey.description}
+                                </Typography>
+                            </CardContent>
+
+                            <CardActions sx={{ justifyContent: "space-between" }}>
+                                <Button
+                                    onClick={() => navigate(`/survey-builder/${survey._id}`)}
+                                    size="small"
+                                    variant="outlined"
+                                    startIcon={<EditIcon />}
+                                >
+                                    Edit
+                                </Button>
+                                <IconButton
+                                    onClick={() => {
+                                        setOpenDeleteDialog(true);
+                                        setDeleteSurveyId(survey._id);
+                                    }}
+                                    color="error"
+                                >
+                                    <DeleteIcon />
+                                </IconButton>
+                            </CardActions>
+
+                            {menuSurveyId === survey._id && (
+                                <Menu
+                                    anchorEl={anchorEl}
+                                    open={Boolean(anchorEl)}
+                                    onClose={handleMenuClose}
+                                >
+                                    <MenuItem onClick={handleMenuClose}>Share Survey</MenuItem>
+                                    <MenuItem onClick={handleMenuClose}>Export Survey</MenuItem>
+                                    <MenuItem onClick={handleMenuClose}>Preview</MenuItem>
+                                </Menu>
+                            )}
+                        </Card>
+                    ))}
                 </Box>
             </Box>
 
-            <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
-                Your Surveys
-            </Typography>
-
-            <Box
-                sx={{
-                    display: "flex",
-                    gap: 2,
-                    overflowX: "auto",
-                    pb: 2,
-                    scrollSnapType: "x mandatory",
+            <DeleteSurveyDialog
+                open={openDeleteDialog}
+                onClose={() => {
+                    setOpenDeleteDialog(false);
+                    setDeleteSurveyId("");
                 }}
-            >
-                {surveys.map((survey) => (
-                    <Card
-                        key={survey.id}
-                        sx={{
-                            minWidth: 280,
-                            flexShrink: 0,
-                            scrollSnapAlign: "start",
-                            position: "relative", // 🆕 position relative for absolute icon
-                        }}
-                    >
-                        {/* 🆕 Top-right IconButton */}
-                        <IconButton
-                            size="small"
-                            onClick={(e) => handleMenuOpen(e, survey.id)}
-                            sx={{
-                                position: "absolute",
-                                top: 8,
-                                right: 8,
-                                zIndex: 1,
-                            }}
-                        >
-                            <MoreVertIcon />
-                        </IconButton>
-
-                        <CardMedia
-                            sx={{ height: 140, backgroundColor: "#ccc" }}
-                            image=""
-                            title="Survey Preview"
-                        />
-
-                        <CardContent>
-                            <Typography variant="subtitle2" color="textSecondary">
-                                {survey.author} • {survey.date}
-                            </Typography>
-                            <Typography variant="h6">{survey.title}</Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                {survey.description}
-                            </Typography>
-                        </CardContent>
-
-                        <CardActions sx={{ justifyContent: "space-between" }}>
-                            <Button size="small" variant="outlined" startIcon={<EditIcon />}>
-                                Edit
-                            </Button>
-                            <IconButton color="error">
-                                <DeleteIcon />
-                            </IconButton>
-                        </CardActions>
-
-                        {/* 🆕 Menu logic stays */}
-                        {menuSurveyId === survey.id && (
-                            <Menu
-                                anchorEl={anchorEl}
-                                open={Boolean(anchorEl)}
-                                onClose={handleMenuClose}
-                            >
-                                <MenuItem onClick={handleMenuClose}>Share Survey</MenuItem>
-                                <MenuItem onClick={handleMenuClose}>Export Survey</MenuItem>
-                                <MenuItem onClick={handleMenuClose}>Preview</MenuItem>
-                            </Menu>
-                        )}
-                    </Card>
-                ))}
-            </Box>
-        </Box>
+                onConfirm={handleDeleteSurvey}
+            />
+        </>
     );
 };
 
