@@ -135,7 +135,7 @@ function SurveyBuilder() {
     const handleOptionTextChange = (id, optionIndex, newOptionText) => {
         setSurvey((prevSurvey) => ({
             ...prevSurvey,
-            qustions: prevSurvey.questions.map((q) =>
+            questions: prevSurvey.questions.map((q) =>
                 q.id === id
                     ? {
                           ...q,
