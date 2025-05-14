@@ -156,7 +156,7 @@ function SurveyBuilder() {
             ...survey,
         };
 
-        const data = await updateSurvey(surveyData);
+        const data = await updateSurvey(surveyId, surveyData);
         setOriginalSurvey(survey);
         console.log(data);
     };
