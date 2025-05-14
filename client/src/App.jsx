@@ -36,7 +36,7 @@ function App() {
 
                     {/* Experimenter routes */}
                     <Route element={<ExperimenterLayout />}>
-                        <Route path="/surveybuilder" element={<SurveyBuilder />} />
+                        <Route path="/survey-builder/:surveyId" element={<SurveyBuilder />} />
                         <Route path="/Experimenter" element={<Experimenter />} />
                     </Route>
 

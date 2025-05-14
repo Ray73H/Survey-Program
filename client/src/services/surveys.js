@@ -1,6 +1,6 @@
 import api from "./api";
 
-export const createSurvey = (surveyData) => api.post("/surveys", surveyData);
+export const createSurvey = (surveyData) => api.post("/surveys", surveyData); // surveyData only needs userId field
 export const updateSurvey = (surveyId, surveyData) => api.put(`/surveys/${surveyId}`, surveyData);
 export const deleteSurvey = (surveyId) => api.delete(`/surveys/${surveyId}`);
 export const getSurveysByUserId = (userId) => api.get(`/surveys/user/${userId}`);

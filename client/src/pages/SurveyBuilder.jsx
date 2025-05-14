@@ -1,50 +1,111 @@
 import React from "react";
-import { Box, Button, Divider, Paper, TextField, Typography } from "@mui/material";
-import { FormControlLabel, Switch } from "@mui/material";
-import Accordion from "@mui/material/Accordion";
-import AccordionActions from "@mui/material/AccordionActions";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
+import {
+    Box,
+    Button,
+    Divider,
+    Paper,
+    TextField,
+    Typography,
+    FormControl,
+    FormControlLabel,
+    Switch,
+    Select,
+    InputLabel,
+    MenuItem,
+    IconButton,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails,
+    AccordionActions,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+} from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import Select from "@mui/material/Select";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
 import DeleteIcon from "@mui/icons-material/Delete";
-import IconButton from "@mui/material/IconButton";
-import { createSurvey } from "../services/surveys";
+import { getSurveyById, updateSurvey } from "../services/surveys";
+import { useParams } from "react-router-dom";
+import { useUserContext } from "../contexts/UserContext";
+import { useNavigate } from "react-router-dom";
 
 function SurveyBuilder() {
-    const [title, setTitle] = React.useState("");
-    const [description, setDescription] = React.useState("");
-    const [questions, setQuestions] = React.useState([]);
-    const [isPublic, setIsPublic] = React.useState(false);
+    const navigate = useNavigate();
+    const { surveyId } = useParams();
+    const { userId } = useUserContext();
+    const [survey, setSurvey] = React.useState({
+        title: "",
+        description: "",
+        public: false,
+        pinCode: "",
+        questions: [],
+    });
+    const [originalSurvey, setOriginalSurvey] = React.useState(survey);
+    const [isChanged, setIsChanged] = React.useState(false);
+    const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
+
+    // Initial get call for survey
+    React.useEffect(() => {
+        const getSurvey = async () => {
+            const response = await getSurveyById(surveyId);
+            setSurvey(response.data);
+            setOriginalSurvey(response.data);
+        };
+        getSurvey();
+    }, [surveyId]);
+
+    // Change state if there is unsaved data
+    React.useEffect(() => {
+        setIsChanged(JSON.stringify(survey) !== JSON.stringify(originalSurvey));
+    }, [survey, originalSurvey]);
+
+    // Block on tab close or refresh
+    React.useEffect(() => {
+        const handleBeforeUnload = (e) => {
+            if (isChanged) {
+                e.preventDefault();
+                e.returnValue = "";
+            }
+        };
+        window.addEventListener("beforeunload", handleBeforeUnload);
+        return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+    }, [isChanged]);
 
     const handleAddQuestion = () => {
-        setQuestions((prev) => [
-            ...prev,
-            {
-                questionType: "text",
-                id: Date.now(),
-                questionText: "",
-                options: [],
-            },
-        ]);
+        setSurvey((prevSurvey) => ({
+            ...prevSurvey,
+            questions: [
+                ...prevSurvey.questions,
+                {
+                    questionType: "text",
+                    id: Date.now(),
+                    questionText: "",
+                    options: [],
+                },
+            ],
+        }));
     };
 
     const handleDeleteQuestion = (id) => {
-        setQuestions((prev) => prev.filter((q) => q.id !== id));
+        setSurvey((prevSurvey) => ({
+            ...prevSurvey,
+            questions: prevSurvey.questions.filter((q) => q.id !== id),
+        }));
     };
 
     const handleQuestionTextChange = (id, newQuestionText) => {
-        setQuestions((prev) =>
-            prev.map((q) => (q.id === id ? { ...q, questionText: newQuestionText } : q)),
-        );
+        setSurvey((prevSurvey) => ({
+            ...prevSurvey,
+            questions: prevSurvey.questions.map((q) =>
+                q.id === id ? { ...q, questionText: newQuestionText } : q,
+            ),
+        }));
     };
 
     const handleQuestionTypeChange = (id, newQuestionType) => {
-        setQuestions((prev) =>
-            prev.map((q) =>
+        setSurvey((prevSurvey) => ({
+            ...prevSurvey,
+            questions: prevSurvey.questions.map((q) =>
                 q.id === id
                     ? {
                           ...q,
@@ -53,26 +114,31 @@ function SurveyBuilder() {
                       }
                     : q,
             ),
-        );
+        }));
     };
 
     const handleAddOption = (id) => {
-        setQuestions((prev) =>
-            prev.map((q) => (q.id === id ? { ...q, options: [...q.options, ""] } : q)),
-        );
+        setSurvey((prevSurvey) => ({
+            ...prevSurvey,
+            questions: prevSurvey.questions.map((q) =>
+                q.id === id ? { ...q, options: [...q.options, ""] } : q,
+            ),
+        }));
     };
 
     const handleDeleteOption = (id, optionIndex) => {
-        setQuestions((prev) =>
-            prev.map((q) =>
+        setSurvey((prevSurvey) => ({
+            ...prevSurvey,
+            questions: prevSurvey.questions.map((q) =>
                 q.id === id ? { ...q, options: q.options.filter((_, i) => i !== optionIndex) } : q,
             ),
-        );
+        }));
     };
 
     const handleOptionTextChange = (id, optionIndex, newOptionText) => {
-        setQuestions((prev) =>
-            prev.map((q) =>
+        setSurvey((prevSurvey) => ({
+            ...prevSurvey,
+            qustions: prevSurvey.questions.map((q) =>
                 q.id === id
                     ? {
                           ...q,
@@ -82,205 +148,260 @@ function SurveyBuilder() {
                       }
                     : q,
             ),
-        );
+        }));
     };
 
-    const handleSave = async (e) => {
+    const handleSaveSurvey = async (e) => {
         e.preventDefault();
 
         const surveyData = {
-            userId: "6650a9c80c1f5d5b2a6a8e3d", // TEMPORARY
-            title,
-            description,
-            public: isPublic,
+            userId,
+            ...survey,
         };
 
-        const data = await createSurvey(surveyData);
+        const data = await updateSurvey(surveyData);
+        setOriginalSurvey(survey);
         console.log(data);
     };
 
+    const handleDeleteSurvey = async () => {
+        const data = await deleteSurvey(surveyId);
+        setOpenDeleteDialog(false);
+        console.log(data);
+        //navigate("/dashboard");
+    };
+
     return (
-        <Box className="p-4">
-            <Box className="flex justify-between items-center mb-4">
-                <Typography variant="h5" fontWeight="bold">
-                    Survey Builder
-                </Typography>
-                <Box className="space-x-2">
-                    <Button type="submit" form="survey-form" variant="contained" color="primary">
-                        Save
-                    </Button>
-                    <Button variant="outlined" color="error">
-                        Cancel
-                    </Button>
+        <>
+            <Box className="p-4">
+                <Box className="flex justify-between items-center mb-4">
+                    <Typography variant="h5" fontWeight="bold">
+                        Survey Builder
+                    </Typography>
+                    <Box className="space-x-2">
+                        <Button
+                            type="submit"
+                            form="survey-form"
+                            variant="contained"
+                            color="primary"
+                        >
+                            Save
+                        </Button>
+                        <Button
+                            onClick={() => setOpenDeleteDialog(true)}
+                            variant="outlined"
+                            color="error"
+                        >
+                            Delete Survey
+                        </Button>
+                    </Box>
                 </Box>
-            </Box>
 
-            <Divider className="mb-4" />
+                <Divider className="mb-4" />
 
-            <Box className="flex justify-center p-10">
-                <Paper elevation={3} className="p-6 w-full max-w-3xl">
-                    <Box
-                        component="form"
-                        id="survey-form"
-                        onSubmit={handleSave}
-                        className="flex flex-col space-y-6"
-                    >
-                        <Box className="flex flex-row items-center w-full">
-                            <Box className="flex flex-col space-y-1 w-1/2">
-                                <Typography variant="h6">Title</Typography>
+                <Box className="flex justify-center p-10">
+                    <Paper elevation={3} className="p-6 w-full max-w-3xl">
+                        <Box
+                            component="form"
+                            id="survey-form"
+                            onSubmit={handleSaveSurvey}
+                            className="flex flex-col space-y-6"
+                        >
+                            <Box className="flex flex-row items-center w-full">
+                                <Box className="flex flex-col space-y-1 w-1/2">
+                                    <Typography variant="h6">Title</Typography>
+                                    <TextField
+                                        value={survey.title}
+                                        onChange={(e) =>
+                                            setSurvey((prevSurvey) => ({
+                                                ...prevSurvey,
+                                                title: e.target.value,
+                                            }))
+                                        }
+                                        variant="outlined"
+                                        required
+                                    />
+                                </Box>
+                                <Box className="flex flex-col space-y-1 justify-end ml-auto">
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={survey.public}
+                                                onChange={(e) =>
+                                                    setSurvey((prevSurvey) => ({
+                                                        ...prevSurvey,
+                                                        public: e.target.checked,
+                                                    }))
+                                                }
+                                            />
+                                        }
+                                        label={survey.public ? "Public" : "Private"}
+                                    />
+                                    {survey.public ? null : (
+                                        <Typography variant="subtitle1">
+                                            Pin Code: {survey.pinCode}
+                                        </Typography>
+                                    )}
+                                </Box>
+                            </Box>
+                            <Box className="flex flex-col space-y-1">
+                                <Typography variant="h6">Description (optional)</Typography>
                                 <TextField
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                    variant="outlined"
-                                    required
-                                />
-                            </Box>
-                            <Box className="ml-auto">
-                                <FormControlLabel
-                                    control={
-                                        <Switch
-                                            checked={isPublic}
-                                            onChange={(e) => setIsPublic(e.target.checked)}
-                                        />
+                                    value={survey.description}
+                                    onChange={(e) =>
+                                        setSurvey((prevSurvey) => ({
+                                            ...prevSurvey,
+                                            description: e.target.value,
+                                        }))
                                     }
-                                    label={isPublic ? "Public" : "Private"}
+                                    variant="outlined"
+                                    multiline
+                                    minRows={2}
+                                    fullWidth
                                 />
                             </Box>
-                        </Box>
-                        <Box className="flex flex-col space-y-1">
-                            <Typography variant="h6">Description (optional)</Typography>
-                            <TextField
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                variant="outlined"
-                                multiline
-                                minRows={2}
-                                fullWidth
-                            />
-                        </Box>
-                        <Box className="flex flex-col space-y-2">
-                            <Typography variant="h6">Questions</Typography>
-                            {questions.map((question, index) => {
-                                return (
-                                    <Accordion
-                                        key={index}
-                                        defaultExpanded={index === questions.length - 1}
-                                    >
-                                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                                            <Typography component="span">
-                                                Question {index + 1}
-                                            </Typography>
-                                        </AccordionSummary>
-                                        <AccordionDetails>
-                                            <Box className="flex flex-col space-y-4">
-                                                <FormControl className="w-1/3">
-                                                    <InputLabel id="question-type-label">
-                                                        Question Type
-                                                    </InputLabel>
-                                                    <Select
-                                                        labelId="question-type-label"
-                                                        value={question.questionType}
-                                                        label="Question Type"
+                            <Box className="flex flex-col space-y-2">
+                                <Typography variant="h6">Questions</Typography>
+                                {survey.questions.map((question, index) => {
+                                    return (
+                                        <Accordion
+                                            key={index}
+                                            defaultExpanded={index === survey.questions.length - 1}
+                                        >
+                                            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                                                <Typography component="span">
+                                                    Question {index + 1}
+                                                </Typography>
+                                            </AccordionSummary>
+                                            <AccordionDetails>
+                                                <Box className="flex flex-col space-y-4">
+                                                    <FormControl className="w-1/3">
+                                                        <InputLabel id="question-type-label">
+                                                            Question Type
+                                                        </InputLabel>
+                                                        <Select
+                                                            labelId="question-type-label"
+                                                            value={question.questionType}
+                                                            label="Question Type"
+                                                            onChange={(e) =>
+                                                                handleQuestionTypeChange(
+                                                                    question.id,
+                                                                    e.target.value,
+                                                                )
+                                                            }
+                                                        >
+                                                            <MenuItem value="text">Text</MenuItem>
+                                                            <MenuItem value="multiple">
+                                                                Multiple Choice
+                                                            </MenuItem>
+                                                        </Select>
+                                                    </FormControl>
+                                                    <TextField
+                                                        fullWidth
+                                                        value={question.questionText}
                                                         onChange={(e) =>
-                                                            handleQuestionTypeChange(
+                                                            handleQuestionTextChange(
                                                                 question.id,
                                                                 e.target.value,
                                                             )
                                                         }
-                                                    >
-                                                        <MenuItem value="text">Text</MenuItem>
-                                                        <MenuItem value="multiple">
-                                                            Multiple Choice
-                                                        </MenuItem>
-                                                    </Select>
-                                                </FormControl>
-                                                <TextField
-                                                    fullWidth
-                                                    value={question.questionText}
-                                                    onChange={(e) =>
-                                                        handleQuestionTextChange(
-                                                            question.id,
-                                                            e.target.value,
-                                                        )
+                                                        variant="outlined"
+                                                        label="Question Text"
+                                                        multiline
+                                                    />
+                                                    {question.questionType === "multiple" ? (
+                                                        <Box className="flex flex-col space-y-2">
+                                                            {question.options.map(
+                                                                (option, index) => {
+                                                                    return (
+                                                                        <Box
+                                                                            key={index}
+                                                                            className="flex flex-row items-center space-x-2 w-full"
+                                                                        >
+                                                                            <TextField
+                                                                                value={option}
+                                                                                onChange={(e) => {
+                                                                                    handleOptionTextChange(
+                                                                                        question.id,
+                                                                                        index,
+                                                                                        e.target
+                                                                                            .value,
+                                                                                    );
+                                                                                }}
+                                                                                className="flex-grow"
+                                                                                variant="outlined"
+                                                                                label={`Option ${index + 1}`}
+                                                                            />
+                                                                            <IconButton
+                                                                                onClick={() =>
+                                                                                    handleDeleteOption(
+                                                                                        question.id,
+                                                                                        index,
+                                                                                    )
+                                                                                }
+                                                                                color="error"
+                                                                                aria-label="delete option"
+                                                                            >
+                                                                                <DeleteIcon />
+                                                                            </IconButton>
+                                                                        </Box>
+                                                                    );
+                                                                },
+                                                            )}
+                                                            <Button
+                                                                variant="outlined"
+                                                                color="primary"
+                                                                fullWidth
+                                                                onClick={() =>
+                                                                    handleAddOption(question.id)
+                                                                }
+                                                            >
+                                                                + Add Option
+                                                            </Button>
+                                                        </Box>
+                                                    ) : null}
+                                                </Box>
+                                            </AccordionDetails>
+                                            <AccordionActions>
+                                                <Button
+                                                    onClick={() =>
+                                                        handleDeleteQuestion(question.id)
                                                     }
-                                                    variant="outlined"
-                                                    label="Question Text"
-                                                    multiline
-                                                />
-                                                {question.questionType === "multiple" ? (
-                                                    <Box className="flex flex-col space-y-2">
-                                                        {question.options.map((option, index) => {
-                                                            return (
-                                                                <Box
-                                                                    key={index}
-                                                                    className="flex flex-row items-center space-x-2 w-full"
-                                                                >
-                                                                    <TextField
-                                                                        value={option}
-                                                                        onChange={(e) => {
-                                                                            handleOptionTextChange(
-                                                                                question.id,
-                                                                                index,
-                                                                                e.target.value,
-                                                                            );
-                                                                        }}
-                                                                        className="flex-grow"
-                                                                        variant="outlined"
-                                                                        label={`Option ${index + 1}`}
-                                                                    />
-                                                                    <IconButton
-                                                                        onClick={() =>
-                                                                            handleDeleteOption(
-                                                                                question.id,
-                                                                                index,
-                                                                            )
-                                                                        }
-                                                                        color="error"
-                                                                        aria-label="delete option"
-                                                                    >
-                                                                        <DeleteIcon />
-                                                                    </IconButton>
-                                                                </Box>
-                                                            );
-                                                        })}
-                                                        <Button
-                                                            variant="outlined"
-                                                            color="primary"
-                                                            fullWidth
-                                                            onClick={() =>
-                                                                handleAddOption(question.id)
-                                                            }
-                                                        >
-                                                            + Add Option
-                                                        </Button>
-                                                    </Box>
-                                                ) : null}
-                                            </Box>
-                                        </AccordionDetails>
-                                        <AccordionActions>
-                                            <Button
-                                                onClick={() => handleDeleteQuestion(question.id)}
-                                                color="error"
-                                            >
-                                                Delete Question
-                                            </Button>
-                                        </AccordionActions>
-                                    </Accordion>
-                                );
-                            })}
-                            <Button
-                                variant="outlined"
-                                color="primary"
-                                fullWidth
-                                onClick={handleAddQuestion}
-                            >
-                                + Add New Question
-                            </Button>
+                                                    color="error"
+                                                >
+                                                    Delete Question
+                                                </Button>
+                                            </AccordionActions>
+                                        </Accordion>
+                                    );
+                                })}
+                                <Button
+                                    variant="outlined"
+                                    color="primary"
+                                    fullWidth
+                                    onClick={handleAddQuestion}
+                                >
+                                    + Add New Question
+                                </Button>
+                            </Box>
                         </Box>
-                    </Box>
-                </Paper>
+                    </Paper>
+                </Box>
             </Box>
-        </Box>
+
+            <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
+                <DialogTitle>Confirm Delete</DialogTitle>
+                <DialogContent>
+                    Are you sure you want to delete this survey? This action can't be undone.
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenDeleteDialog(false)}>Cancel</Button>
+                    <Button color="error" onClick={handleDeleteSurvey}>
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </>
     );
 }
 

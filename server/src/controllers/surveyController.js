@@ -1,9 +1,37 @@
-import Survey from "../models/surveys.js"
+import Survey from "../models/surveys.js";
 import User from "../models/Users.js";
+
+function generatePinCode() {
+	return Math.floor(1000 + Math.random() * 9000).toString();
+}
 
 export const createSurvey = async (req, res) => {
 	try {
-		const newSurvey = new Survey(req.body);
+		let pinCode;
+		let isUnique = false;
+		while (!isUnique) {
+			pinCode = generatePinCode();
+			const existingSurvey = await Survey.findOne({ pinCode });
+			if (!existingSurvey) isUnique = true;
+		}
+
+		const latestSurvey = await Survey.find({ userId: req.body.userId, title: { $regex: /^Survey \d+$/ } })
+			.sort({ title: -1 })
+			.limit(1);
+		let surveyNum = 1;
+		if (latestSurvey.length > 0) {
+			surveyNum = parseInt(latestSurvey[0].title.split(" ")[1]) + 1;
+		}
+		const title = `Survey ${surveyNum}`;
+
+		const newSurvey = new Survey({
+			userId: req.body.userId,
+			title,
+			description: "",
+			public: false,
+			questions: [],
+			pinCode,
+		});
 
 		const savedSurvey = await newSurvey.save();
 		res.status(201).json(savedSurvey);
