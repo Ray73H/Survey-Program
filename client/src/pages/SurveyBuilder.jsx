@@ -135,7 +135,7 @@ function SurveyBuilder() {
     const handleOptionTextChange = (id, optionIndex, newOptionText) => {
         setSurvey((prevSurvey) => ({
             ...prevSurvey,
-            qustions: prevSurvey.questions.map((q) =>
+            questions: prevSurvey.questions.map((q) =>
                 q.id === id
                     ? {
                           ...q,
@@ -156,7 +156,7 @@ function SurveyBuilder() {
             ...survey,
         };
 
-        const data = await updateSurvey(surveyData);
+        const data = await updateSurvey(surveyId, surveyData);
         setOriginalSurvey(survey);
         console.log(data);
     };
