@@ -39,7 +39,6 @@ export const importSurvey = async (userId, file) => {
     try {
         const text = await file.text();
         const surveyData = JSON.parse(text);
-        console.log(surveyData);
 
         if (!surveyData.title || !surveyData.questions || !surveyData.author) {
             throw new Error("Invalid survey format: missing required fields");

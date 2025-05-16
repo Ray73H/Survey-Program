@@ -41,7 +41,6 @@ const Experimenter = () => {
     // Get the three most recently modified surveys
     const fetchSurveys = async () => {
         const response = await getThreeSurveys(userId);
-        console.log(response.data);
         setSurveys(response.data);
     };
 
@@ -73,19 +72,29 @@ const Experimenter = () => {
     };
 
     const handleFileSelect = async (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const surveyData = await importSurvey(userId, file);
-            fetchSurveys();
+        try {
+            const file = event.target.files[0];
+            if (file) {
+                const surveyData = await importSurvey(userId, file);
+                fetchSurveys();
+            }
+        } catch (error) {
+            console.error("Failed to import survey:", error);
+            alert("An error occurred while importing the survey. Please try again.");
         }
     };
 
     const handleDrop = async (event) => {
         event.preventDefault();
-        const file = event.dataTransfer.files[0];
-        if (file) {
-            const surveyData = await importSurvey(userId, file);
-            fetchSurveys();
+        try {
+            const file = event.target.files[0];
+            if (file) {
+                const surveyData = await importSurvey(userId, file);
+                fetchSurveys();
+            }
+        } catch (error) {
+            console.error("Failed to import survey:", error);
+            alert("An error occurred while importing the survey. Please try again.");
         }
     };
 
