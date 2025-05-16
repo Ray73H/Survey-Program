@@ -1,9 +1,40 @@
-import Survey from "../models/surveys.js"
+import Survey from "../models/surveys.js";
 import User from "../models/Users.js";
+
+function generatePinCode() {
+	return Math.floor(1000 + Math.random() * 9000).toString();
+}
 
 export const createSurvey = async (req, res) => {
 	try {
-		const newSurvey = new Survey(req.body);
+		const { userId, author } = req.body;
+
+		let pinCode;
+		let isUnique = false;
+		while (!isUnique) {
+			pinCode = generatePinCode();
+			const existingSurvey = await Survey.findOne({ pinCode });
+			if (!existingSurvey) isUnique = true;
+		}
+
+		const latestSurvey = await Survey.find({ userId, title: { $regex: /^Survey \d+$/ } })
+			.sort({ title: -1 })
+			.limit(1);
+		let surveyNum = 1;
+		if (latestSurvey.length > 0) {
+			surveyNum = parseInt(latestSurvey[0].title.split(" ")[1]) + 1;
+		}
+		const title = `Survey ${surveyNum}`;
+
+		const newSurvey = new Survey({
+			userId,
+			title,
+			description: "",
+			public: false,
+			questions: [],
+			pinCode,
+			author,
+		});
 
 		const savedSurvey = await newSurvey.save();
 		res.status(201).json(savedSurvey);
@@ -58,6 +89,16 @@ export const getSurveysByUserId = async (req, res) => {
 	try {
 		const { userId } = req.params;
 		const surveys = await Survey.find({ userId });
+		res.status(200).json(surveys);
+	} catch (error) {
+		res.status(500).json({ message: "Internal server error" });
+	}
+};
+
+export const getThreeSurveys = async (req, res) => {
+	try {
+		const { userId } = req.params;
+		const surveys = await Survey.find({ userId }).sort({ updatedAt: -1 }).limit(3);
 		res.status(200).json(surveys);
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error" });
