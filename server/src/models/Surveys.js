@@ -19,6 +19,7 @@ const surveySchema = new Schema(
 		pinCode: { type: String, unique: true },
 		questions: [questionSchema],
 		author: String,
+		imported: Boolean,
 	},
 	{ timestamps: true }
 );

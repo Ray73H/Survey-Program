@@ -10,14 +10,23 @@ import {
     Menu,
     MenuItem,
     CardMedia,
+    Chip,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../contexts/UserContext";
-import { createSurvey, deleteSurvey, getThreeSurveys } from "../services/surveys";
+import {
+    createSurvey,
+    deleteSurvey,
+    exportSurvey,
+    getThreeSurveys,
+    importSurvey,
+} from "../services/surveys";
 import { DeleteSurveyDialog } from "../components/DeleteSurveyDialog";
 
 const Experimenter = () => {
@@ -32,7 +41,6 @@ const Experimenter = () => {
     // Get the three most recently modified surveys
     const fetchSurveys = async () => {
         const response = await getThreeSurveys(userId);
-        console.log(response.data);
         setSurveys(response.data);
     };
 
@@ -61,6 +69,33 @@ const Experimenter = () => {
         await deleteSurvey(deleteSurveyId);
         setOpenDeleteDialog(false);
         fetchSurveys();
+    };
+
+    const handleFileSelect = async (event) => {
+        try {
+            const file = event.target.files[0];
+            if (file) {
+                const surveyData = await importSurvey(userId, file);
+                fetchSurveys();
+            }
+        } catch (error) {
+            console.error("Failed to import survey:", error);
+            alert("An error occurred while importing the survey. Please try again.");
+        }
+    };
+
+    const handleDrop = async (event) => {
+        event.preventDefault();
+        try {
+            const file = event.target.files[0];
+            if (file) {
+                const surveyData = await importSurvey(userId, file);
+                fetchSurveys();
+            }
+        } catch (error) {
+            console.error("Failed to import survey:", error);
+            alert("An error occurred while importing the survey. Please try again.");
+        }
     };
 
     return (
@@ -149,14 +184,25 @@ const Experimenter = () => {
                             />
 
                             <CardContent>
-                                <Typography variant="subtitle2" color="textSecondary">
-                                    {survey.author} •{" "}
-                                    {new Date(survey.createdAt).toLocaleDateString("en-US", {
-                                        year: "numeric",
-                                        month: "short",
-                                        day: "numeric",
-                                    })}
-                                </Typography>
+                                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                                    <Typography variant="subtitle2" color="textSecondary">
+                                        {survey.author} •{" "}
+                                        {new Date(survey.createdAt).toLocaleDateString("en-US", {
+                                            year: "numeric",
+                                            month: "short",
+                                            day: "numeric",
+                                        })}
+                                    </Typography>
+                                    {survey.imported && (
+                                        <Chip
+                                            size="small"
+                                            icon={<FileUploadIcon />}
+                                            label="Imported"
+                                            color="info"
+                                            variant="outlined"
+                                        />
+                                    )}
+                                </Box>
                                 <Typography variant="h6">{survey.title}</Typography>
                                 <Typography variant="body2" color="text.secondary">
                                     {survey.description}
@@ -190,12 +236,47 @@ const Experimenter = () => {
                                     onClose={handleMenuClose}
                                 >
                                     <MenuItem onClick={handleMenuClose}>Share Survey</MenuItem>
-                                    <MenuItem onClick={handleMenuClose}>Export Survey</MenuItem>
+                                    <MenuItem
+                                        onClick={() => {
+                                            exportSurvey(survey._id);
+                                            handleMenuClose();
+                                        }}
+                                    >
+                                        Export Survey
+                                    </MenuItem>
                                     <MenuItem onClick={handleMenuClose}>Preview</MenuItem>
                                 </Menu>
                             )}
                         </Card>
                     ))}
+                </Box>
+
+                <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
+                    Import Survey
+                </Typography>
+
+                <Box
+                    sx={{
+                        border: "2px dashed #ccc",
+                        borderRadius: 2,
+                        p: 3,
+                        textAlign: "center",
+                        backgroundColor: "#fafafa",
+                        cursor: "pointer",
+                    }}
+                    onDrop={handleDrop}
+                    onDragOver={(e) => e.preventDefault()}
+                    onClick={() => document.getElementById("file-input").click()}
+                >
+                    <input
+                        type="file"
+                        id="file-input"
+                        accept=".json"
+                        style={{ display: "none" }}
+                        onChange={handleFileSelect}
+                    />
+                    <CloudUploadIcon sx={{ fontSize: 40, color: "#666", mb: 2 }} />
+                    <Typography>Drag and drop a survey file here, or click to select</Typography>
                 </Box>
             </Box>
 
