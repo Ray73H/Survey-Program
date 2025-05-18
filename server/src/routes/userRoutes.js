@@ -15,7 +15,7 @@ router.post("/login", loginUser);
 router.put("/:id", authMiddleware, updateUser);
 
 // ADMIN ROUTES
-router.get("/", authMiddleware, getAllUsers);
+router.get("/", getAllUsers);
 router.delete("/:id", authMiddleware, deleteUser);
 
 export default router;
