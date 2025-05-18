@@ -36,17 +36,17 @@ const Experimenter = () => {
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [deleteSurveyId, setDeleteSurveyId] = useState("");
     const navigate = useNavigate();
-    const { userId, nameContext } = useUserContext();
+    const { user } = useUserContext();
 
     // Get the three most recently modified surveys
     const fetchSurveys = async () => {
-        const response = await getThreeSurveys(userId);
+        const response = await getThreeSurveys(user.userId);
         setSurveys(response.data);
     };
 
     useEffect(() => {
         fetchSurveys();
-    }, [userId]);
+    }, [user.userId]);
 
     const handleMenuOpen = (event, id) => {
         setAnchorEl(event.currentTarget);
@@ -59,7 +59,7 @@ const Experimenter = () => {
     };
 
     const handleCreateSurvey = async () => {
-        const surveyData = { userId, author: nameContext };
+        const surveyData = { userId: user.userId, author: user.name };
         const response = await createSurvey(surveyData);
         const surveyId = response.data._id;
         navigate(`/survey-builder/${surveyId}`);
@@ -75,7 +75,7 @@ const Experimenter = () => {
         try {
             const file = event.target.files[0];
             if (file) {
-                const surveyData = await importSurvey(userId, file);
+                const surveyData = await importSurvey(user.userId, file);
                 fetchSurveys();
             }
         } catch (error) {
@@ -89,7 +89,7 @@ const Experimenter = () => {
         try {
             const file = event.target.files[0];
             if (file) {
-                const surveyData = await importSurvey(userId, file);
+                await importSurvey(user.userId, file);
                 fetchSurveys();
             }
         } catch (error) {
@@ -102,7 +102,7 @@ const Experimenter = () => {
         <>
             <Box sx={{ padding: 4, flexGrow: 1 }}>
                 <Typography variant="h5" gutterBottom>
-                    Welcome {nameContext}
+                    Welcome {user.name}
                 </Typography>
 
                 <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>

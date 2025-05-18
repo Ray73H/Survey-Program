@@ -14,9 +14,19 @@ export const registerUser = async (req, res) => {
 		const user = new User({ email, password, name, accountType });
 		await user.save();
 
-		const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "6h" });
+		const token = jwt.sign(
+			{
+				userId: user._id,
+				email: user.email,
+				name: user.name,
+				accountType: user.accountType,
+				surveyAccess: user.surveyAccess,
+			},
+			process.env.JWT_SECRET,
+			{ expiresIn: "6h" }
+		);
 
-		res.status(201).json({ token, user });
+		res.status(201).json({ token });
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error: " + error.message });
 	}
@@ -35,9 +45,19 @@ export const loginUser = async (req, res) => {
 			return res.status(401).json({ message: "Incorrect Password" });
 		}
 
-		const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "6h" });
+		const token = jwt.sign(
+			{
+				userId: user._id,
+				email: user.email,
+				name: user.name,
+				accountType: user.accountType,
+				surveyAccess: user.surveyAccess,
+			},
+			process.env.JWT_SECRET,
+			{ expiresIn: "6h" }
+		);
 
-		res.status(200).json({ token, user });
+		res.status(200).json({ token });
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error: " + error.message });
 	}
