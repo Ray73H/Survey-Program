@@ -19,78 +19,74 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/users";
 import { useUserContext } from "../contexts/UserContext";
+import { jwtDecode } from "jwt-decode";
 
-export default function Login(user) {
-    // const { setEmailContext, setNameContext, setAccountTypeContext } = useUserContext();
+export default function Login() {
+    const { setUser } = useUserContext();
     const navigate = useNavigate();
-    
 
     const handleLogin = async () => {
         const userData = {
-            email: email,
-            password: password,
+            email,
+            password,
         };
-        /*const data = await loginUser(userData);
-        localStorage.setItem(data.token);
-        setEmailContext(data.user.email);
-        setNameContext(data.user.name);
-        setAccountTypeContext(data.user.accountType);*/
+        const response = await loginUser(userData);
+        sessionStorage.setItem("authToken", response.data.token);
+        const decoded = jwtDecode(response.data.token);
+        setUser(decoded);
+        navigate("/");
     };
-        const [email, setEmail] = React.useState("")
-        const [password, setPassword] = React.useState("")
-        const [showPassword, setShowPassword] = React.useState(false);
-        
-    
-        const mode =
-            user.user === "experimenter" || user.user === "experimentee" || user.user == "superuser" ? user.user : "unknown";
+    const [email, setEmail] = React.useState("");
+    const [password, setPassword] = React.useState("");
+    const [showPassword, setShowPassword] = React.useState(false);
 
-        //used for the buttons on the left & right
-        const leftOpp = mode === "experimentee" ? "experimenter" : "experimentee"
-        const rightOpp = mode === "superuser" ? "experimenter" : "superuser"
+    // const mode =
+    //     user.user === "experimenter" || user.user === "experimentee" || user.user == "superuser"
+    //         ? user.user
+    //         : "unknown";
 
-        const modifyTitle = (mode) => {
-            if (mode === "superuser") {
-                return "Super User";
-            }
-            return (mode.charAt(0).toUpperCase()) + mode.substring(1)
-        }
-        
-    
-        const handleClickShowPassword = () => setShowPassword((show) => !show);
-        const handleClickShowPasswordRepeat = () => setShowPasswordRepeat((show) => !show);
-    
-        const handleMouseDownPassword = (event) => {
-            event.preventDefault();
-        };
-    
-        const handleMouseUpPassword = (event) => {
-            event.preventDefault();
-        };
+    // const leftOpp = mode === "experimentee" ? "experimenter" : "experimentee";
+    // const rightOpp = mode === "superuser" ? "experimenter" : "superuser";
 
-        const signUpClick = () => {
-            navigate("/signup");
-        };
+    // const modifyTitle = (mode) => {
+    //     if (mode === "superuser") {
+    //         return "Super User";
+    //     }
+    //     return mode.charAt(0).toUpperCase() + mode.substring(1);
+    // };
 
-        const handleLeftLoginSwitch = () => {
-            const url = "/login/" + leftOpp;
-            navigate(url)
-        }
+    const handleClickShowPassword = () => setShowPassword((show) => !show);
+    const handleClickShowPasswordRepeat = () => setShowPasswordRepeat((show) => !show);
 
-        const handleRightLoginSwitch = () => {
-            const url = "/login/" + rightOpp;
-            navigate(url)
-        }
-          
-        const handleEmailChange = (event) => {
-            setEmail(event.target.value);
-        };
+    const handleMouseDownPassword = (event) => {
+        event.preventDefault();
+    };
 
-        const handlePasswordChange = (event) => {
-            setPassword(event.target.value);
-        };
-          
-    
+    const handleMouseUpPassword = (event) => {
+        event.preventDefault();
+    };
 
+    const signUpClick = () => {
+        navigate("/signup");
+    };
+
+    const handleLeftLoginSwitch = () => {
+        const url = "/login/" + leftOpp;
+        navigate(url);
+    };
+
+    const handleRightLoginSwitch = () => {
+        const url = "/login/" + rightOpp;
+        navigate(url);
+    };
+
+    const handleEmailChange = (event) => {
+        setEmail(event.target.value);
+    };
+
+    const handlePasswordChange = (event) => {
+        setPassword(event.target.value);
+    };
 
     return (
         <div
@@ -103,9 +99,9 @@ export default function Login(user) {
             }}
         >
             <Typography variant="h4" gutterBottom style={{ fontWeight: "bold" }}>
-                Log In as {modifyTitle(mode)}
+                Log In
             </Typography>
-            <div
+            {/* <div
                 id="switchbuttons"
                 style={{
                     display: "flex",
@@ -114,20 +110,21 @@ export default function Login(user) {
                     width: "100vh",
                 }}
             >
-                <Button variant="contained" 
-                style={{ margin: "5px", backgroundColor: "#394F87" }}
-                onClick={handleLeftLoginSwitch}
+                <Button
+                    variant="contained"
+                    style={{ margin: "5px", backgroundColor: "#394F87" }}
+                    onClick={handleLeftLoginSwitch}
                 >
                     Log In as {modifyTitle(leftOpp)}
-                    
                 </Button>
-                <Button variant="contained" 
-                style={{ margin: "5px", backgroundColor: "#000000" }}
-                onClick={handleRightLoginSwitch}
+                <Button
+                    variant="contained"
+                    style={{ margin: "5px", backgroundColor: "#000000" }}
+                    onClick={handleRightLoginSwitch}
                 >
                     Log In as {modifyTitle(rightOpp)}
                 </Button>
-            </div>
+            </div> */}
 
             <div
                 id="emailfield"
@@ -164,9 +161,7 @@ export default function Login(user) {
                     value={password}
                     onChange={handlePasswordChange}
                 />
-                <Button variant="contained"
-                onClick={handleLogin}
-                >
+                <Button variant="contained" onClick={handleLogin}>
                     Log in
                 </Button>
             </div>
@@ -184,10 +179,7 @@ export default function Login(user) {
                 <Typography variant="h5" gutterBottom style={{ fontWeight: "bold" }}>
                     Don't have an account?
                 </Typography>
-                <Button variant="contained"
-                onClick={signUpClick}
-    
-                >
+                <Button variant="contained" onClick={signUpClick}>
                     Sign Up
                 </Button>
             </div>

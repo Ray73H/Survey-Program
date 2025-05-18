@@ -1,9 +1,8 @@
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import React from "react";
 import ExperimenterLayout from "./layouts/ExperimenterLayout";
 import ExperimenteeLayout from "./layouts/ExperimenteeLayout";
-// import SignUpLayout from "./layouts/SignUpLayout";
 import SignUp from "./pages/SignUp";
-import LoginLayout from "./layouts/LoginLayout";
 import SurveyBuilder from "./pages/SurveyBuilder";
 import Experimenter from "./pages/Experimenter";
 import SuperUserLayout from "./layouts/SuperUserLayout";
@@ -12,51 +11,104 @@ import SurveyList from "./pages/SuperUser/SurveyList";
 import AccountManagerTable from "./pages/SuperUser/AccountManager";
 import Experimentee from "./pages/Experimentee";
 import JoinSurvey from "./pages/JoinSurvey";
-import Login from "./pages/Login"
+import Login from "./pages/Login";
+import { useUserContext } from "./contexts/UserContext";
+
+const ProtectedRoute = ({ children, allowedAccountTypes }) => {
+    const { user } = useUserContext();
+
+    if (!allowedAccountTypes.includes(user.accountType)) {
+        return <Navigate to="/" replace />;
+    }
+
+    return children;
+};
+
+const getDefaultRoute = (accountType) => {
+    const routes = {
+        superuser: "/superuser",
+        experimenter: "/experimenter",
+        experimentee: "/experimentee",
+    };
+    return routes[accountType] || "/login";
+};
+
+const experimenterRoutes = [
+    { path: "/experimenter", element: <Experimenter /> },
+    { path: "/survey-builder/:surveyId", element: <SurveyBuilder /> },
+];
+
+const experimenteeRoutes = [
+    { path: "/experimentee", element: <Experimentee /> },
+    { path: "/join", element: <JoinSurvey /> },
+];
+
+const superuserRoutes = [
+    { path: "/superuser", element: <AdminOverviewSuperUser /> },
+    { path: "/admin_overview", element: <AdminOverviewSuperUser /> },
+    { path: "/survey_list", element: <SurveyList /> },
+    { path: "/account_manager", element: <AccountManagerTable /> },
+];
 
 function App() {
+    const { user } = useUserContext();
+
     return (
-            <Router>
-                <Routes>
-                    {/* Public route */}
-                    <Route path="/signup/experimenter" element={<SignUp user="experimenter" />} />
-                    <Route path="/signup/experimentee" element={<SignUp user="experimentee" />} />
-                    <Route path="/signup" element={<Navigate to="/signup/experimentee" replace />}>
-                        {" "}
-                    </Route>
-                    <Route element={<LoginLayout />}>
-                        <Route path="/login/experimentee" element={<Login user="experimentee" />} />
-                        <Route path="/login/experimenter" element={<Login user="experimenter" />} />
-                        <Route path="/login/superuser" element={<Login user="superuser" />} />
-                        <Route path="/login" element={<Navigate to="login/experimentee" replace />}></Route>
-                    </Route>
+        <Router>
+            <Routes>
+                {/* Public routes */}
+                <Route
+                    path="/"
+                    element={<Navigate to={getDefaultRoute(user.accountType)} replace />}
+                />
+                <Route path="/signup" element={<Navigate to="/signup/experimentee" replace />} />
+                <Route path="/signup/experimenter" element={<SignUp user="experimenter" />} />
+                <Route path="/signup/experimentee" element={<SignUp user="experimentee" />} />
+                <Route
+                    path="/login"
+                    element={user.accountType !== "" ? <Navigate to="/" /> : <Login />}
+                />
 
-                    {/* Experimenter routes */}
-                    <Route element={<ExperimenterLayout />}>
-                        <Route path="/survey-builder/:surveyId" element={<SurveyBuilder />} />
-                        <Route path="/Experimenter" element={<Experimenter />} />
-                    </Route>
+                {/* Experimenter routes */}
+                <Route
+                    element={
+                        <ProtectedRoute allowedAccountTypes={["experimenter", "superuser"]}>
+                            <ExperimenterLayout />
+                        </ProtectedRoute>
+                    }
+                >
+                    {experimenterRoutes.map((route) => (
+                        <Route key={route.path} {...route} />
+                    ))}
+                </Route>
 
-                    {/* Experimentee routes */}
+                {/* Experimentee routes */}
+                <Route
+                    element={
+                        <ProtectedRoute allowedAccountTypes={["experimentee"]}>
+                            <ExperimenteeLayout />
+                        </ProtectedRoute>
+                    }
+                >
+                    {experimenteeRoutes.map((route) => (
+                        <Route key={route.path} {...route} />
+                    ))}
+                </Route>
 
-                    <Route element={<ExperimenteeLayout />}>
-                        <Route path="/Experimentee" element={<Experimentee />} />
-                        <Route path="/join" element={<JoinSurvey />} />
-                    </Route>
-
-                    <Route path="/superuser" element={<SuperUserLayout />}>
-                        <Route index element={<AdminOverviewSuperUser />} />{" "}
-                        {/* Default route for Super User */}
-                        <Route path="admin_overview" element={<AdminOverviewSuperUser />} />
-                        <Route path="survey_list" element={<SurveyList />} />
-                        <Route path="account_manager" element={<AccountManagerTable />} />
-                        {/* 
-                        
-                        
-                    */}
-                    </Route>
-                </Routes>
-            </Router>
+                {/* Superuser routes */}
+                <Route
+                    element={
+                        <ProtectedRoute allowedAccountTypes={["superuser"]}>
+                            <SuperUserLayout />
+                        </ProtectedRoute>
+                    }
+                >
+                    {superuserRoutes.map((route) => (
+                        <Route key={route.path} {...route} />
+                    ))}
+                </Route>
+            </Routes>
+        </Router>
     );
 }
 
