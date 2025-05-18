@@ -62,7 +62,7 @@ export default function ExperimenteeNavbar() {
     const [surveysExpanded, setSurveysExpanded] = React.useState(false);
     const [accountOpen, setAccountOpen] = React.useState(false);
     const navigate = useNavigate();
-    const { logout } = useUserContext();
+    const { user, logout } = useUserContext();
 
     const handleAccountClick = () => {
         setAccountOpen((prev) => !prev);
@@ -195,7 +195,7 @@ export default function ExperimenteeNavbar() {
                             <ListItemIcon>
                                 <Avatar alt="User" src="/static/images/avatar/1.jpg" />
                             </ListItemIcon>
-                            <ListItemText primary="name" secondary={useUserContext.emailcontext} />
+                            <ListItemText primary="name" secondary={user.email} />
                             <IconButton size="small">
                                 {accountOpen ? <ExpandLess /> : <ExpandMore />}
                             </IconButton>
