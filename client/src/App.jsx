@@ -12,9 +12,7 @@ import SurveyList from "./pages/SuperUser/SurveyList";
 import AccountManagerTable from "./pages/SuperUser/AccountManager";
 import Experimentee from "./pages/Experimentee";
 import JoinSurvey from "./pages/JoinSurvey";
-import ExperimenterLogin from "./pages/ExperimenterLogin";
-import ExperimenteeLogin from "./pages/ExperimenteeLogin";
-import SuperUserLogin from "./pages/SuperUserLogin";
+import Login from "./pages/Login"
 
 function App() {
     return (
@@ -27,9 +25,10 @@ function App() {
                         {" "}
                     </Route>
                     <Route element={<LoginLayout />}>
-                        <Route path="/experimenterlogin" element={<ExperimenterLogin />} />
-                        <Route path="/experimenteelogin" element={<ExperimenteeLogin />} />
-                        <Route path="/superlogin" element={<SuperUserLogin />} />
+                        <Route path="/login/experimentee" element={<Login user="experimentee" />} />
+                        <Route path="/login/experimenter" element={<Login user="experimenter" />} />
+                        <Route path="/login/superuser" element={<Login user="superuser" />} />
+                        <Route path="/login" element={<Navigate to="login/experimentee" replace />}></Route>
                     </Route>
 
                     {/* Experimenter routes */}
