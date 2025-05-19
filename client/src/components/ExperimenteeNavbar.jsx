@@ -56,6 +56,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" 
     }),
 );
 
+
 export default function ExperimenteeNavbar() {
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
@@ -63,6 +64,7 @@ export default function ExperimenteeNavbar() {
     const [accountOpen, setAccountOpen] = React.useState(false);
     const navigate = useNavigate();
     const { user, logout } = useUserContext();
+    const firstLetter = user.name ? user.name.charAt(0).toUpperCase() : '?';
 
     const handleAccountClick = () => {
         setAccountOpen((prev) => !prev);
@@ -193,9 +195,27 @@ export default function ExperimenteeNavbar() {
                     <List>
                         <ListItem button onClick={handleAccountClick}>
                             <ListItemIcon>
-                                <Avatar alt="User" src="/static/images/avatar/1.jpg" />
+                                <Avatar sx={{ bgcolor: 'primary.main' }}>
+                                    {firstLetter}
+                                </Avatar>
                             </ListItemIcon>
-                            <ListItemText primary="name" secondary={user.email} />
+                            <ListItemText primary={user.name} secondary={user.email} 
+                              sx={{
+                                maxWidth: 300,
+                                '& .MuiListItemText-primary': {
+                                    whiteSpace: accountOpen ? 'normal' : 'nowrap',
+                                    overflow: accountOpen ? 'visible' : 'hidden',
+                                    textOverflow: accountOpen ? 'initial' : 'ellipsis',
+                                },
+                                '& .MuiListItemText-secondary': {
+                                    display: accountOpen ? 'block' : 'none',
+                               //     whiteSpace: 'normal',          ATTEMPTS AT BREAKING NICELY :'((((
+                               //     wordBreak: 'break-word',
+                               //     overflowWrap: 'break-word',
+                               //     lineBreak: 'strict',
+                               //     hyphens: 'auto',         
+                                },
+                            }}/>
                             <IconButton size="small">
                                 {accountOpen ? <ExpandLess /> : <ExpandMore />}
                             </IconButton>
