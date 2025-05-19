@@ -4,21 +4,28 @@ import { BarPlot } from '@mui/x-charts/BarChart';
 import { ChartsXAxis } from '@mui/x-charts/ChartsXAxis';
 import { ChartsYAxis } from '@mui/x-charts/ChartsYAxis';
 import { Box, Card, Typography } from '@mui/material';
+import dayjs from 'dayjs';
 
-export default function SuperUserBarGraphs() {
+export default function SuperUserBarGraphs({ surveys }) {
+  // Group surveys by "MM/YYYY"
+  const countsByMonth = surveys.reduce((acc, survey) => {
+    const month = dayjs(survey.createdAt).format("MM/YYYY");
+    acc[month] = (acc[month] || 0) + 1;
+    return acc;
+  }, {});
+
+  const xLabels = Object.keys(countsByMonth).sort((a, b) =>
+    dayjs(a, 'MM/YYYY').isBefore(dayjs(b, 'MM/YYYY')) ? -1 : 1
+  );
+  const data = xLabels.map(label => countsByMonth[label]);
+
   return (
     <Card sx={{ display: 'flex', justifyContent: 'center', gap: 15, p: 2, mt: 5 }}>
       <SingleBarChart
-        data={[5, 7, 4, 11, 10, 8]}
+        data={data}
         label="Surveys"
         title="Surveys Created Per Month"
-        xLabels={['02/25', '03/25', '05/25', '06/25', '07/25', '08/25']}
-      />
-      <SingleBarChart
-        data={[2, 11, 6, 5, 3, 4]}
-        label="Users"
-        title="Users Created Per Month"
-        xLabels={['02/25', '03/25', '05/25', '06/25', '07/25', '08/25']}
+        xLabels={xLabels}
       />
     </Card>
   );
@@ -31,11 +38,11 @@ function SingleBarChart({ data, label, title, xLabels }) {
         {title}
       </Typography>
       <ChartContainer
-        width={600}
+        width={800}
         height={300}
         margin={{ top: 20, bottom: 40, left: 40, right: 20 }}
         series={[{ type: 'bar', id: label.toLowerCase(), data, label }]}
-        xAxis={[{ scaleType: 'band', data: xLabels, label: 'Months' }]}
+        xAxis={[{ scaleType: 'band', data: xLabels, label: 'Month' }]}
       >
         <BarPlot />
         <ChartsXAxis />

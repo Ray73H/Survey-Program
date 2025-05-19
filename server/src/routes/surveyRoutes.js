@@ -29,6 +29,6 @@ router.get("/:id", authMiddleware, getSurveyById);
 router.post("/import", authMiddleware, importSurvey);
 
 // ADMIN ROUTES
-router.get("/", authMiddleware, getAllSurveys);
+router.get("/", getAllSurveys);
 
 export default router;
