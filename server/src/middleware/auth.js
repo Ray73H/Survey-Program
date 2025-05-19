@@ -11,7 +11,7 @@ export const authMiddleware = (req, res, next) => {
 
 	try {
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
-		req.user = decoded; // contains e.g., { id }
+		req.user = decoded;
 		next();
 	} catch (err) {
 		console.error("Auth error:", err.message);
@@ -27,7 +27,7 @@ export const authOptional = (req, res, next) => {
 
 		try {
 			const decoded = jwt.verify(token, process.env.JWT_SECRET);
-			req.user = decoded; // e.g., { id: id }
+			req.user = decoded;
 		} catch (err) {
 			console.warn("Invalid token provided, continuing unauthenticated");
 		}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Box, Paper, Typography, Button } from "@mui/material";
 import TextField from "@mui/material/TextField";
 import FormControl from "@mui/material/FormControl";
@@ -11,16 +11,21 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../services/users";
 import { useUserContext } from "../contexts/UserContext";
+import { jwtDecode } from "jwt-decode";
 
-function SignUp(user) {
-    const [title, setTitle] = React.useState("");
-    const [showPassword, setShowPassword] = React.useState(false);
-    const [showPasswordRepeat, setShowPasswordRepeat] = React.useState(false);
+function SignUp(view) {
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [title, setTitle] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [showPasswordRepeat, setShowPasswordRepeat] = useState(false);
     const navigate = useNavigate();
-    const { setEmailContext, setNameContext, setAccountTypeContext } = useUserContext();
+    const { setUser } = useUserContext();
 
     const mode =
-        user.user === "experimenter" || user.user === "experimentee" ? user.user : "unknown";
+        view.user === "experimenter" || view.user === "experimentee" ? view.user : "unknown";
     const oppositeMode = mode === "experimenter" ? "experimentee" : "experimenter";
 
     const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -36,15 +41,17 @@ function SignUp(user) {
     const ValidateSignUpInfo = async () => {
         // Send info off to validation in the backend
         const userData = {
-            email: "temp", //replace
-            password: "temp", //replace
-            accountType: "mode", //replace
+            email,
+            password,
+            name,
+            accountType: mode,
         };
-        const data = await registerUser(userData);
-        localStorage.setItem(data.token);
-        setEmailContext(data.user.email);
-        setNameContext(data.user.name);
-        setAccountTypeContext(data.user.accountType);
+        const response = await registerUser(userData);
+        console.log(response);
+        sessionStorage.setItem("authToken", response.data.token);
+        const decoded = jwtDecode(response.data.token);
+        setUser(decoded);
+        navigate("/");
     };
 
     const handleLogInClick = () => {
@@ -106,8 +113,18 @@ function SignUp(user) {
                         <TextField
                             required
                             id="outlined-required"
-                            label="Username"
+                            label="Name"
                             sx={{ display: "flex", m: 4, mt: 8, width: "30ch" }}
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                        />
+                        <TextField
+                            required
+                            id="outlined-required"
+                            label="Email"
+                            sx={{ display: "flex", m: 4, width: "30ch" }}
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                         />
                         <FormControl
                             sx={{ display: "flex", m: 4, width: "30ch" }}
@@ -138,6 +155,8 @@ function SignUp(user) {
                                     </InputAdornment>
                                 }
                                 label="Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
                             />
                         </FormControl>
                         <FormControl
@@ -145,7 +164,7 @@ function SignUp(user) {
                             variant="outlined"
                         >
                             <InputLabel htmlFor="outlined-adornment-repeat-password">
-                                Repeat Password *
+                                Confirm Password *
                             </InputLabel>
                             <OutlinedInput
                                 required
@@ -173,6 +192,8 @@ function SignUp(user) {
                                     </InputAdornment>
                                 }
                                 label="Password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
                             />
                             <Button
                                 type="submit"

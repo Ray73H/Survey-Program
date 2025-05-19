@@ -1,21 +1,21 @@
-import Survey from "../models/surveys.js";
+import Survey from "../models/Surveys.js";
 import User from "../models/Users.js";
 
-function generatePinCode() {
-	return Math.floor(1000 + Math.random() * 9000).toString();
+async function generatePinCode() {
+	let pinCode;
+	let isUnique = false;
+	while (!isUnique) {
+		pinCode = Math.floor(1000 + Math.random() * 9000).toString();
+		const existingSurvey = await Survey.findOne({ pinCode });
+		if (!existingSurvey) isUnique = true;
+	}
+	return pinCode;
 }
 
 export const createSurvey = async (req, res) => {
 	try {
 		const { userId, author } = req.body;
-
-		let pinCode;
-		let isUnique = false;
-		while (!isUnique) {
-			pinCode = generatePinCode();
-			const existingSurvey = await Survey.findOne({ pinCode });
-			if (!existingSurvey) isUnique = true;
-		}
+		const pinCode = await generatePinCode();
 
 		const latestSurvey = await Survey.find({ userId, title: { $regex: /^Survey \d+$/ } })
 			.sort({ title: -1 })
@@ -34,12 +34,36 @@ export const createSurvey = async (req, res) => {
 			questions: [],
 			pinCode,
 			author,
+			imported: false,
 		});
 
 		const savedSurvey = await newSurvey.save();
 		res.status(201).json(savedSurvey);
 	} catch (error) {
-		res.status(500).json({ message: "Internal server error" });
+		res.status(500).json({ message: "Internal server error: " + error.message });
+	}
+};
+
+export const importSurvey = async (req, res) => {
+	try {
+		const { userId, title, questions, author } = req.body;
+		const pinCode = await generatePinCode();
+
+		const newSurvey = new Survey({
+			userId,
+			title,
+			description: req.body?.description || "",
+			public: false,
+			questions,
+			pinCode,
+			author,
+			imported: true,
+		});
+
+		const savedSurvey = await newSurvey.save();
+		res.status(201).json(savedSurvey);
+	} catch (error) {
+		res.status(500).json({ message: "Internal server error: " + error.message });
 	}
 };
 
@@ -57,7 +81,7 @@ export const updateSurvey = async (req, res) => {
 
 		res.status(200).json(updatedSurvey);
 	} catch (error) {
-		res.status(500).json({ message: "Internal server error" });
+		res.status(500).json({ message: "Internal server error: " + error.message });
 	}
 };
 
@@ -72,7 +96,7 @@ export const deleteSurvey = async (req, res) => {
 
 		res.status(200).json({ message: "Survey deleted successfully" });
 	} catch (error) {
-		res.status(500).json({ message: "Internal server error" });
+		res.status(500).json({ message: "Internal server error: " + error.message });
 	}
 };
 
@@ -81,7 +105,7 @@ export const getAllSurveys = async (req, res) => {
 		const surveys = await Survey.find();
 		res.status(200).json(surveys);
 	} catch (error) {
-		res.status(500).json({ message: "Internal server error" });
+		res.status(500).json({ message: "Internal server error: " + error.message });
 	}
 };
 
@@ -91,7 +115,7 @@ export const getSurveysByUserId = async (req, res) => {
 		const surveys = await Survey.find({ userId });
 		res.status(200).json(surveys);
 	} catch (error) {
-		res.status(500).json({ message: "Internal server error" });
+		res.status(500).json({ message: "Internal server error: " + error.message });
 	}
 };
 
@@ -101,7 +125,7 @@ export const getThreeSurveys = async (req, res) => {
 		const surveys = await Survey.find({ userId }).sort({ updatedAt: -1 }).limit(3);
 		res.status(200).json(surveys);
 	} catch (error) {
-		res.status(500).json({ message: "Internal server error" });
+		res.status(500).json({ message: "Internal server error: " + error.message });
 	}
 };
 
@@ -116,7 +140,7 @@ export const getSurveyById = async (req, res) => {
 
 		res.status(200).json(survey);
 	} catch (error) {
-		res.status(500).json({ message: "Internal server error" });
+		res.status(500).json({ message: "Internal server error: " + error.message });
 	}
 };
 
@@ -125,7 +149,7 @@ export const getPublicSurveys = async (req, res) => {
 		const survey = await Survey.find({ public: true });
 		res.status(200).json(survey);
 	} catch (error) {
-		res.status(500).json({ message: "Internal server error" });
+		res.status(500).json({ message: "Internal server error: " + error.message });
 	}
 };
 
@@ -151,6 +175,6 @@ export const getSurveyByPinCode = async (req, res) => {
 
 		res.status(200).json(survey);
 	} catch (error) {
-		res.status(500).json({ message: "Internal server error" });
+		res.status(500).json({ message: "Internal server error: " + error.message });
 	}
 };

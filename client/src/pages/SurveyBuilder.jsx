@@ -29,7 +29,7 @@ import { DeleteSurveyDialog } from "../components/DeleteSurveyDialog";
 function SurveyBuilder() {
     const navigate = useNavigate();
     const { surveyId } = useParams();
-    const { userId } = useUserContext();
+    const { user } = useUserContext();
     const [survey, setSurvey] = React.useState({
         title: "",
         description: "",
@@ -152,7 +152,7 @@ function SurveyBuilder() {
         e.preventDefault();
 
         const surveyData = {
-            userId,
+            userId: user.userId,
             ...survey,
         };
 

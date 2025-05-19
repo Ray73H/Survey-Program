@@ -9,6 +9,7 @@ import {
 	getPublicSurveys,
 	getSurveyByPinCode,
 	getThreeSurveys,
+	importSurvey,
 } from "../controllers/surveyController.js";
 import { authMiddleware, authOptional } from "../middleware/auth.js";
 
@@ -25,6 +26,7 @@ router.delete("/:id", authMiddleware, deleteSurvey);
 router.get("/user/:userId", authMiddleware, getSurveysByUserId);
 router.get("/three/user/:userId", authMiddleware, getThreeSurveys);
 router.get("/:id", authMiddleware, getSurveyById);
+router.post("/import", authMiddleware, importSurvey);
 
 // ADMIN ROUTES
 router.get("/", authMiddleware, getAllSurveys);
