@@ -11,6 +11,8 @@ import AccountManagerTable from "./pages/SuperUser/AccountManager";
 import Experimentee from "./pages/Experimentee";
 import JoinSurvey from "./pages/JoinSurvey";
 import Login from "./pages/Login";
+import WelcomeSurvey from "./pages/welcomeSurvey";
+import FillSurvey from "./pages/fillSurvey";
 import SurveyList from "./pages/SurveyList"
 import { useUserContext } from "./contexts/UserContext";
 
@@ -43,6 +45,8 @@ const experimenterRoutes = [
 const experimenteeRoutes = [
     { path: "/experimentee", element: <Experimentee /> },
     { path: "/join", element: <JoinSurvey /> },
+    { path: "/welcome", element: <WelcomeSurvey /> },
+    { path: "/fillSurvey", element: <FillSurvey /> },
 ];
 
 const superuserRoutes = [

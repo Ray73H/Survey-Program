@@ -6,6 +6,7 @@ import {
 	updateUser,
 	getAllUsers,
 	deleteUser,
+	addSurveyAccess,
 } from "../controllers/userController.js";
 
 const router = express.Router();
@@ -17,5 +18,7 @@ router.put("/:id", authMiddleware, updateUser);
 // ADMIN ROUTES
 router.get("/", getAllUsers);
 router.delete("/:id", authMiddleware, deleteUser);
+
+router.post("/:id/surveyAccess", authMiddleware, addSurveyAccess);
 
 export default router;
