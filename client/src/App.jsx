@@ -12,6 +12,8 @@ import AccountManagerTable from "./pages/SuperUser/AccountManager";
 import Experimentee from "./pages/Experimentee";
 import JoinSurvey from "./pages/JoinSurvey";
 import Login from "./pages/Login";
+import WelcomeSurvey from "./pages/welcomeSurvey";
+import FillSurvey from "./pages/fillSurvey";
 import { useUserContext } from "./contexts/UserContext";
 
 const ProtectedRoute = ({ children, allowedAccountTypes }) => {
@@ -41,6 +43,8 @@ const experimenterRoutes = [
 const experimenteeRoutes = [
     { path: "/experimentee", element: <Experimentee /> },
     { path: "/join", element: <JoinSurvey /> },
+    { path: "/welcome", element: <WelcomeSurvey /> },
+    { path: "/fillSurvey", element: <FillSurvey /> },
 ];
 
 const superuserRoutes = [

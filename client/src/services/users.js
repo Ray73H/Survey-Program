@@ -6,3 +6,6 @@ export const updateUser = (userId, userData) => api.put(`/users/${userId}`, user
 
 export const getAllUsers = () => api.get("/users");
 export const deleteUser = (userId) => api.delete(`/users/${userId}`);
+
+export const addSurveyAccess = (userId, surveyId) =>
+  api.post(`/users/${userId}/surveyAccess`, { surveyId });
