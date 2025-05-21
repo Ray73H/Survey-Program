@@ -21,6 +21,7 @@ import { loginUser } from "../services/users";
 import { useUserContext } from "../contexts/UserContext";
 import { jwtDecode } from "jwt-decode";
 
+
 export default function Login() {
     const { setUser } = useUserContext();
     const navigate = useNavigate();
@@ -36,6 +37,17 @@ export default function Login() {
         setUser(decoded);
         navigate("/");
     };
+
+    const loginCatch = () => {
+        try {
+            handleLogin()
+        }
+        catch {
+            document.getElementById('password_field').value = ""
+            document.getElementById('wrong_pass').style = {opacity: 1}
+        }
+    };
+
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
     const [showPassword, setShowPassword] = React.useState(false);
@@ -141,8 +153,7 @@ export default function Login() {
                 </Typography>
 
                 <TextField
-                    id="outlined-basic"
-                    label="Outlined"
+                    id="email_field"
                     variant="outlined"
                     style={{ height: "10vh", width: "100%" }}
                     value={email}
@@ -154,20 +165,23 @@ export default function Login() {
                 </Typography>
 
                 <TextField
-                    id="outlined-basic"
-                    label="Outlined"
+                    id="password_field"
                     variant="outlined"
                     style={{ height: "10vh", width: "100%" }}
                     value={password}
                     onChange={handlePasswordChange}
                 />
-                <Button variant="contained" onClick={handleLogin}>
+                <Typography id="wrong_pass" variant="subtitle1" gutterBottom color='red' style={{opacity: 0}}>
+                    Wrong password. please try again.
+                </Typography>
+                <Button variant="contained" onClick={loginCatch}>
                     Log in
                 </Button>
+                
             </div>
 
             <div
-                id="signupfield"
+                id="signup_field"
                 style={{
                     display: "flex",
                     flexDirection: "column",
