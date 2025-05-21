@@ -8,7 +8,8 @@ import {
 	getSurveyById,
 	getPublicSurveys,
 	getSurveyByPinCode,
-	getThreeSurveys,
+	getUnpublishedSurveys,
+	getOngoingSurveys,
 	importSurvey,
 } from "../controllers/surveyController.js";
 import { authMiddleware, authOptional } from "../middleware/auth.js";
@@ -24,7 +25,8 @@ router.post("/", authMiddleware, createSurvey);
 router.put("/:id", authMiddleware, updateSurvey);
 router.delete("/:id", authMiddleware, deleteSurvey);
 router.get("/user/:userId", authMiddleware, getSurveysByUserId);
-router.get("/three/user/:userId", authMiddleware, getThreeSurveys);
+router.get("/unpublished/user/:userId", authMiddleware, getUnpublishedSurveys);
+router.get("/ongoing/user/:userId", authMiddleware, getOngoingSurveys);
 router.get("/:id", authMiddleware, getSurveyById);
 router.post("/import", authMiddleware, importSurvey);
 

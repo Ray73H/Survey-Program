@@ -6,6 +6,7 @@ import {
 	updateUser,
 	getAllUsers,
 	deleteUser,
+	getUser,
 } from "../controllers/userController.js";
 
 const router = express.Router();
@@ -13,9 +14,10 @@ const router = express.Router();
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.put("/:id", authMiddleware, updateUser);
+router.get("/:id", authMiddleware, getUser);
+router.delete("/:id", authMiddleware, deleteUser);
 
 // ADMIN ROUTES
-router.get("/", getAllUsers);
-router.delete("/:id", authMiddleware, deleteUser);
+router.get("/all", getAllUsers);
 
 export default router;

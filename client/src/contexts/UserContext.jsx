@@ -19,7 +19,14 @@ export const UserProvider = ({ children }) => {
         if (token) {
             try {
                 const decoded = jwtDecode(token);
-                console.log(decoded);
+
+                const currentTime = Date.now() / 1000;
+                if (decoded.exp && decoded.exp < currentTime) {
+                    console.warn("Token has expired.");
+                    logout();
+                    return;
+                }
+
                 setUser(decoded);
             } catch (error) {
                 console.error("Failed to rehydrate user:", error);
