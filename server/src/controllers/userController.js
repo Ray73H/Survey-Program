@@ -107,7 +107,7 @@ export const deleteUser = async (req, res) => {
 export const getUser = async (req, res) => {
 	try {
 		const { id } = req.params;
-		const user = await User.find({ userId: id });
+		const user = await User.findOne({ userId: id });
 
 		if (!user) {
 			return res.status(404).json({ message: "User not found" });
@@ -117,4 +117,4 @@ export const getUser = async (req, res) => {
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error: " + error.message });
 	}
-}
+};

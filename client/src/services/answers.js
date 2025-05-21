@@ -18,7 +18,7 @@ export const createAnswer = (answerData) => api.post("/answers", answerData, { p
 //     completedAt,
 // }
 export const updateAnswer = (answerId, answerData) =>
-    api.post(`/answers/${answerId}`, answerData, { public: true });
+    api.put(`/answers/${answerId}`, answerData, { public: true });
 export const getAnswer = (surveyId, userId) =>
-    api.post(`/answers?surveyId=${surveyId}&userId=${userId}`, { public: true });
+    api.get(`/answers?surveyId=${surveyId}&userId=${userId}`, { public: true });
 export const getAnswersBySurveyId = (surveyId) => api.post(`/answers/survey/${surveyId}`);

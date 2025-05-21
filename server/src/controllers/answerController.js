@@ -14,7 +14,7 @@ export const createAnswer = async (req, res) => {
 
 export const updateAnswer = async (req, res) => {
 	try {
-		const { id } = req.params();
+		const { id } = req.params;
 		const updatedAnswer = await Answer.findByIdAndUpdate(id, req.body, {
 			new: true,
 			runValidators: true,
@@ -33,7 +33,7 @@ export const updateAnswer = async (req, res) => {
 export const getAnswer = async (req, res) => {
 	try {
 		const { surveyId, userId } = req.body;
-		const answer = Answer.find({ surveyId, respondentId: userId });
+		const answer = await Answer.find({ surveyId, respondentId: userId });
 		res.status(200).json(answer);
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error: " + error.message });
@@ -43,7 +43,7 @@ export const getAnswer = async (req, res) => {
 export const getAnswersBySurveyId = async (req, res) => {
 	try {
 		const { surveyId } = req.body;
-		const answers = Answer.find({ surveyId });
+		const answers = await Answer.find({ surveyId });
 		res.status(200).json(answers);
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error: " + error.message });
