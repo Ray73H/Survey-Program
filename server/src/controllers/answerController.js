@@ -4,6 +4,13 @@ export const createAnswer = async (req, res) => {
 	try {
 		const { surveyId, respondentType } = req.body;
 
+		if (req.body.respondentId) {
+			const existingAnswer = await Answer.findOne({ surveyId, respondentId: req.body.respondentId });
+			if (existingAnswer) {
+				return res.status(400).json({ message: "Answer already exists" });
+			}
+		}
+
 		const newAnswer = new Answer({ surveyId, respondentType, respondentId: req.body?.respondentId || null });
 		const savedAnswer = await newAnswer.save();
 		res.status(201).json(savedAnswer);
