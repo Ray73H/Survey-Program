@@ -29,12 +29,8 @@ export const createSurvey = async (req, res) => {
 		const newSurvey = new Survey({
 			userId,
 			title,
-			description: "",
-			public: false,
-			questions: [],
 			pinCode,
 			author,
-			imported: false,
 		});
 
 		const savedSurvey = await newSurvey.save();
@@ -53,7 +49,6 @@ export const importSurvey = async (req, res) => {
 			userId,
 			title,
 			description: req.body?.description || "",
-			public: false,
 			questions,
 			pinCode,
 			author,
@@ -119,10 +114,24 @@ export const getSurveysByUserId = async (req, res) => {
 	}
 };
 
-export const getThreeSurveys = async (req, res) => {
+export const getUnpublishedSurveys = async (req, res) => {
 	try {
 		const { userId } = req.params;
-		const surveys = await Survey.find({ userId }).sort({ updatedAt: -1 }).limit(3);
+		const surveys = await Survey.find({ userId, published: false }).sort({ updatedAt: -1 });
+		res.status(200).json(surveys);
+	} catch (error) {
+		res.status(500).json({ message: "Internal server error: " + error.message });
+	}
+};
+
+export const getOngoingSurveys = async (req, res) => {
+	try {
+		const { userId } = req.params;
+		const now = new Date();
+		const surveys = await Survey.find({
+			userId,
+			deadline: { $gt: now },
+		}).sort({ deadline: 1 });
 		res.status(200).json(surveys);
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error: " + error.message });
