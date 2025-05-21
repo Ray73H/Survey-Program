@@ -165,14 +165,14 @@ export const getPublicSurveys = async (req, res) => {
 export const getSurveyByPinCode = async (req, res) => {
 	try {
 		const { pinCode } = req.params;
-		const survey = await Survey.find({ pinCode });
+		const survey = await Survey.findOne({ pinCode });
 
 		if (!survey) {
 			return res.status(404).json({ message: "Survey not found" });
 		}
 
-		if (req.user?.id) {
-			const user = await User.findById(req.user.id);
+		if (req.user?.userId) {
+			const user = await User.findById(req.user.userId);
 			if (user) {
 				const alreadyHasAccess = user.surveyAccess.some((id) => id.toString() === survey._id.toString());
 				if (!alreadyHasAccess) {

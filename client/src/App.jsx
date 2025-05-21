@@ -11,7 +11,10 @@ import AccountManagerTable from "./pages/SuperUser/AccountManager";
 import Experimentee from "./pages/Experimentee";
 import JoinSurvey from "./pages/JoinSurvey";
 import Login from "./pages/Login";
-import SurveyList from "./pages/SurveyList"
+import WelcomeSurvey from "./pages/welcomeSurvey";
+import FillSurvey from "./pages/fillSurvey";
+import SurveyList from "./pages/SurveyList";
+import PreviewSurvey from "./pages/PreviewSurvey";
 import { useUserContext } from "./contexts/UserContext";
 
 const ProtectedRoute = ({ children, allowedAccountTypes }) => {
@@ -37,12 +40,14 @@ const experimenterRoutes = [
     { path: "/experimenter", element: <Experimenter /> },
     { path: "/survey-builder/:surveyId", element: <SurveyBuilder /> },
     { path: "/experimenter_survey_list", element: <SurveyList /> },
-
+    { path: "/survey-preview/:surveyId", element: <PreviewSurvey /> },
 ];
 
 const experimenteeRoutes = [
     { path: "/experimentee", element: <Experimentee /> },
     { path: "/join", element: <JoinSurvey /> },
+    { path: "/welcome", element: <WelcomeSurvey /> },
+    { path: "/fillSurvey", element: <FillSurvey /> },
 ];
 
 const superuserRoutes = [

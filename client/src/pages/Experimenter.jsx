@@ -243,7 +243,14 @@ const Experimenter = () => {
                                     >
                                         Export Survey
                                     </MenuItem>
-                                    <MenuItem onClick={handleMenuClose}>Preview</MenuItem>
+                                    <MenuItem
+                                        onClick={() => {
+                                            navigate(`/survey-preview/${menuSurveyId}`);
+                                            handleMenuClose();
+                                        }}
+                                    >
+                                        Preview
+                                    </MenuItem>
                                 </Menu>
                             )}
                         </Card>

@@ -81,6 +81,7 @@ const Experimentee = () => {
                 }}
             >
                 <Box
+                    onClick={() => navigate("/join")}
                     sx={{
                         minWidth: 250,
                         height: 180,
