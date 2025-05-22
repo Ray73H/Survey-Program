@@ -62,6 +62,7 @@ export default function ExperimenteeNavbar() {
     const [open, setOpen] = React.useState(false);
     const [surveysExpanded, setSurveysExpanded] = React.useState(false);
     const [accountOpen, setAccountOpen] = React.useState(false);
+    const [joinExpanded, setJoinExpanded] = React.useState(false);
     const navigate = useNavigate();
     const { user, logout } = useUserContext();
     const firstLetter = user.name ? user.name.charAt(0).toUpperCase() : '?';
@@ -72,6 +73,9 @@ export default function ExperimenteeNavbar() {
     const handleSurveysClick = () => {
         setSurveysExpanded((prev) => !prev);
     };
+    const handleJoinClick = () => {
+        setJoinExpanded((prev) => !prev);
+    }
     const handleLogout = () => {
         logout();
     };
@@ -97,7 +101,6 @@ export default function ExperimenteeNavbar() {
                     },
                 }}
             >
-                {/* Logo */}
                 <Divider />
                 <Box sx={{ flex: 1 }}>
                     <List>
@@ -165,7 +168,7 @@ export default function ExperimenteeNavbar() {
                         </ListItem>
                         <ListItem disablePadding sx={{ display: "block" }}>
                             <ListItemButton
-                                onClick={() => navigate("/join")}
+                                onClick={handleJoinClick}
                                 sx={{
                                     minHeight: 48,
                                     justifyContent: open ? "initial" : "center",
@@ -179,15 +182,36 @@ export default function ExperimenteeNavbar() {
                                         justifyContent: "center",
                                     }}
                                 >
-                                    <InboxIcon />
+                                    <MailIcon />
                                 </ListItemIcon>
                                 <ListItemText
                                     primary="Join New Survey"
                                     sx={{ opacity: open ? 1 : 0 }}
                                 />
+                                {open && (joinExpanded ? <ExpandLess /> : <ExpandMore />)}
                             </ListItemButton>
+                            <Collapse in={joinExpanded} timeout="auto" unmountOnExit>
+                                <List component="div" disablePadding>
+                                    <ListItemButton 
+                                    onClick={() => navigate("/publicsurveys")}
+                                    sx={{ pl: open ? 6 : 4 }} >
+                                        <ListItemText
+                                            primary="Browse Public Surveys"
+                                            sx={{ opacity: open ? 1 : 0 }}
+                                        />
+                                    </ListItemButton>
+                                    <ListItemButton 
+                                    onClick={() => navigate("/join")}
+                                    sx={{ pl: open ? 6 : 4 }}>
+                                        <ListItemText
+                                            primary="Join Through PIN"
+                                            sx={{ opacity: open ? 1 : 0 }}
+                                        />
+                                    </ListItemButton>
+                                </List>
+                            </Collapse>
                         </ListItem>
-                    </List>
+                        </List>
                     <Divider />
                 </Box>
                 <Box>
@@ -222,7 +246,7 @@ export default function ExperimenteeNavbar() {
                         </ListItem>
                         <Collapse in={accountOpen} timeout="auto" unmountOnExit>
                             <List component="div" disablePadding sx={{ pl: 4 }}>
-                                <ListItem button>
+                                <ListItem button onClick={() => navigate("/settings")}>
                                     <ListItemIcon>
                                         <Settings />
                                     </ListItemIcon>
