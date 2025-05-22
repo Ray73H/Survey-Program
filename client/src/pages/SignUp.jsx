@@ -10,12 +10,14 @@ import InputAdornment from "@mui/material/InputAdornment";
 import Input from '@mui/material/Input';
 import FormHelperText from "@mui/material/FormHelperText";
 import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
+import Tooltip from '@mui/material/Tooltip';
+import Alert from '@mui/material/Alert';
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../services/users";
 import { useUserContext } from "../contexts/UserContext";
 import { jwtDecode } from "jwt-decode";
 
-let EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const EMAIL_REGEXP = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
 
 function SignUp(view) {
@@ -79,13 +81,13 @@ function SignUp(view) {
     };
     const ValidateSignUpInfo = async (e) => {
         e.preventDefault();
-	const v1 = EMAIL_REGEX.test(email);
-	const v2 = PWD_REGEX.test(pwd);
-	if (!v1 || !v2) {
-	    setErrMsg("Invalid Email or Password")
-	    return;
-	}
-	// Send info off to validation in the backend
+        const v1 = USER_REGEX.test(user);
+        const v2 = PWD_REGEX.test(pwd);
+        if (!v1 || !v2) {
+            setErrMsg("Invalid Entry");
+            return;
+        }
+        // Send info off to validation in the backend
         const userData = {
             email,
             password,
@@ -133,7 +135,17 @@ function SignUp(view) {
             <Typography variant="h3" gutterBottom>
                 Sign up as {mode}
             </Typography>
-	   // SET ERROR MESSAGE HERE
+            <Button
+                variant="contained"
+                color="tertary"
+                size="small"
+                onClick={handleSignUpSwitch}
+            >
+                Sign up as {oppositeMode}
+            </Button>
+            {errMsg && 
+                <Alert ref={errRef} severity="error" aria-live="assertive">{errMsg}</Alert>
+            }
             <Box
                 component="form"
                 sx={{
@@ -144,14 +156,6 @@ function SignUp(view) {
                     minHeight: "50vh",
                 }}
             >
-                <Button
-                    variant="contained"
-                    color="tertary"
-                    size="small"
-                    onClick={handleSignUpSwitch}
-                >
-                    Sign up as {oppositeMode}
-                </Button>
                 <FormControl variant="standard" sx={{mt: 8, width: "45ch"}}>
                   <InputLabel htmlFor="name">Full Name</InputLabel>
                   <Input 
@@ -239,7 +243,9 @@ function SignUp(view) {
                         <InputAdornment position="end">
                           <IconButton
                             aria-label={
-                              showPasswordMatch ? 'hide the password' : 'display the password'
+                                showPassword
+                                    ? "hide the password"
+                                    : "display the password"
                             }
                             onClick={handleClickShowPasswordMatch}
                             onMouseDown={handleMouseDownPassword}
@@ -249,7 +255,7 @@ function SignUp(view) {
                           </IconButton>
                         </InputAdornment>
                       }
-                        value={matchPwd}
+                      value={matchPwd}
                         // onChange={(e) => setConfirmPassword(e.target.value)}
                     />
                     { matchFocus && !validMatch &&
@@ -258,23 +264,34 @@ function SignUp(view) {
                     </FormHelperText>
                     }
                 </FormControl>
-                <Button
-                    type="submit"
-                    form="survey-form"
-                    variant="contained"
-                    color="primary"
-                    disabled={!validEmail || !validPwd || !validMatch || !name ? true : false}
-                    sx={{
-                        m: 4,
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                    }}
-                    onClick={ValidateSignUpInfo}
-                >
-                    Sign up
-                </Button>
+                {!validEmail || !validPwd || !validMatch || !name 
+                    ? 
+                    <Tooltip title="Fill out the entire form" placement="bottom">
+                        <span style={{margin: '32px'}}>
+                            <Button
+                                type="submit"
+                                form="survey-form"
+                                variant="contained"
+                                color="primary"
+                                disabled
+                                onClick={ValidateSignUpInfo}
+                            >
+                                Sign up
+                            </Button>
+                        </span>
+                    </Tooltip>
+                    :
+                    <Button
+                        type="submit"
+                        form="survey-form"
+                        variant="contained"
+                        color="primary"
+                        sx={{m:4}}
+                        onClick={ValidateSignUpInfo}
+                    >
+                        Sign up
+                    </Button>
+                }
                 </Box>
                 <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt:10 }}>
                     <Typography variant="subtitle1" gutterBottom>
