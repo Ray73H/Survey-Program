@@ -110,14 +110,17 @@ function SignUp(view) {
             if (!err?.response) {
                 setErrMsg("No Server Response")
             } else {
+                console.log(err.response?.status);
                 switch (err.response?.status) {
                     case 400:
                         setErrMsg("There is already an account with the provided email");
+                        break;
                     case 500:
                         const serverMessage = err.response?.data?.message ?? "An unknown server error occurred.";
                         setErrMsg(serverMessage);
+                        break;
                     default:
-                        setErrMsg("Registration Failed")
+                        setErrMsg("Registration Failed");
                 }
             }
         }
@@ -232,7 +235,7 @@ function SignUp(view) {
                                     onClick={handleClickShowPassword}
                                     onMouseDown={handleMouseDownPassword}
                                     onMouseUp={handleMouseUpPassword}
-                                    edge="end"
+                                    // edge="end"
                                 >
                                     {showPassword ? <VisibilityOff /> : <Visibility />}
                                 </IconButton>
@@ -256,29 +259,29 @@ function SignUp(view) {
                       required
                       aria-invalid={validMatch ? "false" : "true"}
                       aria-describedby="confirmnote"
+                      type={showPasswordMatch ? 'text' : 'password'}
                       onFocus={() => setMatchFocus(true)}
                       onBlur={() => setMatchFocus(false)}
-                      type={showPasswordMatch ? 'text' : 'password'}
                       endAdornment={
                         <InputAdornment position="end">
                           <IconButton
                             aria-label={
-                                showPassword
+                                showPasswordMatch
                                     ? "hide the password"
                                     : "display the password"
                             }
                             onClick={handleClickShowPasswordMatch}
                             onMouseDown={handleMouseDownPassword}
                             onMouseUp={handleMouseUpPassword}
+                            // edge="end"
                           >
                             {showPasswordMatch ? <VisibilityOff /> : <Visibility />}
                           </IconButton>
                         </InputAdornment>
                       }
                       value={matchPwd}
-                        // onChange={(e) => setConfirmPassword(e.target.value)}
                     />
-                    { matchFocus && !validMatch &&
+                    { (matchFocus || matchPwd!=='') && !validMatch &&
                     <FormHelperText id="emailnote">
                         <InfoOutlineIcon fontSize="small"/> Must match the first password input field.
                     </FormHelperText>
