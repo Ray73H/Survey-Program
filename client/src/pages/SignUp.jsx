@@ -41,16 +41,21 @@ function SignUp(view) {
 
     const [errMsg, setErrMsg] = useState('');
 
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
+
     const [showPassword, setShowPassword] = useState(false);
     const [showPasswordMatch, setShowPasswordMatch] = useState(false);
+
     const navigate = useNavigate();
+
     const { setUser } = useUserContext();
 
     useEffect(() => {
         userRef.current.focus();
     }, [])
+
+    useEffect(() => {
+        errRef.current?.focus();
+    }, [errRef])
 
     useEffect(() => {
         setValidEmail(EMAIL_REGEXP.test(email));
@@ -81,25 +86,41 @@ function SignUp(view) {
     };
     const ValidateSignUpInfo = async (e) => {
         e.preventDefault();
-        const v1 = USER_REGEX.test(user);
+        const v1 = EMAIL_REGEXP.test(email);
         const v2 = PWD_REGEX.test(pwd);
         if (!v1 || !v2) {
             setErrMsg("Invalid Entry");
             return;
         }
         // Send info off to validation in the backend
-        const userData = {
-            email,
-            password,
-            name,
-            accountType: mode,
-        };
-        const response = await registerUser(userData);
-        console.log(response);
-        sessionStorage.setItem("authToken", response.data.token);
-        const decoded = jwtDecode(response.data.token);
-        setUser(decoded);
-        navigate("/");
+        try {
+            const userData = {
+                email,
+                password: pwd,
+                name,
+                accountType: mode,
+            };
+            const response = await registerUser(userData);
+            console.log(response);
+            sessionStorage.setItem("authToken", response.data.token);
+            const decoded = jwtDecode(response.data.token);
+            setUser(decoded);
+            navigate("/");
+        } catch (err) {
+            if (!err?.response) {
+                setErrMsg("No Server Response")
+            } else {
+                switch (err.response?.status) {
+                    case 400:
+                        setErrMsg("There is already an account with the provided email");
+                    case 500:
+                        const serverMessage = err.response?.data?.message ?? "An unknown server error occurred.";
+                        setErrMsg(serverMessage);
+                    default:
+                        setErrMsg("Registration Failed")
+                }
+            }
+        }
     };
 
     const handleLogInClick = () => {
@@ -144,7 +165,7 @@ function SignUp(view) {
                 Sign up as {oppositeMode}
             </Button>
             {errMsg && 
-                <Alert ref={errRef} severity="error" aria-live="assertive">{errMsg}</Alert>
+                <Alert ref={errRef} sx={{mt:3, width: "45ch"}} severity="error" aria-live="assertive">{errMsg}</Alert>
             }
             <Box
                 component="form"
@@ -218,9 +239,8 @@ function SignUp(view) {
                             </InputAdornment>
                         }
                         value={pwd}
-                        // onChange={(e) => setPassword(e.target.value)}
                     />
-                    { pwdFocus && !validPwd &&
+                    { (pwdFocus || pwd!=='') && !validPwd &&
                     <FormHelperText id="emailnote">
                         <InfoOutlineIcon fontSize="small"/> 8 to 24 characters.<br />
                             Must include uppercase and lowercase letters, a number and a special character.<br />
