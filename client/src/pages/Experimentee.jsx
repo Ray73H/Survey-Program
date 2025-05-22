@@ -16,6 +16,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate } from "react-router-dom";
+import { useUserContext } from "../contexts/UserContext";
 
 const surveys = [
     {
@@ -48,6 +49,7 @@ const Experimentee = () => {
     const [anchorEl, setAnchorEl] = useState(null);
     const [menuSurveyId, setMenuSurveyId] = useState(null);
     const navigate = useNavigate();
+    const { user } = useUserContext();
 
     const handleMenuOpen = (event, id) => {
         setAnchorEl(event.currentTarget);
@@ -62,7 +64,7 @@ const Experimentee = () => {
     return (
         <Box sx={{ padding: 4, flexGrow: 1 }}>
             <Typography variant="h5" gutterBottom>
-                Welcome Oscar Payne
+                Welcome {user.name}
             </Typography>
 
             <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
@@ -79,6 +81,7 @@ const Experimentee = () => {
                 }}
             >
                 <Box
+                    onClick={() => navigate("/join")}
                     sx={{
                         minWidth: 250,
                         height: 180,

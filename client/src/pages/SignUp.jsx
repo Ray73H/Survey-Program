@@ -25,6 +25,7 @@ function SignUp(view) {
     const errRef = useRef();
 
     const [name, setName] = useState("");
+
     const [nameFocus, setNameFocus] = useState(false);
 
     const [email, setEmail] = useState('');
@@ -40,7 +41,6 @@ function SignUp(view) {
     const [matchFocus, setMatchFocus] = useState(false);
 
     const [errMsg, setErrMsg] = useState('');
-
 
     const [showPassword, setShowPassword] = useState(false);
     const [showPasswordMatch, setShowPasswordMatch] = useState(false);
@@ -180,6 +180,7 @@ function SignUp(view) {
                     minHeight: "50vh",
                 }}
             >
+
                 <FormControl variant="standard" sx={{mt: 8, width: "45ch"}}>
                   <InputLabel htmlFor="name">Full Name</InputLabel>
                   <Input 

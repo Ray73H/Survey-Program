@@ -164,7 +164,7 @@ function SurveyBuilder() {
     const handleDeleteSurvey = async () => {
         await deleteSurvey(surveyId);
         setOpenDeleteDialog(false);
-        navigate("/dashboard");
+        navigate("/experimenter");
     };
 
     return (

@@ -125,47 +125,33 @@ export default function ExperimenterNavbar() {
                                 <ListItemText primary="Dashboard" sx={{ opacity: open ? 1 : 0 }} />
                             </ListItemButton>
                         </ListItem>
+                        
+                        {user && (
                         <ListItem disablePadding sx={{ display: "block" }}>
                             <ListItemButton
-                                onClick={handleSurveysClick}
+                            onClick={() => navigate(`/experimenter_survey_list`)}
+                            sx={{
+                                minHeight: 48,
+                                justifyContent: open ? "initial" : "center",
+                                px: 2.5,
+                            }}
+                            >
+                            <ListItemIcon
                                 sx={{
-                                    minHeight: 48,
-                                    justifyContent: open ? "initial" : "center",
-                                    px: 2.5,
+                                minWidth: 0,
+                                mr: open ? 3 : "auto",
+                                justifyContent: "center",
                                 }}
                             >
-                                <ListItemIcon
-                                    sx={{
-                                        minWidth: 0,
-                                        mr: open ? 3 : "auto",
-                                        justifyContent: "center",
-                                    }}
-                                >
-                                    <MailIcon />
-                                </ListItemIcon>
-                                <ListItemText
-                                    primary="Your Surveys"
-                                    sx={{ opacity: open ? 1 : 0 }}
-                                />
-                                {open && (surveysExpanded ? <ExpandLess /> : <ExpandMore />)}
+                                <InboxIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Survey List" sx={{ opacity: open ? 1 : 0 }} />
                             </ListItemButton>
-                            <Collapse in={surveysExpanded} timeout="auto" unmountOnExit>
-                                <List component="div" disablePadding>
-                                    <ListItemButton sx={{ pl: open ? 6 : 4 }}>
-                                        <ListItemText
-                                            primary="Saved Surveys"
-                                            sx={{ opacity: open ? 1 : 0 }}
-                                        />
-                                    </ListItemButton>
-                                    <ListItemButton sx={{ pl: open ? 6 : 4 }}>
-                                        <ListItemText
-                                            primary="Completed Surveys"
-                                            sx={{ opacity: open ? 1 : 0 }}
-                                        />
-                                    </ListItemButton>
-                                </List>
-                            </Collapse>
                         </ListItem>
+                        )}
+
+                        
+                        
                         <ListItem disablePadding sx={{ display: "block" }}>
                             <ListItemButton
                                 onClick={() => navigate("/join")}
@@ -192,6 +178,53 @@ export default function ExperimenterNavbar() {
                         </ListItem>
                     </List>
                     <Divider />
+                    {user?.accountType === 'superuser' && (
+                   <>
+                    <ListItem disablePadding sx={{ display: "block" }}>
+                    <ListItemButton
+                        onClick={() => navigate("/admin_overview")}
+                        sx={{
+                        minHeight: 48,
+                        justifyContent: open ? "initial" : "center",
+                        px: 2.5,
+                        }}
+                    >
+                        <ListItemIcon
+                        sx={{
+                            minWidth: 0,
+                            mr: open ? 3 : "auto",
+                            justifyContent: "center",
+                        }}
+                        >
+                        <InboxIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Admin Overview" sx={{ opacity: open ? 1 : 0 }} />
+                    </ListItemButton>
+                    </ListItem>
+
+                    <ListItem disablePadding sx={{ display: "block" }}>
+                    <ListItemButton
+                        onClick={() => navigate("/account_manager")}
+                        sx={{
+                        minHeight: 48,
+                        justifyContent: open ? "initial" : "center",
+                        px: 2.5,
+                        }}
+                    >
+                        <ListItemIcon
+                        sx={{
+                            minWidth: 0,
+                            mr: open ? 3 : "auto",
+                            justifyContent: "center",
+                        }}
+                        >
+                        <InboxIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Account Manager" sx={{ opacity: open ? 1 : 0 }} />
+                    </ListItemButton>
+                    </ListItem>
+                </>
+                )}
                 </Box>
                 <Box>
                     <Divider />
