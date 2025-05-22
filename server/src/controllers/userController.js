@@ -118,3 +118,25 @@ export const getUser = async (req, res) => {
 		res.status(500).json({ message: "Internal server error: " + error.message });
 	}
 };
+
+export const addSurveyAccess = async (req, res) => {
+	try {
+		const { id } = req.params; // user ID
+		const { surveyId } = req.body; // survey ID to add
+
+		const user = await User.findById(id);
+		if (!user) {
+			return res.status(404).json({ message: "User not found" });
+		}
+
+		// Only add if not already present
+		if (!user.surveyAccess.includes(surveyId)) {
+			user.surveyAccess.push(surveyId);
+			await user.save();
+		}
+
+		res.status(200).json({ message: "Survey access added", surveyAccess: user.surveyAccess });
+	} catch (error) {
+		res.status(500).json({ message: "Internal server error: " + error.message });
+	}
+};
