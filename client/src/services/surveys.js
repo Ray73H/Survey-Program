@@ -6,7 +6,8 @@ export const deleteSurvey = (surveyId) => api.delete(`/surveys/${surveyId}`);
 
 // Get Functions
 export const getSurveysByUserId = (userId) => api.get(`/surveys/user/${userId}`);
-export const getThreeSurveys = (userId) => api.get(`/surveys/three/user/${userId}`);
+export const getUnpublishedSurveys = (userId) => api.get(`/surveys/unpublished/user/${userId}`);
+export const getOngoingSurveys = (userId) => api.get(`/surveys/ongoing/user/${userId}`);
 export const getSurveyById = (surveyId) => api.get(`/surveys/${surveyId}`);
 export const getPublicSurveys = () => api.get("/surveys/public", { public: true });
 export const getSurveyByPinCode = (pinCode) =>

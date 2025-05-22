@@ -24,7 +24,7 @@ import {
     createSurvey,
     deleteSurvey,
     exportSurvey,
-    getThreeSurveys,
+    getUnpublishedSurveys,
     importSurvey,
 } from "../services/surveys";
 import { DeleteSurveyDialog } from "../components/DeleteSurveyDialog";
@@ -38,9 +38,8 @@ const Experimenter = () => {
     const navigate = useNavigate();
     const { user } = useUserContext();
 
-    // Get the three most recently modified surveys
     const fetchSurveys = async () => {
-        const response = await getThreeSurveys(user.userId);
+        const response = await getUnpublishedSurveys(user.userId);
         setSurveys(response.data);
     };
 
@@ -244,7 +243,14 @@ const Experimenter = () => {
                                     >
                                         Export Survey
                                     </MenuItem>
-                                    <MenuItem onClick={handleMenuClose}>Preview</MenuItem>
+                                    <MenuItem
+                                        onClick={() => {
+                                            navigate(`/survey-preview/${menuSurveyId}`);
+                                            handleMenuClose();
+                                        }}
+                                    >
+                                        Preview
+                                    </MenuItem>
                                 </Menu>
                             )}
                         </Card>

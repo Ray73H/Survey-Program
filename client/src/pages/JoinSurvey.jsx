@@ -8,17 +8,34 @@ import {
   Paper,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { getSurveyByPinCode } from "../services/surveys";
+import { useUserContext } from "../contexts/UserContext";
+import { addSurveyAccess } from "../services/users";
 
 export default function JoinSurvey() {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [menuSurveyId, setMenuSurveyId] = useState(null);
   const [itemId, setItemId] = useState("");
-  const [submittedId, setSubmittedId] = useState("");
-  const navigate = useNavigate()
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { user } = useUserContext();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmittedId(itemId.trim());
+    setError("");
+    setLoading(true);
+    try {
+      const response = await getSurveyByPinCode(itemId.trim());
+      const survey = response.data;
+      // Update surveyAccess for the user in the database
+      if (user.userId && survey._id) {
+        await addSurveyAccess(user.userId, survey._id);
+      }
+      navigate("/welcome", { state: { survey } });
+    } catch (err) {
+      setError("Invalid pin code. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -39,11 +56,13 @@ export default function JoinSurvey() {
             onChange={(e) => setItemId(e.target.value)}
             required
           />
-          <Button variant="contained" type="submit" onClick={() => navigate("/surveybuilder")}>
-            Join
+          <Button variant="contained" type="submit" disabled={loading}>
+            {loading ? "Checking..." : "Join"}
           </Button>
+          {error && <Typography color="error">{error}</Typography>}
         </Box>
       </Paper>
     </Container>
   );
 }
+

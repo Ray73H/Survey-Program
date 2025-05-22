@@ -1,10 +1,9 @@
-import * as React from 'react';
+import React from 'react';
 import { Box, Card, CardContent, Typography } from '@mui/material';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import GroupIcon from '@mui/icons-material/Group';
 import InsightsIcon from '@mui/icons-material/Insights';
-
 
 function StatCard({ title, value, Icon }) {
   return (
@@ -22,14 +21,19 @@ function StatCard({ title, value, Icon }) {
   );
 }
 
-export default function SuperUserCardGroup() {
+export default function SuperUserCard({ surveys = [], users = [] }) {
+  const totalSurveys = surveys.length;
+  const totalUsers = users.length;
+
+  console.log("✅ Total surveys inside component:", totalSurveys);
+  console.log("✅ Total users inside component:", totalUsers);
+
   return (
     <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2, mt: 5 }}>
-      <StatCard title="Created Surveys" value={62} Icon={InsightsIcon} />
+      <StatCard title="Created Surveys" value={totalSurveys} Icon={InsightsIcon} />
       <StatCard title="Active Surveys" value={42} Icon={BarChartIcon} />
-      <StatCard title="Total Users" value={21} Icon={GroupIcon} />
+      <StatCard title="Total Users" value={totalUsers} Icon={GroupIcon} />
       <StatCard title="Survey Responses" value={692} Icon={CheckCircleIcon} />
     </Box>
   );
 }
-

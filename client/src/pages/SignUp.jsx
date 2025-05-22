@@ -18,7 +18,6 @@ function SignUp(view) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [title, setTitle] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [showPasswordRepeat, setShowPasswordRepeat] = useState(false);
     const navigate = useNavigate();
@@ -112,7 +111,6 @@ function SignUp(view) {
                         </Box>
                         <TextField
                             required
-                            id="outlined-required"
                             label="Name"
                             sx={{ display: "flex", m: 4, mt: 8, width: "30ch" }}
                             value={name}
@@ -120,7 +118,6 @@ function SignUp(view) {
                         />
                         <TextField
                             required
-                            id="outlined-required"
                             label="Email"
                             sx={{ display: "flex", m: 4, width: "30ch" }}
                             value={email}

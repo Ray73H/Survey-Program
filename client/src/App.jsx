@@ -7,11 +7,14 @@ import SurveyBuilder from "./pages/SurveyBuilder";
 import Experimenter from "./pages/Experimenter";
 import SuperUserLayout from "./layouts/SuperUserLayout";
 import AdminOverviewSuperUser from "./pages/SuperUser/AdminOverview";
-import SurveyList from "./pages/SuperUser/SurveyList";
 import AccountManagerTable from "./pages/SuperUser/AccountManager";
 import Experimentee from "./pages/Experimentee";
 import JoinSurvey from "./pages/JoinSurvey";
 import Login from "./pages/Login";
+import WelcomeSurvey from "./pages/welcomeSurvey";
+import FillSurvey from "./pages/fillSurvey";
+import SurveyList from "./pages/SurveyList";
+import PreviewSurvey from "./pages/PreviewSurvey";
 import { useUserContext } from "./contexts/UserContext";
 
 const ProtectedRoute = ({ children, allowedAccountTypes }) => {
@@ -36,17 +39,20 @@ const getDefaultRoute = (accountType) => {
 const experimenterRoutes = [
     { path: "/experimenter", element: <Experimenter /> },
     { path: "/survey-builder/:surveyId", element: <SurveyBuilder /> },
+    { path: "/experimenter_survey_list", element: <SurveyList /> },
+    { path: "/survey-preview/:surveyId", element: <PreviewSurvey /> },
 ];
 
 const experimenteeRoutes = [
     { path: "/experimentee", element: <Experimentee /> },
     { path: "/join", element: <JoinSurvey /> },
+    { path: "/welcome", element: <WelcomeSurvey /> },
+    { path: "/fillSurvey", element: <FillSurvey /> },
 ];
 
 const superuserRoutes = [
     { path: "/superuser", element: <AdminOverviewSuperUser /> },
     { path: "/admin_overview", element: <AdminOverviewSuperUser /> },
-    { path: "/survey_list", element: <SurveyList /> },
     { path: "/account_manager", element: <AccountManagerTable /> },
 ];
 
