@@ -15,11 +15,15 @@ import {
   Stack
 } from "@mui/material";
 import { getSurveyByPinCode } from "../services/surveys";
+import { updateAnswer } from "../services/answers";
+import { useUserContext } from "../contexts/UserContext";
 
 export default function FillSurvey() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useUserContext();
   const pinCode = location.state?.pinCode;
+  const answerId = location.state?.answerId; // Get the answer ID from location state
   const [survey, setSurvey] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState("");
@@ -61,16 +65,39 @@ export default function FillSurvey() {
   };
 
   // Stop timer on submit
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     clearInterval(timerRef.current);
-    // Here you would send answers to the backend
-    setTimeout(() => {
-      setSubmitting(false);
+
+    try {
+      // Format answers according to the schema
+      const formattedAnswers = Object.entries(answers).map(([questionId, answer]) => ({
+        questionId: parseInt(questionId),
+        answer,
+        timestamp: new Date()
+      }));
+
+      const answerData = {
+        surveyId: survey._id,
+        respondentType: user && user.userId ? "user" : "guest",
+        ...(user && user.userId && { respondentId: user.userId }),
+        answers: formattedAnswers,
+        completed: true,
+        completedAt: new Date()
+      };
+
+      if (!answerId) {
+        throw new Error("No answer ID found");
+      }
+
+      await updateAnswer(answerId, answerData);
       alert(`Survey submitted! Time taken: ${formatTime(elapsed)}`);
       navigate("/experimentee");
-    }, 1000);
+    } catch (error) {
+      setError("Failed to submit survey. Please try again.");
+      setSubmitting(false);
+    }
   };
 
   // Format seconds to mm:ss
