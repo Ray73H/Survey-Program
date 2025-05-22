@@ -39,7 +39,7 @@ export const updateAnswer = async (req, res) => {
 
 export const getAnswer = async (req, res) => {
 	try {
-		const { surveyId, userId } = req.body;
+		const { surveyId, userId } = req.query;
 		const answer = await Answer.find({ surveyId, respondentId: userId });
 		res.status(200).json(answer);
 	} catch (error) {
