@@ -38,9 +38,9 @@ export default function Login() {
         navigate("/");
     };
 
-    const loginCatch = () => {
+    const loginCatch = async () => {
         try {
-            handleLogin()
+            await handleLogin()
         }
         catch {
             document.getElementById('password_field').value = ""
