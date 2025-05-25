@@ -20,11 +20,18 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DeleteIcon from "@mui/icons-material/Delete";
+import dayjs from 'dayjs';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { getSurveyById, updateSurvey, deleteSurvey } from "../services/surveys";
 import { useParams } from "react-router-dom";
 import { useUserContext } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 import { DeleteSurveyDialog } from "../components/DeleteSurveyDialog";
+
+const now = dayjs();
+console.log(now);
 
 function SurveyBuilder() {
     const navigate = useNavigate();
@@ -35,6 +42,7 @@ function SurveyBuilder() {
         description: "",
         public: false,
         pinCode: "",
+        deadline: null,
         questions: [],
     });
     const [originalSurvey, setOriginalSurvey] = React.useState(survey);
@@ -167,6 +175,8 @@ function SurveyBuilder() {
         navigate("/experimenter");
     };
 
+    console.log(survey.deadline);
+
     return (
         <>
             <Box className="p-4">
@@ -177,7 +187,13 @@ function SurveyBuilder() {
                     <Box className="space-x-2">
                         <Button
                             type="submit"
-                            form="survey-form"
+                            variant="contained"
+                            color="success"
+                        >
+                            Publish
+                        </Button>
+                        <Button
+                            type="submit"
                             variant="contained"
                             color="primary"
                         >
@@ -233,11 +249,18 @@ function SurveyBuilder() {
                                         }
                                         label={survey.public ? "Public" : "Private"}
                                     />
-                                    {survey.public ? null : (
-                                        <Typography variant="subtitle1">
-                                            Pin Code: {survey.pinCode}
-                                        </Typography>
-                                    )}
+                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                        <DateTimePicker 
+                                            minDateTime={now} 
+                                            label="Deadline"
+                                            onClose={(newDeadline) => 
+                                                setSurvey((prevSurvey) => ({
+                                                        ...prevSurvey,
+                                                        deadline: newDeadline,
+                                                    }))
+                                            }
+                                        />
+                                    </LocalizationProvider>
                                 </Box>
                             </Box>
                             <Box className="flex flex-col space-y-1">
