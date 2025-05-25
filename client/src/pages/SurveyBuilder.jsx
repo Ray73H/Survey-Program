@@ -2,13 +2,10 @@ import React from "react";
 import {
     Box,
     Button,
-    Divider,
     Paper,
     TextField,
     Typography,
     FormControl,
-    FormControlLabel,
-    Switch,
     Select,
     InputLabel,
     MenuItem,
@@ -20,18 +17,13 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DeleteIcon from "@mui/icons-material/Delete";
-import dayjs from 'dayjs';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { getSurveyById, updateSurvey, deleteSurvey } from "../services/surveys";
 import { useParams } from "react-router-dom";
 import { useUserContext } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 import { DeleteSurveyDialog } from "../components/DeleteSurveyDialog";
-
-const now = dayjs();
-console.log(now);
+import { PublishSurveyDialog } from "../components/PublishSurveyDialog";
+import SurveyBuilderNavbar from "../components/SurveyBuilderNavbar";
 
 function SurveyBuilder() {
     const navigate = useNavigate();
@@ -41,13 +33,16 @@ function SurveyBuilder() {
         title: "",
         description: "",
         public: false,
+        published: false,
         pinCode: "",
-        deadline: null,
+        deadline: undefined,
         questions: [],
     });
     const [originalSurvey, setOriginalSurvey] = React.useState(survey);
     const [isChanged, setIsChanged] = React.useState(false);
     const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
+    const [openPublishDialog, setOpenPublishDialog] = React.useState(false);
+    const [saving, setSaving] = React.useState(false);
 
     // Initial get call for survey
     React.useEffect(() => {
@@ -166,6 +161,7 @@ function SurveyBuilder() {
 
         const data = await updateSurvey(surveyId, surveyData);
         setOriginalSurvey(survey);
+        setSaving(true);
         console.log(data);
     };
 
@@ -175,42 +171,16 @@ function SurveyBuilder() {
         navigate("/experimenter");
     };
 
-    console.log(survey.deadline);
-
     return (
         <>
             <Box className="p-4">
-                <Box className="flex justify-between items-center mb-4">
-                    <Typography variant="h5" fontWeight="bold">
-                        Survey Builder
-                    </Typography>
-                    <Box className="space-x-2">
-                        <Button
-                            type="submit"
-                            variant="contained"
-                            color="success"
-                        >
-                            Publish
-                        </Button>
-                        <Button
-                            type="submit"
-                            variant="contained"
-                            color="primary"
-                        >
-                            Save
-                        </Button>
-                        <Button
-                            onClick={() => setOpenDeleteDialog(true)}
-                            variant="outlined"
-                            color="error"
-                        >
-                            Delete Survey
-                        </Button>
-                    </Box>
-                </Box>
-
-                <Divider className="mb-4" />
-
+                <SurveyBuilderNavbar 
+                    onDeleteDialogChange={() => setOpenDeleteDialog(true)}
+                    onPublishDialogChange={() => setOpenPublishDialog(true)}
+                    onSave={handleSaveSurvey}
+                    saving={saving}
+                    onSavingClose={() => setSaving(false)}
+                />
                 <Box className="flex justify-center p-10">
                     <Paper elevation={3} className="p-6 w-full max-w-3xl">
                         <Box
@@ -233,34 +203,6 @@ function SurveyBuilder() {
                                         variant="outlined"
                                         required
                                     />
-                                </Box>
-                                <Box className="flex flex-col space-y-1 justify-end ml-auto">
-                                    <FormControlLabel
-                                        control={
-                                            <Switch
-                                                checked={survey.public}
-                                                onChange={(e) =>
-                                                    setSurvey((prevSurvey) => ({
-                                                        ...prevSurvey,
-                                                        public: e.target.checked,
-                                                    }))
-                                                }
-                                            />
-                                        }
-                                        label={survey.public ? "Public" : "Private"}
-                                    />
-                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                        <DateTimePicker 
-                                            minDateTime={now} 
-                                            label="Deadline"
-                                            onClose={(newDeadline) => 
-                                                setSurvey((prevSurvey) => ({
-                                                        ...prevSurvey,
-                                                        deadline: newDeadline,
-                                                    }))
-                                            }
-                                        />
-                                    </LocalizationProvider>
                                 </Box>
                             </Box>
                             <Box className="flex flex-col space-y-1">
@@ -407,7 +349,14 @@ function SurveyBuilder() {
                     </Paper>
                 </Box>
             </Box>
-
+            <PublishSurveyDialog
+                open={openPublishDialog}
+                onClose={() => setOpenPublishDialog(false)}
+                survey={survey}
+                setSurvey={setSurvey}
+                surveyId={surveyId}
+                userId={user.userId}
+            />
             <DeleteSurveyDialog
                 open={openDeleteDialog}
                 onClose={() => setOpenDeleteDialog(false)}
