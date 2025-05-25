@@ -8,7 +8,7 @@ export const deleteSurvey = (surveyId) => api.delete(`/surveys/${surveyId}`);
 export const getSurveysByUserId = (userId) => api.get(`/surveys/user/${userId}`);
 export const getUnpublishedSurveys = (userId) => api.get(`/surveys/unpublished/user/${userId}`);
 export const getOngoingSurveys = (userId) => api.get(`/surveys/ongoing/user/${userId}`);
-export const getSurveyById = (surveyId) => api.get(`/surveys/${surveyId}`);
+export const getSurveyById = (surveyId) => api.get(`/surveys/${surveyId}`, { public: true });
 export const getPublicSurveys = () => api.get("/surveys/public", { public: true });
 export const getSurveyByPinCode = (pinCode) =>
     api.get(`/surveys/pinCode/${pinCode}`, { public: true });

@@ -19,6 +19,12 @@ const answerSchema = new Schema(
 				return this.respondentType === "user";
 			},
 		},
+		guestId: {
+			type: String,
+			required: function () {
+				return this.respondentType === "guest";
+			},
+		},
 		answers: {
 			type: [
 				{
