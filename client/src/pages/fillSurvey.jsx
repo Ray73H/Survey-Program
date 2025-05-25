@@ -92,6 +92,7 @@ export default function FillSurvey() {
       // Format answers according to the schema
       const formattedAnswers = Object.entries(answers).map(([questionId, answer]) => ({
         questionId: parseInt(questionId),
+        questionNumber: parseInt(questionId) + 1,
         answer,
         timestamp: new Date()
       }));
