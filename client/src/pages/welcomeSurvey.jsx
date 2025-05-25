@@ -6,6 +6,7 @@ import { createAnswer } from "../services/answers";
 import { getAnswer } from "../services/answers";
 import { useUserContext } from "../contexts/UserContext";
 
+
 export default function WelcomeSurvey() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -39,7 +40,6 @@ export default function WelcomeSurvey() {
     } catch (error) {
       console.error("Error creating answer BROOO:", error);
       if (error.response?.status === 400) {
-        console.log("IM HERE:");
         const existingAnswer = await getAnswer(survey._id, user.userId);
         // console.log("Existing answer:", existingAnswer);
         // console.log("existingAnswer.data:", existingAnswer.data);
@@ -57,13 +57,26 @@ export default function WelcomeSurvey() {
         // console.log("answerObj:", answerObj);
         // console.log("Navigating with answerId:", answerObj._id);
 
-        navigate("/fillSurvey", { 
-          state: { 
-            pinCode: survey.pinCode, 
-            survey,
-            answerId: existingAnswer.data[0]._id
-          } 
-        });
+        // console.log("existingAnswer.data[0]:", existingAnswer.data[0]);
+        const completed = existingAnswer.data[0].completed;
+
+        
+
+        if (!completed) {
+
+          navigate("/fillSurvey", { 
+            state: { 
+              pinCode: survey.pinCode, 
+              survey,
+              answerId: existingAnswer.data[0]._id
+            } 
+          });
+        }
+        else {
+          // throw new Error("Survey already completed!")
+          alert('Survey already completed!')
+
+        }
       }
     }
   };
