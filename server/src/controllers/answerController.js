@@ -1,4 +1,5 @@
 import Answer from "../models/Answers.js";
+import Survey from "../models/Surveys.js";
 
 export const createAnswer = async (req, res) => {
 	try {
@@ -42,6 +43,95 @@ export const getAnswer = async (req, res) => {
 		const { surveyId, userId } = req.query;
 		const answer = await Answer.find({ surveyId, respondentId: userId });
 		res.status(200).json(answer);
+	} catch (error) {
+		res.status(500).json({ message: "Internal server error: " + error.message });
+	}
+};
+
+export const getCompletedSurveyAnswers = async (req, res) => {
+	try {
+		const { userId } = req.query;
+		const answers = await Answer.find({ respondentId: userId, completed: true });
+
+		const populatedAnswers = await Promise.all(
+			answers.map(async (answer) => {
+				const survey = await Survey.findOne({ _id: answer.surveyId }).select(
+					"title description questions author"
+				);
+				if (survey) {
+					return {
+						...answer.toObject(),
+						surveyTitle: survey.title,
+						surveyDescription: survey.description,
+						surveyQuestions: survey.questions,
+						surveyAuthor: survey.author,
+					};
+				}
+				return answer.toObject();
+			})
+		);
+
+		res.status(200).json(populatedAnswers);
+	} catch (error) {
+		res.status(500).json({ message: "Internal server error: " + error.message });
+	}
+};
+
+export const getSavedSurveyAnswers = async (req, res) => {
+	try {
+		const { userId } = req.query;
+		const answers = await Answer.find({ respondentId: userId, completed: false });
+
+		const populatedAnswers = await Promise.all(
+			answers.map(async (answer) => {
+				const survey = await Survey.findOne({ _id: answer.surveyId }).select(
+					"title description questions author"
+				);
+				if (survey) {
+					return {
+						...answer.toObject(),
+						surveyTitle: survey.title,
+						surveyDescription: survey.description,
+						surveyQuestions: survey.questions,
+						surveyAuthor: survey.author,
+					};
+				}
+				return answer.toObject();
+			})
+		);
+
+		res.status(200).json(populatedAnswers);
+	} catch (error) {
+		res.status(500).json({ message: "Internal server error: " + error.message });
+	}
+};
+
+export const getThreeUncompletedSurveyAnswers = async (req, res) => {
+	try {
+		const { userId } = req.query;
+		const answers = await Answer.find({ respondentId: userId, started: true, completed: false })
+			.sort({ updatedAt: -1 })
+			.limit(3);
+
+		const populatedAnswers = await Promise.all(
+			answers.map(async (answer) => {
+				const survey = await Survey.findOne({ _id: answer.surveyId }).select(
+					"title description questions author"
+				);
+				if (survey) {
+					return {
+						...answer.toObject(),
+						surveyTitle: survey.title,
+						surveyDescription: survey.description,
+						surveyQuestions: survey.questions,
+						surveyAuthor: survey.author,
+					};
+				}
+				return answer.toObject();
+			})
+		);
+
+		res.status(200).json(populatedAnswers);
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error: " + error.message });
 	}
