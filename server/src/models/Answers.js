@@ -29,14 +29,15 @@ const answerSchema = new Schema(
 			],
 			default: [],
 		},
+		started: {
+			type: Boolean,
+			default: false,
+		},
 		completed: {
 			type: Boolean,
 			default: false,
 		},
-		startedAt: {
-			type: Date,
-			default: Date.now,
-		},
+		startedAt: Date,
 		completedAt: Date,
 	},
 	{ timestamps: true }
