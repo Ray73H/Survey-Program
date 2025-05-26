@@ -15,6 +15,8 @@ import WelcomeSurvey from "./pages/welcomeSurvey";
 import FillSurvey from "./pages/fillSurvey";
 import SurveyList from "./pages/SurveyList";
 import PreviewSurvey from "./pages/PreviewSurvey";
+import Settings from "./pages/settings";
+import PublicSurveys from "./pages/PublicSurvey";
 import { useUserContext } from "./contexts/UserContext";
 
 const ProtectedRoute = ({ children, allowedAccountTypes }) => {
@@ -48,6 +50,8 @@ const experimenteeRoutes = [
     { path: "/join", element: <JoinSurvey /> },
     { path: "/welcome", element: <WelcomeSurvey /> },
     { path: "/fillSurvey", element: <FillSurvey /> },
+    { path: "/settings", element: <Settings />},
+    { path: "/publicsurveys", element: <PublicSurveys />},
 ];
 
 const superuserRoutes = [
