@@ -34,7 +34,7 @@ import { useUserContext } from "../contexts/UserContext";
 
 export default function Settings() {
     const navigate = useNavigate();
-    const { user } = useUserContext();
+    const { user, logout } = useUserContext();
     const [deleteUserId, setDeleteUserId] = useState("");
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [UserId, setUserId] = useState("");
@@ -58,46 +58,72 @@ export default function Settings() {
     //    fetchUser();
     //}, user.userId);
     
-    const handleDeleteUser = async () => {
-    //    await deleteUser(deleteUserId);
-    //    setOpenDeleteDialog(false);
+    //const handleLogout = () => {
+    //    logout();
+    //};
+
+
+ //   const handleGetUser = async () => {
+ //     const res = getUser(user.id);
+ //     setDeleteUserId(res.data.id);
+ //   }
+   
+  const handleDeleteUser = async () => {
+ //       await deleteUser(deleteUserId);
+        setOpenDeleteDialog(false);
+        //logout();
         navigate("/signup");
     //    fetchUser(); 
     }
 
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
-          <Box display="flex" alignItems="center" gap={2}>
+      <Card elevation={3}>
+        <CardContent>
+          <Box mb={2} display="flex" alignItems="center" gap={2}>
             <Avatar sx={{ bgcolor: 'primary.main', width: 56, height: 56 }}>
               {user.name.charAt(0)}
             </Avatar>
             <Typography variant="h5">View Profile Details</Typography>
           </Box>
-          <Divider />
-            <Typography variant="h4">
+          <Divider/>
+          <Box mb={3}>
+            <Typography variant="h6">
                 User name:
             </Typography>
-            <Typography variant="h3">
+            <Typography variant="h7">
                 {user.name}
             </Typography>
-             <Typography variant="h4">
+            </Box>
+            <Box mb={3}>
+             <Typography variant="h6">
                 Email:
             </Typography>
-            <Typography variant="h3">
+            <Typography variant="h7">
                 {user.email}
             </Typography>    
-
+            </Box>
+            <Box mb={3}>
+            <Typography variant="h6">
+                Account type:
+            </Typography>
+            <Typography variant="h7">
+                {user.accountType}
+            </Typography>  
+            </Box>
           <Divider />
 
-          <Box textAlign="right">
-               <IconButton
+          <Box mt={2} textAlign="right">
+               <Button
+                variant="outlined"
+                color="error"
+                endIcon={<DeleteIcon />}
                    onClick={() => {
                       setOpenDeleteDialog(true);
-                      setDeleteUserId(user.id);
-                    }}
-                   color="error"  >
-                   <DeleteIcon />
-                 </IconButton>
+   //                   handleGetUser();
+                    }} >
+                      Delete Account
+                 </Button>
           </Box>
             <DeleteUserDialog
                 open={openDeleteDialog}
@@ -107,7 +133,8 @@ export default function Settings() {
                     }}
                 onConfirm={handleDeleteUser}
                       />
-    </Container>
-    
+          </CardContent>
+      </Card>
+    </Container> 
   );
 }

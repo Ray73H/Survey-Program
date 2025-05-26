@@ -156,7 +156,9 @@ export default function ExperimenteeNavbar() {
                                             sx={{ opacity: open ? 1 : 0 }}
                                         />
                                     </ListItemButton>
-                                    <ListItemButton sx={{ pl: open ? 6 : 4 }}>
+                                    <ListItemButton 
+                                    onClick={() => navigate("/completedsurveys")}
+                                    sx={{ pl: open ? 6 : 4 }}>
                                         <ListItemText
                                             primary="Completed Surveys"
                                             sx={{ opacity: open ? 1 : 0 }}

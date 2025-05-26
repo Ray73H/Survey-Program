@@ -122,10 +122,9 @@ const Experimentee = () => {
                             minWidth: 280,
                             flexShrink: 0,
                             scrollSnapAlign: "start",
-                            position: "relative", // 🆕 position relative for absolute icon
+                            position: "relative", 
                         }}
                     >
-                        {/* 🆕 Top-right IconButton */}
                         <IconButton
                             size="small"
                             onClick={(e) => handleMenuOpen(e, survey.id)}
@@ -161,7 +160,6 @@ const Experimentee = () => {
                             </IconButton>
                         </CardActions>
 
-                        {/* 🆕 Menu logic stays */}
                         {menuSurveyId === survey.id && (
                             <Menu
                                 anchorEl={anchorEl}
