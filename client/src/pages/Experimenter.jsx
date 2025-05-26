@@ -24,6 +24,7 @@ import {
     createSurvey,
     deleteSurvey,
     exportSurvey,
+    getOngoingSurveys,
     getUnpublishedSurveys,
     importSurvey,
 } from "../services/surveys";
@@ -32,11 +33,23 @@ import { DeleteSurveyDialog } from "../components/DeleteSurveyDialog";
 const Experimenter = () => {
     const [anchorEl, setAnchorEl] = useState(null);
     const [menuSurveyId, setMenuSurveyId] = useState(null);
+    const [ongoingSurveys, setOngoingSurveys] = useState([]);
+    const [unpublishedSurveys, setUnpublishedSurveys] = useState([]);
     const [surveys, setSurveys] = useState([]);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [deleteSurveyId, setDeleteSurveyId] = useState("");
     const navigate = useNavigate();
     const { user } = useUserContext();
+
+    const fetchOngoingSurveys = async () => {
+        const response = await getOngoingSurveys(user.userId);
+        setOngoingSurveys(response.data);
+    }
+
+    const fetchUnpublishedSurveys = async () => {
+        const response = await getUnpublishedSurveys(user.userId);
+        setUnpublishedSurveys(response.data);
+    }
 
     const fetchSurveys = async () => {
         const response = await getUnpublishedSurveys(user.userId);
@@ -141,7 +154,7 @@ const Experimenter = () => {
                 </Box>
 
                 <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
-                    Your Surveys
+                    Ongoing Surveys
                 </Typography>
 
                 <Box
@@ -153,7 +166,124 @@ const Experimenter = () => {
                         scrollSnapType: "x mandatory",
                     }}
                 >
-                    {surveys.map((survey) => (
+                    {ongoingSurveys.map((survey) => (
+                        <Card
+                            key={survey._id}
+                            sx={{
+                                minWidth: 280,
+                                flexShrink: 0,
+                                scrollSnapAlign: "start",
+                                position: "relative",
+                            }}
+                        >
+                            <IconButton
+                                size="small"
+                                onClick={(e) => handleMenuOpen(e, survey._id)}
+                                sx={{
+                                    position: "absolute",
+                                    top: 8,
+                                    right: 8,
+                                    zIndex: 1,
+                                }}
+                            >
+                                <MoreVertIcon />
+                            </IconButton>
+
+                            <CardMedia
+                                sx={{ height: 140, backgroundColor: "#ccc" }}
+                                image=""
+                                title="Survey Preview"
+                            />
+
+                            <CardContent>
+                                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                                    <Typography variant="subtitle2" color="textSecondary">
+                                        {survey.author} •{" "}
+                                        {new Date(survey.createdAt).toLocaleDateString("en-US", {
+                                            year: "numeric",
+                                            month: "short",
+                                            day: "numeric",
+                                        })}
+                                    </Typography>
+                                    {survey.imported && (
+                                        <Chip
+                                            size="small"
+                                            icon={<FileUploadIcon />}
+                                            label="Imported"
+                                            color="info"
+                                            variant="outlined"
+                                        />
+                                    )}
+                                </Box>
+                                <Typography variant="h6">{survey.title}</Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    {survey.description}
+                                </Typography>
+                            </CardContent>
+
+                            <CardActions sx={{ justifyContent: "space-between" }}>
+                                <Button
+                                    onClick={() => navigate(`/survey-builder/${survey._id}`)}
+                                    size="small"
+                                    variant="outlined"
+                                    startIcon={<EditIcon />}
+                                >
+                                    Edit
+                                </Button>
+                                <IconButton
+                                    onClick={() => {
+                                        setOpenDeleteDialog(true);
+                                        setDeleteSurveyId(survey._id);
+                                    }}
+                                    color="error"
+                                >
+                                    <DeleteIcon />
+                                </IconButton>
+                            </CardActions>
+
+                            {menuSurveyId === survey._id && (
+                                <Menu
+                                    anchorEl={anchorEl}
+                                    open={Boolean(anchorEl)}
+                                    onClose={handleMenuClose}
+                                >
+                                    <MenuItem onClick={handleMenuClose}>Share Survey</MenuItem>
+                                    <MenuItem
+                                        onClick={() => {
+                                            exportSurvey(survey._id);
+                                            handleMenuClose();
+                                        }}
+                                    >
+                                        Export Survey
+                                    </MenuItem>
+                                    <MenuItem
+                                        onClick={() => {
+                                            navigate(`/survey-preview/${menuSurveyId}`);
+                                            handleMenuClose();
+                                        }}
+                                    >
+                                        Preview
+                                    </MenuItem>
+                                </Menu>
+                            )}
+                        </Card>
+                    ))}
+                </Box>
+
+                <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
+                    Unpublished Surveys
+                </Typography>
+
+                <Box
+                    sx={{
+                        display: "flex",
+                        gap: 2,
+                        overflowX: "auto",
+                        pb: 2,
+                        scrollSnapType: "x mandatory",
+                    }}
+                >
+                    {unpublishedSurveys.map((survey) => (
                         <Card
                             key={survey._id}
                             sx={{

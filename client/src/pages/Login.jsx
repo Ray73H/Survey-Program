@@ -1,44 +1,56 @@
-import React, { useState } from "react";
-import {
-    Box,
-    Typography,
-    Card,
-    CardContent,
-    CardActions,
-    Button,
-    IconButton,
-    Menu,
-    MenuItem,
-    CardMedia,
-    TextField,
-} from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { useState, useEffect } from "react";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import InputAdornment from "@mui/material/InputAdornment";
+import FormHelperText from "@mui/material/FormHelperText";
+import FormControl from "@mui/material/FormControl";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import Alert from "@mui/material/Alert";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/users";
 import { useUserContext } from "../contexts/UserContext";
 import { jwtDecode } from "jwt-decode";
+import { v4 as uuidv4 } from "uuid";
 
 export default function Login() {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [errMsgEmail, setErrMsgEmail] = useState("");
+    const [errMsgPwd, setErrMsgPwd] = useState("");
+    const [errMsgServer, setErrMsgServer] = useState("");
+
     const { setUser } = useUserContext();
     const navigate = useNavigate();
 
-    const handleLogin = async () => {
+    const handleLogin = async (event) => {
+        event.preventDefault(); 
         const userData = {
             email,
             password,
         };
-        const response = await loginUser(userData);
-        sessionStorage.setItem("authToken", response.data.token);
-        const decoded = jwtDecode(response.data.token);
-        setUser(decoded);
-        navigate("/");
+
+        try {
+            const response = await loginUser(userData);
+            sessionStorage.setItem("authToken", response.data.token);
+            const decoded = jwtDecode(response.data.token);
+            setUser(decoded);
+            navigate("/");
+
+        }
+        catch (error) {
+            //handling of wrong login credentials
+            if (error.response) {
+                setErrMsgPwd(error.response.data.message);
+            }
+        }
     };
-    const [email, setEmail] = React.useState("");
-    const [password, setPassword] = React.useState("");
-    const [showPassword, setShowPassword] = React.useState(false);
+
 
     // const mode =
     //     user.user === "experimenter" || user.user === "experimentee" || user.user == "superuser"
@@ -56,7 +68,6 @@ export default function Login() {
     // };
 
     const handleClickShowPassword = () => setShowPassword((show) => !show);
-    const handleClickShowPasswordRepeat = () => setShowPasswordRepeat((show) => !show);
 
     const handleMouseDownPassword = (event) => {
         event.preventDefault();
@@ -70,22 +81,19 @@ export default function Login() {
         navigate("/signup");
     };
 
-    const handleLeftLoginSwitch = () => {
-        const url = "/login/" + leftOpp;
-        navigate(url);
-    };
-
-    const handleRightLoginSwitch = () => {
-        const url = "/login/" + rightOpp;
-        navigate(url);
-    };
-
-    const handleEmailChange = (event) => {
-        setEmail(event.target.value);
-    };
-
-    const handlePasswordChange = (event) => {
-        setPassword(event.target.value);
+    const handleContinueAsGuest = () => {
+        const guestSessionId = uuidv4();
+        const expiresAt = Date.now() + 6 * 60 * 60 * 1000;
+        sessionStorage.setItem("guestSessionId", guestSessionId);
+        sessionStorage.setItem("guestSessionExpires", expiresAt.toString());
+        setUser({
+            userId: guestSessionId,
+            email: "",
+            name: "Guest",
+            accountType: "experimentee",
+            guest: true,
+        });
+        navigate("/");
     };
 
     return (
@@ -101,73 +109,84 @@ export default function Login() {
             <Typography variant="h4" gutterBottom style={{ fontWeight: "bold" }}>
                 Log In
             </Typography>
-            {/* <div
-                id="switchbuttons"
-                style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    width: "100vh",
-                }}
-            >
-                <Button
-                    variant="contained"
-                    style={{ margin: "5px", backgroundColor: "#394F87" }}
-                    onClick={handleLeftLoginSwitch}
-                >
-                    Log In as {modifyTitle(leftOpp)}
-                </Button>
-                <Button
-                    variant="contained"
-                    style={{ margin: "5px", backgroundColor: "#000000" }}
-                    onClick={handleRightLoginSwitch}
-                >
-                    Log In as {modifyTitle(rightOpp)}
-                </Button>
-            </div> */}
-
-            <div
-                id="emailfield"
-                style={{
+            {errMsgServer && (
+                <Alert sx={{ width: "45ch" }} severity="error" aria-live="assertive">
+                    {errMsgServer}
+                </Alert>
+            )}
+            <Box
+                component="form"
+                sx={{
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "center",
                     alignItems: "start",
                     width: "80vh",
                 }}
+                onSubmit={handleLogin}
             >
                 <Typography variant="h5" gutterBottom>
                     E-mail
                 </Typography>
-
-                <TextField
-                    id="outlined-basic"
-                    label="Outlined"
+                <FormControl
+                    sx={{ height: "10vh", width: "100%" }}
                     variant="outlined"
-                    style={{ height: "10vh", width: "100%" }}
-                    value={email}
-                    onChange={handleEmailChange}
-                />
-
+                    error={errMsgEmail}
+                >
+                    <OutlinedInput
+                        id="emailfield"
+                        type="text"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                    {errMsgEmail && (
+                        <FormHelperText>
+                            <ErrorOutlineIcon fontSize="small" /> {errMsgEmail}
+                        </FormHelperText>
+                    )}
+                </FormControl>
                 <Typography variant="h5" gutterBottom>
                     Password
                 </Typography>
-
-                <TextField
-                    id="outlined-basic"
-                    label="Outlined"
+                <FormControl
+                    sx={{ height: "10vh", width: "100%" }}
                     variant="outlined"
-                    style={{ height: "10vh", width: "100%" }}
-                    value={password}
-                    onChange={handlePasswordChange}
-                />
-                <Button variant="contained" onClick={handleLogin}>
+                    error={errMsgPwd}
+                >
+                    <OutlinedInput
+                        id="pwdfield"
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        endAdornment={
+                            <InputAdornment position="end">
+                                <IconButton
+                                    aria-label={
+                                        showPassword ? "hide the password" : "display the password"
+                                    }
+                                    onClick={handleClickShowPassword}
+                                    onMouseDown={handleMouseDownPassword}
+                                    onMouseUp={handleMouseUpPassword}
+                                >
+                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                </IconButton>
+                            </InputAdornment>
+                        }
+                    />
+                    {errMsgPwd && (
+                        <FormHelperText>
+                            <ErrorOutlineIcon fontSize="small" /> {errMsgPwd}
+                        </FormHelperText>
+                    )}
+                </FormControl>
+                <Button type="submit" variant="contained" color="secondary">
                     Log in
                 </Button>
-            </div>
-
+            </Box>
             <div
-                id="signupfield"
+                id="signup_field"
                 style={{
                     display: "flex",
                     flexDirection: "column",
@@ -181,6 +200,15 @@ export default function Login() {
                 </Typography>
                 <Button variant="contained" onClick={signUpClick}>
                     Sign Up
+                </Button>
+
+                <Button
+                    variant="outlined"
+                    color="primary"
+                    sx={{ marginTop: 2 }}
+                    onClick={handleContinueAsGuest}
+                >
+                    Continue as Guest
                 </Button>
             </div>
         </div>
