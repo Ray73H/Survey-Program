@@ -28,16 +28,27 @@ export default function Login() {
     const { setUser } = useUserContext();
     const navigate = useNavigate();
 
-    const handleLogin = async () => {
+    const handleLogin = async (event) => {
+        event.preventDefault(); 
         const userData = {
             email,
             password,
         };
-        const response = await loginUser(userData);
-        sessionStorage.setItem("authToken", response.data.token);
-        const decoded = jwtDecode(response.data.token);
-        setUser(decoded);
-        navigate("/");
+
+        try {
+            const response = await loginUser(userData);
+            sessionStorage.setItem("authToken", response.data.token);
+            const decoded = jwtDecode(response.data.token);
+            setUser(decoded);
+            navigate("/");
+
+        }
+        catch (error) {
+            //handling of wrong login credentials
+            if (error.response) {
+                setErrMsgPwd(error.response.data.message);
+            }
+        }
     };
 
 
@@ -170,7 +181,7 @@ export default function Login() {
                         </FormHelperText>
                     )}
                 </FormControl>
-                <Button type="submit" variant="contained" color="secondary" onClick={handleLogin}>
+                <Button type="submit" variant="contained" color="secondary">
                     Log in
                 </Button>
             </Box>
