@@ -19,6 +19,12 @@ const answerSchema = new Schema(
 				return this.respondentType === "user";
 			},
 		},
+		guestId: {
+			type: String,
+			required: function () {
+				return this.respondentType === "guest";
+			},
+		},
 		answers: {
 			type: [
 				{
@@ -29,14 +35,15 @@ const answerSchema = new Schema(
 			],
 			default: [],
 		},
+		started: {
+			type: Boolean,
+			default: false,
+		},
 		completed: {
 			type: Boolean,
 			default: false,
 		},
-		startedAt: {
-			type: Date,
-			default: Date.now,
-		},
+		startedAt: Date,
 		completedAt: Date,
 	},
 	{ timestamps: true }

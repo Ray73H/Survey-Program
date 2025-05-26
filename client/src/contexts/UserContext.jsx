@@ -12,18 +12,17 @@ export const UserProvider = ({ children }) => {
         email: "",
         name: "",
         accountType: "",
-        surveyAccess: [],
     });
 
     useEffect(() => {
         const token = sessionStorage.getItem("authToken");
+        const guestSessionId = sessionStorage.getItem("guestSessionId");
         if (token) {
             try {
                 const decoded = jwtDecode(token);
 
                 const currentTime = Date.now() / 1000;
                 if (decoded.exp && decoded.exp < currentTime) {
-                    console.warn("Token has expired.");
                     logout();
                     return;
                 }
@@ -33,6 +32,20 @@ export const UserProvider = ({ children }) => {
                 console.error("Failed to rehydrate user:", error);
                 logout();
             }
+        } else if (guestSessionId) {
+            const expiresAt = parseInt(sessionStorage.getItem("guestSessionExpires"));
+            if (Date.now() > expiresAt) {
+                logout();
+                return;
+            }
+
+            setUser({
+                userId: guestSessionId,
+                email: "",
+                name: "Guest",
+                accountType: "experimentee",
+                guest: true,
+            });
         }
     }, []);
 
@@ -45,6 +58,8 @@ export const UserProvider = ({ children }) => {
             surveyAccess: [],
         });
         sessionStorage.removeItem("authToken");
+        sessionStorage.removeItem("guestSessionId");
+        sessionStorage.removeItem("guestSessionExpires");
     };
 
     return (

@@ -40,7 +40,7 @@ export default function WelcomeSurvey() {
     } catch (error) {
       console.error("Error creating answer BROOO:", error);
       if (error.response?.status === 400) {
-        const existingAnswer = await getAnswer(survey._id, user.userId);
+        const existingAnswer = await getAnswer(survey._id, !!user?.guest, user.userId);
         // console.log("Existing answer:", existingAnswer);
         // console.log("existingAnswer.data:", existingAnswer.data);
 
