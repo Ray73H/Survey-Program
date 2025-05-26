@@ -6,7 +6,6 @@ import {
 	updateUser,
 	getAllUsers,
 	deleteUser,
-	addSurveyAccess,
 	getUser,
 } from "../controllers/userController.js";
 
@@ -18,7 +17,6 @@ router.put("/:id", authMiddleware, updateUser);
 router.get("/:id", authMiddleware, getUser);
 router.delete("/:id", authMiddleware, deleteUser);
 
-router.post("/:id/surveyAccess", authMiddleware, addSurveyAccess);
 
 // ADMIN ROUTES
 router.get("/all", getAllUsers);
