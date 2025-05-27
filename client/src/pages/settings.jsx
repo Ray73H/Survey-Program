@@ -1,32 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
     Box,
     Typography,
     Card,
     CardContent,
-    CardActions,
     Button,
-    IconButton,
-    Menu,
-    MenuItem,
-    CardMedia,
 } from "@mui/material";
 import {
   Container,
-  Paper,
   Avatar,
-  TextField,
-  Switch,
-  FormControlLabel,
   Divider,
-  Stack,
 } from '@mui/material';
-import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate } from "react-router-dom";
-import {getUser, deleteUser} from "../services/users";
+import { deleteUser} from "../services/users";
 import { DeleteUserDialog } from "../components/DeleteUserDialog";
 import { useUserContext } from "../contexts/UserContext";
 
@@ -35,46 +22,20 @@ import { useUserContext } from "../contexts/UserContext";
 export default function Settings() {
     const navigate = useNavigate();
     const { user, logout } = useUserContext();
-    const [deleteUserId, setDeleteUserId] = useState("");
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-    const [UserId, setUserId] = useState("");
-    //const userid = getUser();
 
-    //const fetchSurveys = async () => {
-    //    const response = await getUnpublishedSurveys(user.userId);
-    //    setSurveys(response.data);
-    //};
-
-    //useEffect(() => {
-    //    fetchSurveys();
-    //}, [user.userId]);
-
-    //const fetchUser = async () => {
-    //    const response = await getUser(user.userId);
-    //    setUserId(response);
-    //};
-
-    //useEffect(() => {
-    //    fetchUser();
-    //}, user.userId);
-    
-    //const handleLogout = () => {
-    //    logout();
-    //};
-
-
- //   const handleGetUser = async () => {
- //     const res = getUser(user.id);
- //     setDeleteUserId(res.data.id);
- //   }
    
   const handleDeleteUser = async () => {
- //       await deleteUser(deleteUserId);
-        setOpenDeleteDialog(false);
-        //logout();
-        navigate("/signup");
-    //    fetchUser(); 
-    }
+        try {
+          await deleteUser(user.userId);
+          alert('User Deleted!')
+        } catch (err) {
+          console.error('failed to delete', err);
+        } finally {
+          setOpenDeleteDialog(false);
+          logout();
+          //navigate("/signup");
+        }}
 
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
@@ -120,7 +81,6 @@ export default function Settings() {
                 endIcon={<DeleteIcon />}
                    onClick={() => {
                       setOpenDeleteDialog(true);
-   //                   handleGetUser();
                     }} >
                       Delete Account
                  </Button>
@@ -129,7 +89,6 @@ export default function Settings() {
                 open={openDeleteDialog}
                 onClose={() => {
                     setOpenDeleteDialog(false);
-                    setDeleteUserId("");
                     }}
                 onConfirm={handleDeleteUser}
                       />

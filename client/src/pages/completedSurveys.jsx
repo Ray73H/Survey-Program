@@ -28,7 +28,7 @@ import {
 } from '@mui/icons-material';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import { useTheme } from '@mui/material/styles';
-import { getPublicSurveys, getSurveyByPinCode } from '../services/surveys';
+import { getPublicSurveys, getSurveyByPinCode, getSurveyById, getSurveysByUserId } from '../services/surveys';
 import {getCompletedSurveyAnswers } from '../services/answers';
 import { useUserContext } from '../contexts/UserContext';
 import { addSurveyAccess } from '../services/users';
@@ -139,6 +139,7 @@ export default function CompletedSurveys() {
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [answers, setAnswers] = useState([]);
+  const [surveyIds, setSurveyIds] = useState([])
   //const [viewMode, setViewMode] = useState('all'); // 'own' or 'all'
   const navigate=useNavigate()
 
@@ -147,7 +148,11 @@ export default function CompletedSurveys() {
       setLoading(true);
       try {
         let res = await getCompletedSurveyAnswers(!!user?.guest, user.userId);
-        setSurveys(res.data);
+    //    setSurveyIds(res.data.map(item => item.surveyId));
+        console.log(res.data)
+        const ids  = res.data
+    //    console.log(surveyIds)
+    //    setSurveys(surveyIds.map(id => getSurveyById(id))); 
      //   setSurveys(answers.surveyid)
       } catch (err) {
         console.error('Failed to fetch surveys:', err);
