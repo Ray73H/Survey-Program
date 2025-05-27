@@ -8,7 +8,9 @@ import {
   Paper,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { getSurveyByPinCode } from "../services/surveys";
+import { getSurveyByPinCode} from "../services/surveys";
+import { createAnswer } from "../services/answers";
+import { getAnswer } from "../services/answers";
 import { useUserContext } from "../contexts/UserContext";
 import { addSurveyAccess } from "../services/users";
 
@@ -30,7 +32,39 @@ export default function JoinSurvey() {
       if (user.userId && survey._id) {
         await addSurveyAccess(user.userId, survey._id);
       }
-      navigate("/welcome", { state: { survey } });
+      try {
+        const answerData = {
+          surveyId: survey._id,
+          respondentType: user && user.userId ? "user" : "guest",
+          ...(user && user.userId && { respondentId: user.userId })
+        };
+        const createRes = await createAnswer(answerData);
+        navigate("/welcome", {
+          state: {
+            pinCode: survey.pinCode,
+            survey,
+            answerId: createRes.data._id
+          }
+        });
+      } catch (error) {
+        if (error.response?.status === 400) {
+          const existingAnswer = await getAnswer(survey._id, !!user?.guest, user.userId);
+          const completed = existingAnswer.data[0].completed;
+          if (!completed) {
+            navigate("/welcome", {
+              state: {
+                pinCode: survey.pinCode,
+                survey,
+                answerId: existingAnswer.data[0]._id
+              }
+            });
+          } else {
+            alert('Survey already completed!');
+          }
+        } else {
+          alert('Error creating answer.');
+        }
+      }
     } catch (err) {
       setError("Invalid pin code. Please try again.");
     } finally {
