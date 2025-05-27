@@ -55,7 +55,6 @@ const experimenteeRoutes = [
     { path: "/welcome", element: <WelcomeSurvey /> },
     { path: "/fillSurvey", element: <FillSurvey /> },
     { path: "/lockscreen", element: <LockScreen /> },
-    { path: "/settings", element: <Settings />},
     { path: "/settingsExperimentee", element: <SettingsExperimentee />},
     { path: "/publicsurveys", element: <PublicSurveys />},
     { path: "/completedsurveys", element: <CompletedSurveys />},
