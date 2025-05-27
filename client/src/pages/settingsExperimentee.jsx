@@ -19,7 +19,7 @@ import { useUserContext } from "../contexts/UserContext";
 
 
 
-export default function Settings() {
+export default function SettingsExperimentee() {
     const navigate = useNavigate();
     const { user, logout } = useUserContext();
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);

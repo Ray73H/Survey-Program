@@ -15,7 +15,8 @@ import WelcomeSurvey from "./pages/welcomeSurvey";
 import FillSurvey from "./pages/fillSurvey";
 import SurveyList from "./pages/SurveyList";
 import PreviewSurvey from "./pages/PreviewSurvey";
-import Settings from "./pages/settings";
+import SettingsExperimentee from "./pages/settingsExperimentee";
+import SettingsExperimenter from "./pages/settingsExperimenter"
 import PublicSurveys from "./pages/PublicSurvey";
 import CompletedSurveys from "./pages/completedSurveys";
 import { useUserContext } from "./contexts/UserContext";
@@ -44,7 +45,7 @@ const experimenterRoutes = [
     { path: "/survey-builder/:surveyId", element: <SurveyBuilder /> },
     { path: "/experimenter_survey_list", element: <SurveyList /> },
     { path: "/survey-preview/:surveyId", element: <PreviewSurvey /> },
-    { path: "/settings", element: <Settings />},
+    { path: "/settingsExperimenter", element: <SettingsExperimenter />},
 ];
 
 const experimenteeRoutes = [
@@ -52,7 +53,7 @@ const experimenteeRoutes = [
     { path: "/join", element: <JoinSurvey /> },
     { path: "/welcome", element: <WelcomeSurvey /> },
     { path: "/fillSurvey", element: <FillSurvey /> },
-    { path: "/settings", element: <Settings />},
+    { path: "/settingsExperimentee", element: <SettingsExperimentee />},
     { path: "/publicsurveys", element: <PublicSurveys />},
     { path: "/completedsurveys", element: <CompletedSurveys />},
 ];

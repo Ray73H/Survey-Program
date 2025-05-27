@@ -260,7 +260,7 @@ export default function ExperimenterNavbar() {
                         <Collapse in={accountOpen} timeout="auto" unmountOnExit>
                             <List component="div" disablePadding sx={{ pl: 4 }}>
                                 {!user?.guest && (
-                                    <ListItem button onClick={() => navigate("/settings")}>
+                                    <ListItem button onClick={() => navigate("/settingsExperimenter")}>
                                         <ListItemIcon>
                                             <Settings />
                                         </ListItemIcon>
