@@ -32,6 +32,9 @@ import { getPublicSurveys, getSurveyByPinCode } from '../services/surveys';
 import { useUserContext } from '../contexts/UserContext';
 import { addSurveyAccess } from '../services/users';
 import { useNavigate } from 'react-router-dom';
+import { createAnswer, getAnswer } from '../services/answers';
+
+
 // Pagination control buttons
 function TablePaginationActions({ count, page, rowsPerPage, onPageChange }) {
   const theme = useTheme();
@@ -65,8 +68,6 @@ function TablePaginationActions({ count, page, rowsPerPage, onPageChange }) {
     </Box>
   );
 }
-
-
 
 // Collapsible row component
 function Row({ survey, onParticipate}) {
@@ -179,7 +180,39 @@ export default function SurveyList() {
     if (user.userId && survey._id) {
         await addSurveyAccess(user.userId, survey._id);
     }
-    navigate("/welcome", { state: { survey } });
+    try {
+      const answerData = {
+        surveyId: survey._id,
+        respondentType: user && user.userId ? "user" : "guest",
+        ...(user && user.userId && { respondentId: user.userId })
+      };
+      const createRes = await createAnswer(answerData);
+      navigate("/welcome", {
+        state: {
+          pinCode: survey.pinCode,
+          survey,
+          answerId: createRes.data._id
+        }
+      });
+    } catch (error) {
+      if (error.response?.status === 400) {
+        const existingAnswer = await getAnswer(survey._id, !!user?.guest, user.userId);
+        const completed = existingAnswer.data[0].completed;
+        if (!completed) {
+          navigate("/welcome", {
+            state: {
+              pinCode: survey.pinCode,
+              survey,
+              answerId: existingAnswer.data[0]._id
+            }
+          });
+        } else {
+          alert('Survey already completed!');
+        }
+      } else {
+        alert('Error creating answer.');
+      }
+    }
   };
 
   const filteredSurveys = surveys.filter(

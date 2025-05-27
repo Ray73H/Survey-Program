@@ -13,6 +13,7 @@ import JoinSurvey from "./pages/JoinSurvey";
 import Login from "./pages/Login";
 import WelcomeSurvey from "./pages/welcomeSurvey";
 import FillSurvey from "./pages/fillSurvey";
+import LockScreen from "./pages/LockScreen";
 import SurveyList from "./pages/SurveyList";
 import PreviewSurvey from "./pages/PreviewSurvey";
 import Settings from "./pages/settings";
@@ -50,6 +51,7 @@ const experimenteeRoutes = [
     { path: "/join", element: <JoinSurvey /> },
     { path: "/welcome", element: <WelcomeSurvey /> },
     { path: "/fillSurvey", element: <FillSurvey /> },
+    { path: "/lockscreen", element: <LockScreen /> },
     { path: "/settings", element: <Settings />},
     { path: "/publicsurveys", element: <PublicSurveys />},
 ];

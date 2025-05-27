@@ -111,8 +111,14 @@ export default function FillSurvey() {
       }
 
       await updateAnswer(answerId, answerData);
-      alert(`Survey submitted! Time taken: ${formatTime(elapsed)}`);
-      navigate("/experimentee");
+
+      navigate("/lockScreen", { 
+        state: { 
+          survey, 
+          time_taken: formatTime(elapsed)
+        } } ); 
+      // alert(`Survey submitted! Time taken: ${formatTime(elapsed)}`);
+      // navigate("/experimentee");
     } catch (error) {
       setError("Failed to submit survey. Please try again.");
       setSubmitting(false);
