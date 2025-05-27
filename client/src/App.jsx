@@ -17,6 +17,7 @@ import SurveyList from "./pages/SurveyList";
 import PreviewSurvey from "./pages/PreviewSurvey";
 import Settings from "./pages/settings";
 import PublicSurveys from "./pages/PublicSurvey";
+import CompletedSurveys from "./pages/completedSurveys";
 import { useUserContext } from "./contexts/UserContext";
 
 const ProtectedRoute = ({ children, allowedAccountTypes }) => {
@@ -43,6 +44,7 @@ const experimenterRoutes = [
     { path: "/survey-builder/:surveyId", element: <SurveyBuilder /> },
     { path: "/experimenter_survey_list", element: <SurveyList /> },
     { path: "/survey-preview/:surveyId", element: <PreviewSurvey /> },
+    { path: "/settings", element: <Settings />},
 ];
 
 const experimenteeRoutes = [
@@ -52,6 +54,7 @@ const experimenteeRoutes = [
     { path: "/fillSurvey", element: <FillSurvey /> },
     { path: "/settings", element: <Settings />},
     { path: "/publicsurveys", element: <PublicSurveys />},
+    { path: "/completedsurveys", element: <CompletedSurveys />},
 ];
 
 const superuserRoutes = [

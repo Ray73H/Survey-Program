@@ -68,6 +68,7 @@ export default function ExperimenterNavbar() {
     const [accountOpen, setAccountOpen] = React.useState(false);
     const navigate = useNavigate();
     const { user, logout } = useUserContext();
+    const firstLetter = user.name ? user.name.charAt(0).toUpperCase() : "?";
 
     const handleAccountClick = () => {
         setAccountOpen((prev) => !prev);
@@ -229,34 +230,48 @@ export default function ExperimenterNavbar() {
                 <Box>
                     <Divider />
                     <List>
-                        <ListItem disablePadding>
-                            <ListItemButton onClick={handleAccountClick}>
-                                <ListItemIcon>
-                                    <Avatar alt="User" />
-                                </ListItemIcon>
-                                <ListItemText primary="name" secondary={user.email} />
-                                <IconButton size="small">
-                                    {accountOpen ? <ExpandLess /> : <ExpandMore />}
-                                </IconButton>
-                            </ListItemButton>
+                           <ListItem button onClick={handleAccountClick}>
+                            <ListItemIcon>
+                                <Avatar sx={{ bgcolor: "primary.main" }}>{firstLetter}</Avatar>
+                            </ListItemIcon>
+                            <ListItemText
+                                primary={user.name}
+                                sx={{
+                                    maxWidth: 300,
+                                    "& .MuiListItemText-primary": {
+                                        whiteSpace: accountOpen ? "normal" : "nowrap",
+                                        overflow: accountOpen ? "visible" : "hidden",
+                                        textOverflow: accountOpen ? "initial" : "ellipsis",
+                                    },
+                                    //"& .MuiListItemText-secondary": {
+                                    //    display: accountOpen ? "block" : "none",
+                                        //     whiteSpace: 'normal',          ATTEMPTS AT BREAKING NICELY :'((((
+                                        //     wordBreak: 'break-word',
+                                        //     overflowWrap: 'break-word',
+                                        //     lineBreak: 'strict',
+                                        //     hyphens: 'auto',
+                                    //},
+                                }}
+                            />
+                            <IconButton size="small">
+                                {accountOpen ? <ExpandLess /> : <ExpandMore />}
+                            </IconButton>
                         </ListItem>
                         <Collapse in={accountOpen} timeout="auto" unmountOnExit>
                             <List component="div" disablePadding sx={{ pl: 4 }}>
-                                <ListItem disablePadding>
-                                    <ListItemButton>
+                                {!user?.guest && (
+                                    <ListItem button onClick={() => navigate("/settings")}>
                                         <ListItemIcon>
                                             <Settings />
                                         </ListItemIcon>
                                         <ListItemText primary="Settings" />
-                                    </ListItemButton>
-                                </ListItem>
-                                <ListItem disablePadding>
-                                    <ListItemButton onClick={handleLogout}>
-                                        <ListItemIcon>
-                                            <Logout />
-                                        </ListItemIcon>
-                                        <ListItemText primary="Logout" />
-                                    </ListItemButton>
+                                    </ListItem>
+                                )}
+                                <ListItem button onClick={handleLogout}>
+                                    <ListItemIcon>
+                                        <Logout />
+                                    </ListItemIcon>
+                                    <ListItemText primary="Logout" />
                                 </ListItem>
                             </List>
                         </Collapse>
