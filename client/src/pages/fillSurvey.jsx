@@ -18,7 +18,7 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { getSurveyByPinCode } from "../services/surveys";
-import { updateAnswer } from "../services/answers";
+import { updateAnswer, getAnswer } from "../services/answers";
 import { useUserContext } from "../contexts/UserContext";
 
 export default function FillSurvey() {
@@ -51,21 +51,65 @@ export default function FillSurvey() {
       setLoading(false);
       return;
     }
-    const fetchSurvey = async () => {
+    const fetchSurveyAndAnswers = async () => {
       try {
-        const response = await getSurveyByPinCode(pinCode);
-        setSurvey(response.data);
+        // First get the survey
+        const surveyResponse = await getSurveyByPinCode(pinCode);
+        console.log("Survey response:", surveyResponse.data);
+        setSurvey(surveyResponse.data);
+        
+        // Then get the answers using the survey's _id
+        const answersResponse = await getAnswer(surveyResponse.data._id, !user?.userId, user?.userId);
+        console.log("Answers response:", answersResponse.data);
+        
+        // If there are existing answers, load them into the state
+        if (answersResponse.data && Array.isArray(answersResponse.data)) {
+          const loadedAnswers = {};
+          answersResponse.data.forEach((answerObj) => {
+            if (answerObj.answers && Array.isArray(answerObj.answers)) {
+              answerObj.answers.forEach((answer) => {
+                // Convert questionNumber to 0-based index
+                const questionIndex = answer.questionNumber - 1;
+                loadedAnswers[questionIndex] = answer.answer;
+              });
+            }
+          });
+          console.log("Processed answers to load:", loadedAnswers);
+          setAnswers(loadedAnswers);
+        }
       } catch (err) {
+        console.error("Error loading survey or answers:", err);
         setError("Failed to load survey. Please try again.");
       } finally {
         setLoading(false);
       }
     };
-    fetchSurvey();
-  }, [pinCode]);
+    fetchSurveyAndAnswers();
+  }, [pinCode, user]);
+
+  // Add a useEffect to monitor answers state changes
+  React.useEffect(() => {
+    console.log("Current answers state:", answers);
+  }, [answers]);
 
   const handleChange = (value) => {
-    setAnswers((prev) => ({ ...prev, [currentQuestionIndex]: value }));
+    setAnswers((prev) => {
+      const updated = { ...prev, [currentQuestionIndex]: value };
+      // Save to DB on every change
+      if (answerId) {
+        const formattedAnswers = Object.entries(updated).map(([questionId, answer]) => ({
+          questionId: parseInt(questionId),
+          questionNumber: parseInt(questionId) + 1,
+          answer,
+          timestamp: new Date()
+        }));
+        updateAnswer(answerId, { answers: formattedAnswers }).catch((err) => {
+          // Optionally log or show error, but don't block UI
+          console.error('Failed to autosave answer', err);
+        });
+      }
+      return updated;
+    });
   };
 
   const handleNext = () => {
