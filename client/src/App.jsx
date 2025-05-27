@@ -44,6 +44,7 @@ const experimenterRoutes = [
     { path: "/survey-builder/:surveyId", element: <SurveyBuilder /> },
     { path: "/experimenter_survey_list", element: <SurveyList /> },
     { path: "/survey-preview/:surveyId", element: <PreviewSurvey /> },
+    { path: "/settings", element: <Settings />},
 ];
 
 const experimenteeRoutes = [

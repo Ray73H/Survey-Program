@@ -226,7 +226,6 @@ export default function ExperimenteeNavbar() {
                             </ListItemIcon>
                             <ListItemText
                                 primary={user.name}
-                                secondary={user.email}
                                 sx={{
                                     maxWidth: 300,
                                     "& .MuiListItemText-primary": {
@@ -234,14 +233,14 @@ export default function ExperimenteeNavbar() {
                                         overflow: accountOpen ? "visible" : "hidden",
                                         textOverflow: accountOpen ? "initial" : "ellipsis",
                                     },
-                                    "& .MuiListItemText-secondary": {
-                                        display: accountOpen ? "block" : "none",
+                                    //"& .MuiListItemText-secondary": {
+                                    //    display: accountOpen ? "block" : "none",
                                         //     whiteSpace: 'normal',          ATTEMPTS AT BREAKING NICELY :'((((
                                         //     wordBreak: 'break-word',
                                         //     overflowWrap: 'break-word',
                                         //     lineBreak: 'strict',
                                         //     hyphens: 'auto',
-                                    },
+                                    //},
                                 }}
                             />
                             <IconButton size="small">
