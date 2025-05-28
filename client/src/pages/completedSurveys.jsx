@@ -31,7 +31,6 @@ import { useTheme } from '@mui/material/styles';
 import { getPublicSurveys, getSurveyByPinCode, getSurveyById, getSurveysByUserId } from '../services/surveys';
 import {getCompletedSurveyAnswers } from '../services/answers';
 import { useUserContext } from '../contexts/UserContext';
-import { addSurveyAccess } from '../services/users';
 import { useNavigate } from 'react-router-dom';
 // Pagination control buttons
 function TablePaginationActions({ count, page, rowsPerPage, onPageChange }) {
@@ -149,11 +148,14 @@ export default function CompletedSurveys() {
       try {
         let res = await getCompletedSurveyAnswers(!!user?.guest, user.userId);
     //    setSurveyIds(res.data.map(item => item.surveyId));
-        console.log(res.data)
-        const ids  = res.data
+        console.log("res", res.data)
+        const answers = res.data
+        console.log(answers.completed)
+     //   const ids  = res.data
     //    console.log(surveyIds)
-    //    setSurveys(surveyIds.map(id => getSurveyById(id))); 
-     //   setSurveys(answers.surveyid)
+     //   setSurveys(surveyIds.map(id => getSurveyById(id))); 
+        setSurveyIds(res.data[0])
+        console.log("ids",surveyIds)
       } catch (err) {
         console.error('Failed to fetch surveys:', err);
       } finally {
@@ -242,7 +244,7 @@ export default function CompletedSurveys() {
               {paginatedSurveys.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={7} align="center">
-                    <Typography variant="body2">You have not completed any surveys. Join a new survey useing the menu on the left or complete a survey you have already started to see it here.</Typography>
+                    <Typography variant="body2">You have not completed any surveys. Join a new survey using the menu on the left or complete a survey you have already started to see it here.</Typography>
                   </TableCell>
                 </TableRow>
               )}
