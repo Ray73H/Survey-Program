@@ -2,8 +2,8 @@ import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Typography, Container, Paper, Button, Stack } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { createAnswer } from "../services/answers";
 import { getAnswer } from "../services/answers";
+import { updateAnswer } from "../services/answers";
 import { useUserContext } from "../contexts/UserContext";
 
 
@@ -21,63 +21,38 @@ export default function WelcomeSurvey() {
 
   const handleFillOut = async () => {
     try {
-      const answerData = {
-        surveyId: survey._id,
-        respondentType: user && user.userId ? "user" : "guest",
-        ...(user && user.userId && { respondentId: user.userId })
-      };
-      
-      const response = await createAnswer(answerData);
-      console.log("Creating answer with data:", answerData);
-      console.log("Answer created successfully");
+      const existingAnswer = await getAnswer(survey._id, !!user?.guest, user.userId);
+      const completed = existingAnswer.data[0].completed;
+      const started = existingAnswer.data[0].started;
+      const answerId = existingAnswer.data[0]._id
+
+
+      if (!completed) {
+
+        if (!started){
+          const answerData = {
+            started : true
+          };
+
+          await updateAnswer(answerId, answerData);
+          
+              }
+
       navigate("/fillSurvey", { 
         state: { 
           pinCode: survey.pinCode, 
           survey,
-          answerId: response.data._id
+          answerId: answerId
         } 
       });
-    } catch (error) {
-      console.error("Error creating answer BROOO:", error);
-      if (error.response?.status === 400) {
-        const existingAnswer = await getAnswer(survey._id, !!user?.guest, user.userId);
-        // console.log("Existing answer:", existingAnswer);
-        // console.log("existingAnswer.data:", existingAnswer.data);
-
-        // let answerObj;
-        // if (Array.isArray(existingAnswer.data)) {
-        //   if (existingAnswer.data.length === 0) {
-        //     throw new Error("No existing answer found for this user and survey.");
-        //   }
-        //   answerObj = existingAnswer.data[0];
-        // } else {
-        //   answerObj = existingAnswer.data;
-        // }
-
-        // console.log("answerObj:", answerObj);
-        // console.log("Navigating with answerId:", answerObj._id);
-
-        // console.log("existingAnswer.data[0]:", existingAnswer.data[0]);
-        const completed = existingAnswer.data[0].completed;
-
-        
-
-        if (!completed) {
-
-          navigate("/fillSurvey", { 
-            state: { 
-              pinCode: survey.pinCode, 
-              survey,
-              answerId: existingAnswer.data[0]._id
-            } 
-          });
-        }
-        else {
-          // throw new Error("Survey already completed!")
-          alert('Survey already completed!')
-
-        }
+      } 
+      
+      else {
+        alert('Survey already completed!');
       }
+    } catch (error) {
+      console.error("THIS SHOULD NOT HAPPEN !?!", error);
+      alert("ERROR: NO SURVEY FOUND!!!")
     }
   };
 
