@@ -17,14 +17,20 @@ import {
     AccordionSummary,
     AccordionDetails,
     AccordionActions,
+    Dea
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+
 import { getSurveyById, updateSurvey, deleteSurvey } from "../services/surveys";
 import { useParams } from "react-router-dom";
 import { useUserContext } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 import { DeleteSurveyDialog } from "../components/DeleteSurveyDialog";
+import dayjs from "dayjs";
 
 function SurveyBuilder() {
     const navigate = useNavigate();
@@ -36,24 +42,29 @@ function SurveyBuilder() {
         public: false,
         pinCode: "",
         questions: [],
+        deadline: Date.now,
+        published: false
     });
     const [originalSurvey, setOriginalSurvey] = React.useState(survey);
     const [isChanged, setIsChanged] = React.useState(false);
     const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
+    const [datePickerVal, setDatePickerVal] = React.useState(dayjs());
 
     // Initial get call for survey
     React.useEffect(() => {
         const getSurvey = async () => {
             const response = await getSurveyById(surveyId);
             setSurvey(response.data);
-            setOriginalSurvey(response.data);
+            setOriginalSurvey(response.data);  
         };
         getSurvey();
     }, [surveyId]);
 
+
     // Change state if there is unsaved data
     React.useEffect(() => {
         setIsChanged(JSON.stringify(survey) !== JSON.stringify(originalSurvey));
+        
     }, [survey, originalSurvey]);
 
     // Block on tab close or refresh
@@ -148,6 +159,21 @@ function SurveyBuilder() {
         }));
     };
 
+    const handleDeadlineChange = (newDeadline) => {
+        setSurvey((prevSurvey) => ({
+            ...prevSurvey,
+            deadline : newDeadline,
+            }
+        ))
+    }
+
+    const handlePublish = () => {
+        setSurvey((prevSurvey) => ({
+            ...prevSurvey,
+            published : true
+        }))
+    }
+
     const handleSaveSurvey = async (e) => {
         e.preventDefault();
 
@@ -175,6 +201,13 @@ function SurveyBuilder() {
                         Survey Builder
                     </Typography>
                     <Box className="space-x-2">
+                        <Button
+                            color="secondary"
+                            onClick={handlePublish}
+                            variant="outlined"
+                            >
+                                Publish Survey
+                        </Button>
                         <Button
                             type="submit"
                             form="survey-form"
@@ -255,6 +288,23 @@ function SurveyBuilder() {
                                     minRows={2}
                                     fullWidth
                                 />
+                            </Box>
+                            <Box className="flex flex-col space-y-1">
+                                <Typography variant="h6">Deadline </Typography>
+                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                        <DatePicker
+                                        label="Pick a date"
+                                        value={datePickerVal}
+                                        onChange={(newValue) => {
+                                            setDatePickerVal(newValue);
+                                            setSurvey({...survey, deadline: newValue});
+                                          }}
+                                        renderInput={(params) => <TextField {...params} />}
+                                        inputFormat="DD/MM/YYYY"
+                                        />
+                                    </LocalizationProvider>
+                                
+                      
                             </Box>
                             <Box className="flex flex-col space-y-2">
                                 <Typography variant="h6">Questions</Typography>

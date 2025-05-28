@@ -58,6 +58,8 @@ const Experimenter = () => {
 
     useEffect(() => {
         fetchSurveys();
+        fetchOngoingSurveys();
+        fetchUnpublishedSurveys();
     }, [user.userId]);
 
     const handleMenuOpen = (event, id) => {

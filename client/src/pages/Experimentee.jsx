@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     Box,
     Typography,
@@ -17,8 +17,9 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../contexts/UserContext";
+import { getThreeUncompletedSurveyAnswers } from "../services/answers.js"
 
-const surveys = [
+/* const surveys = [
     {
         id: 1,
         title: "Survey on Motorbikes 1",
@@ -44,10 +45,13 @@ const surveys = [
         date: "24 Mar 2022",
     },
 ];
+*/ 
 
 const Experimentee = () => {
     const [anchorEl, setAnchorEl] = useState(null);
     const [menuSurveyId, setMenuSurveyId] = useState(null);
+    const [surveys, setSurveys] = useState([]);
+
     const navigate = useNavigate();
     const { user } = useUserContext();
 
@@ -61,17 +65,12 @@ const Experimentee = () => {
         setMenuSurveyId(null);
     };
 
-    return (
-        <Box sx={{ padding: 4, flexGrow: 1 }}>
-            <Typography variant="h5" gutterBottom>
-                Welcome {user.name}
-            </Typography>
+    const displaySurveys = (surveyList) => {
+        alert(surveyList.length)
+        return (
+        
 
-            <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
-                Continue answering surveys
-            </Typography>
-
-            <Box
+        <Box
                 sx={{
                     display: "flex",
                     gap: 2,
@@ -80,42 +79,7 @@ const Experimentee = () => {
                     scrollSnapType: "x mandatory",
                 }}
             >
-                <Box
-                    onClick={() => navigate("/join")}
-                    sx={{
-                        minWidth: 250,
-                        height: 180,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        backgroundColor: "#e3f2fd",
-                        cursor: "pointer",
-                        borderRadius: 2,
-                        scrollSnapAlign: "start",
-                        flexShrink: 0,
-                        transition: "0.2s",
-                        "&:hover": {
-                            backgroundColor: "#bbdefb",
-                        },
-                    }}
-                >
-                </Box>
-            </Box>
-
-            <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
-                View Your Completed Surveys
-            </Typography>
-
-            <Box
-                sx={{
-                    display: "flex",
-                    gap: 2,
-                    overflowX: "auto",
-                    pb: 2,
-                    scrollSnapType: "x mandatory",
-                }}
-            >
-                {surveys.map((survey) => (
+                {surveyList.map((survey) => (
                     <Card
                         key={survey.id}
                         sx={{
@@ -175,6 +139,75 @@ const Experimentee = () => {
                     </Card>
                 ))}
             </Box>
+        )
+    }
+
+    const fetchSurveys = async () => {
+        try {
+            const response = await getThreeUncompletedSurveyAnswers(user?.guest, user.userId);
+            setSurveys(response.data);
+        }
+        catch (error) {
+            alert(error);
+            setSurveys([]);
+        }
+        
+    }
+
+    useEffect(() => {
+        fetchSurveys();
+    }, [user.userId]);
+
+    return (
+        <Box sx={{ padding: 4, flexGrow: 1 }}>
+            <Typography variant="h5" gutterBottom>
+                Welcome {user.name}
+            </Typography>
+
+
+            <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
+                Continue answering surveys
+            </Typography>
+
+            <Box
+                sx={{
+                    display: "flex",
+                    gap: 2,
+                    overflowX: "auto",
+                    pb: 2,
+                    scrollSnapType: "x mandatory",
+                }}
+            >
+                <Box
+                    onClick={() => navigate("/join")}
+                    sx={{
+                        minWidth: 250,
+                        height: 180,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: "#e3f2fd",
+                        cursor: "pointer",
+                        borderRadius: 2,
+                        scrollSnapAlign: "start",
+                        flexShrink: 0,
+                        transition: "0.2s",
+                        "&:hover": {
+                            backgroundColor: "#bbdefb",
+                        },
+                    }}
+                >
+                </Box>
+            </Box>
+
+            <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
+                {surveys == null || surveys.length === 0 ? "No unfinished surveys. click above to start a new public survey or enter a pin code."
+                : "your unfinished surveys"}
+            </Typography>
+
+            {surveys != null && surveys.length > 0 && displaySurveys()}
+
+            
         </Box>
     );
 };
