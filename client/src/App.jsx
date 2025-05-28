@@ -20,6 +20,7 @@ import SettingsExperimentee from "./pages/settingsExperimentee";
 import SettingsExperimenter from "./pages/settingsExperimenter"
 import PublicSurveys from "./pages/PublicSurvey";
 import CompletedSurveys from "./pages/completedSurveys";
+import SavedSurveys from "./pages/SavedSurveys";
 import { useUserContext } from "./contexts/UserContext";
 
 const ProtectedRoute = ({ children, allowedAccountTypes }) => {
@@ -58,6 +59,7 @@ const experimenteeRoutes = [
     { path: "/settingsExperimentee", element: <SettingsExperimentee />},
     { path: "/publicsurveys", element: <PublicSurveys />},
     { path: "/completedsurveys", element: <CompletedSurveys />},
+    { path: "/savedsurveys", element: <SavedSurveys />},
 ];
 
 const superuserRoutes = [

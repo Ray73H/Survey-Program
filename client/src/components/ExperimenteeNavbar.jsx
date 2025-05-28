@@ -150,7 +150,9 @@ export default function ExperimenteeNavbar() {
                             </ListItemButton>
                             <Collapse in={surveysExpanded} timeout="auto" unmountOnExit>
                                 <List component="div" disablePadding>
-                                    <ListItemButton sx={{ pl: open ? 6 : 4 }}>
+                                    <ListItemButton 
+                                    onClick={() => navigate("/savedsurveys")}
+                                    sx={{ pl: open ? 6 : 4 }}>
                                         <ListItemText
                                             primary="Saved Surveys"
                                             sx={{ opacity: open ? 1 : 0 }}
@@ -233,14 +235,6 @@ export default function ExperimenteeNavbar() {
                                         overflow: accountOpen ? "visible" : "hidden",
                                         textOverflow: accountOpen ? "initial" : "ellipsis",
                                     },
-                                    //"& .MuiListItemText-secondary": {
-                                    //    display: accountOpen ? "block" : "none",
-                                        //     whiteSpace: 'normal',          ATTEMPTS AT BREAKING NICELY :'((((
-                                        //     wordBreak: 'break-word',
-                                        //     overflowWrap: 'break-word',
-                                        //     lineBreak: 'strict',
-                                        //     hyphens: 'auto',
-                                    //},
                                 }}
                             />
                             <IconButton size="small">

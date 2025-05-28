@@ -71,6 +71,7 @@ function TablePaginationActions({ count, page, rowsPerPage, onPageChange }) {
 // Collapsible row component
 function Row({ survey }) {
     const [open, setOpen] = useState(false);
+    const [answers, setAnswers] = useState([])
 
 
   return (
@@ -81,9 +82,9 @@ function Row({ survey }) {
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell>{survey.title || '-'}</TableCell>
-        <TableCell>{survey.author || '-'}</TableCell>
-        <TableCell>{survey.date || '-'}</TableCell>
+        <TableCell>{survey.surveyTitle || '-'}</TableCell>
+        <TableCell>{survey.surveyAuthor || '-'}</TableCell>
+        <TableCell>{survey.completedAt || '-'}</TableCell>
       </TableRow>
       <TableRow>
         <TableCell colSpan={7} style={{ paddingBottom: 0, paddingTop: 0 }}>
@@ -95,32 +96,28 @@ function Row({ survey }) {
               <Table size="small" aria-label="questions">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Question Text</TableCell>
+                    <TableCell>Question</TableCell>
+                    <TableCell>Your answer</TableCell>
                     <TableCell>Question Type</TableCell>
-                    <TableCell>Options</TableCell>
                   </TableRow>
                 </TableHead>
-                <TableBody>
-                  {survey.questions && survey.questions.length > 0 ? (
-                    survey.questions.map((q, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{q.questionText || '-'}</TableCell>
-                        <TableCell>{q.questionType || '-'}</TableCell>
-                        <TableCell>
-                          {q.options && q.options.length > 0
-                            ? q.options.join(', ')
-                            : '-'}
+                  <TableBody>
+                  {survey.surveyQuestions && survey.surveyQuestions.length > 0 ? (
+                      survey.surveyQuestions.map((q, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{q.questionText || '-'}</TableCell>
+                          <TableCell>{survey.answers.answer || '-'}</TableCell>
+                          <TableCell>{q.questionType || '-'}</TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={3} align="center">
+                          No questions available.
                         </TableCell>
                       </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={3} align="center">
-                        No questions available.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
+                    )}
+                  </TableBody>
               </Table>
             </Box>
           </Collapse>
@@ -135,11 +132,9 @@ export default function CompletedSurveys() {
   const [surveys, setSurveys] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [answers, setAnswers] = useState([])
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [answers, setAnswers] = useState([]);
-  const [surveyIds, setSurveyIds] = useState([])
-  //const [viewMode, setViewMode] = useState('all'); // 'own' or 'all'
   const navigate=useNavigate()
 
   useEffect(() => {
@@ -147,15 +142,7 @@ export default function CompletedSurveys() {
       setLoading(true);
       try {
         let res = await getCompletedSurveyAnswers(!!user?.guest, user.userId);
-    //    setSurveyIds(res.data.map(item => item.surveyId));
-        console.log("res", res.data)
-        const answers = res.data
-        console.log(answers.completed)
-     //   const ids  = res.data
-    //    console.log(surveyIds)
-     //   setSurveys(surveyIds.map(id => getSurveyById(id))); 
-        setSurveyIds(res.data[0])
-        console.log("ids",surveyIds)
+        setSurveys(res.data)
       } catch (err) {
         console.error('Failed to fetch surveys:', err);
       } finally {
@@ -177,20 +164,10 @@ export default function CompletedSurveys() {
     setPage(0);
   };
 
-  //const handleParticipate = async (pin) => {
-  //  const response = await getSurveyByPinCode(pin);
-  //  const survey = response.data;
-    // Update surveyAccess for the user in the database
-  //  if (user.userId && survey._id) {
-  //      await addSurveyAccess(user.userId, survey._id);
-  //  }
-  //  navigate("/welcome", { state: { survey } });
-  //};
-
   const filteredSurveys = surveys.filter(
     (survey) =>
-      survey.title?.toLowerCase().includes(searchTerm) ||
-      survey.author?.toLowerCase().includes(searchTerm)
+      survey.surveyTitle?.toLowerCase().includes(searchTerm) ||
+      survey.surveyAuthor?.toLowerCase().includes(searchTerm)
   );
 
   const paginatedSurveys = filteredSurveys.slice(
