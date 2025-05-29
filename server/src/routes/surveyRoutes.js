@@ -11,10 +11,17 @@ import {
 	getUnpublishedSurveys,
 	getOngoingSurveys,
 	importSurvey,
+	getRecentSurveyActivity,
 } from "../controllers/surveyController.js";
 import { authMiddleware, authOptional } from "../middleware/auth.js";
 
 const router = express.Router();
+
+// ADMIN ROUTES
+router.get("/", getAllSurveys);
+// ADMIN ROUTES
+router.get("/recent-activity", getRecentSurveyActivity);
+
 
 // EXPERIMENTEE ROUTES
 router.get("/public", getPublicSurveys);
@@ -30,7 +37,6 @@ router.get("/ongoing/user/:userId", authMiddleware, getOngoingSurveys);
 router.get("/:id", authMiddleware, getSurveyById);
 router.post("/import", authMiddleware, importSurvey);
 
-// ADMIN ROUTES
-router.get("/", getAllSurveys);
+
 
 export default router;

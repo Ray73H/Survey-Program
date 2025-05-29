@@ -1,36 +1,75 @@
-import * as React from 'react';
-import { Box, Card, CardContent, Typography } from '@mui/material';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import GroupIcon from '@mui/icons-material/Group';
+import React, { useState } from 'react';
+import {
+  Box, Card, CardContent, Typography, ButtonGroup, Button
+} from '@mui/material';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import InsightsIcon from '@mui/icons-material/Insights';
+import GroupIcon from '@mui/icons-material/Group';
 
-
-function StatCardStatistics({ title, value, Icon, Description }) {
+function StatCard({ title, value, icon: Icon, description, children }) {
   return (
-    <Card sx={{ width: 450, height: 150}}>
+    <Card sx={{ width: 420, height: 150 }}>
       <CardContent>
+        {children}
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
           <Icon sx={{ mr: 1 }} />
           <Typography variant="h6">{title}</Typography>
         </Box>
-        <Typography variant="h5" sx={{ color: 'text.secondary', textAlign: 'center' }}>
+        <Typography variant="h4" sx={{ color: 'primary.main', textAlign: 'center' }}>
           {value}
         </Typography>
-        <Typography variant="h9" sx={{ color: 'text.secondary', mb: 1.5}}>
-            {Description}
+        <Typography variant="body2" sx={{ textAlign: 'center', color: 'text.secondary' }}>
+          {description}
         </Typography>
       </CardContent>
     </Card>
   );
 }
 
-export default function SuperUserCardGroup() {
+export default function SuperUserCardGroup({ metrics }) {
+  const [timeFilter, setTimeFilter] = useState('overall');
+
+  const getTimeValue = () => {
+    switch (timeFilter) {
+      case 'mc':
+        return metrics.averageTimeMultipleChoice;
+      case 'text':
+        return metrics.averageTimeOpenText;
+      case 'overall':
+      default:
+        return metrics.averageCompletionTimeInMinutes;
+    }
+  };
+
+  const timeLabels = {
+    overall: 'Overall average time to complete any survey',
+    mc: 'Average time for surveys with Multiple Choice questions',
+    text: 'Average time for surveys with Open Text questions',
+  };
+
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2, mt: 5 }}>
-      <StatCardStatistics title="Completion Rate" value={'93%'} Icon={InsightsIcon} Description="% of users who completed a survey vs. those who started" />
-      <StatCardStatistics title="Average Completion Time" value={42} Icon={BarChartIcon} Description="The mean time it takes users to complete a survey" />
-      <StatCardStatistics title="Average Number of Users per Survey" value={9} Icon={GroupIcon} Description="Mean number of participants each survey has gathered" />
+    <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mt: 5, flexWrap: 'wrap' }}>
+      <StatCard
+        title="Completion Rate"
+        value={`${metrics.completionRate}%`}
+        icon={InsightsIcon}
+        description="% of users who completed a survey vs. those who started"
+      />
+
+      <StatCard
+        title="Average Completion Time"
+        value={`${metrics.averageCompletionTimeInMinutes} min`}
+        icon={InsightsIcon}
+        description='Overall average time to complete any survey'
+      />
+
+
+      <StatCard
+        title="Avg. Users per Survey"
+        value={metrics.averageUsersPerSurvey}
+        icon={GroupIcon}
+        description="Mean number of users who responded to each survey"
+      />
     </Box>
   );
 }
