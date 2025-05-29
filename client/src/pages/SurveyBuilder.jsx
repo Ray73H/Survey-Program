@@ -71,6 +71,7 @@ function SurveyBuilder() {
         return () => window.removeEventListener("beforeunload", handleBeforeUnload);
     }, [isChanged]);
 
+
     const handleAddQuestion = () => {
         setSurvey((prevSurvey) => ({
             ...prevSurvey,

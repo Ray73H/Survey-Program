@@ -10,10 +10,14 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
 import Alert from '@mui/material/Alert';
 import { updateSurvey } from "../services/surveys";
+import { useNavigate } from "react-router-dom";
+import CopyableTextField from "./CopyableTextField";
+
 
 const now = dayjs();
 
 export function PublishSurveyDialog({ open, onClose, survey, setSurvey, surveyId, userId}) {
+    const navigate = useNavigate();
     const [errMsg, setErrMsg] = useState("");
     const [date, setDate] = useState(dayjs().add(7, 'day'));
     const [pinCode, setPinCode] = useState("")
@@ -21,6 +25,11 @@ export function PublishSurveyDialog({ open, onClose, survey, setSurvey, surveyId
     useEffect(() => {
             setErrMsg("");
         }, [survey])
+
+    const onClosePublished = () => {
+        onClose();
+        navigate("/experimenter");
+    }
 
     const handlePublishSurvey = async (e) => {
         e.preventDefault();
@@ -153,12 +162,12 @@ export function PublishSurveyDialog({ open, onClose, survey, setSurvey, surveyId
             :
             <Dialog
                 open={open} 
-                onClose={onClose}
+                onClose={onClosePublished}
             >
                 <DialogTitle>Your survey is now published!</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Your pin code is: {pinCode}
+                        <CopyableTextField label="" value={pinCode}/>
                     </DialogContentText>
                 </DialogContent>
             </Dialog>
