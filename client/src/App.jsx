@@ -13,10 +13,14 @@ import JoinSurvey from "./pages/JoinSurvey";
 import Login from "./pages/Login";
 import WelcomeSurvey from "./pages/welcomeSurvey";
 import FillSurvey from "./pages/fillSurvey";
+import LockScreen from "./pages/LockScreen";
 import SurveyList from "./pages/SurveyList";
 import PreviewSurvey from "./pages/PreviewSurvey";
-import Settings from "./pages/settings";
+import SettingsExperimentee from "./pages/settingsExperimentee";
+import SettingsExperimenter from "./pages/settingsExperimenter"
 import PublicSurveys from "./pages/PublicSurvey";
+import CompletedSurveys from "./pages/completedSurveys";
+import SavedSurveys from "./pages/SavedSurveys";
 import { useUserContext } from "./contexts/UserContext";
 
 const ProtectedRoute = ({ children, allowedAccountTypes }) => {
@@ -43,6 +47,7 @@ const experimenterRoutes = [
     { path: "/survey-builder/:surveyId", element: <SurveyBuilder /> },
     { path: "/experimenter_survey_list", element: <SurveyList /> },
     { path: "/survey-preview/:surveyId", element: <PreviewSurvey /> },
+    { path: "/settingsExperimenter", element: <SettingsExperimenter />},
 ];
 
 const experimenteeRoutes = [
@@ -50,8 +55,11 @@ const experimenteeRoutes = [
     { path: "/join", element: <JoinSurvey /> },
     { path: "/welcome", element: <WelcomeSurvey /> },
     { path: "/fillSurvey", element: <FillSurvey /> },
-    { path: "/settings", element: <Settings />},
+    { path: "/lockscreen", element: <LockScreen /> },
+    { path: "/settingsExperimentee", element: <SettingsExperimentee />},
     { path: "/publicsurveys", element: <PublicSurveys />},
+    { path: "/completedsurveys", element: <CompletedSurveys />},
+    { path: "/savedsurveys", element: <SavedSurveys />},
 ];
 
 const superuserRoutes = [

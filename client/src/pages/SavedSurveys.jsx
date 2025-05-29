@@ -28,13 +28,9 @@ import {
 } from '@mui/icons-material';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import { useTheme } from '@mui/material/styles';
-import { getPublicSurveys, getSurveyByPinCode } from '../services/surveys';
+import {getSavedSurveyAnswers } from '../services/answers';
 import { useUserContext } from '../contexts/UserContext';
-import { addSurveyAccess } from '../services/users';
 import { useNavigate } from 'react-router-dom';
-import { createAnswer, getAnswer } from '../services/answers';
-
-
 // Pagination control buttons
 function TablePaginationActions({ count, page, rowsPerPage, onPageChange }) {
   const theme = useTheme();
@@ -69,10 +65,12 @@ function TablePaginationActions({ count, page, rowsPerPage, onPageChange }) {
   );
 }
 
+
+
 // Collapsible row component
-function Row({ survey, onParticipate}) {
+function Row({ survey }) {
     const [open, setOpen] = useState(false);
-    console.log("survey", survey)
+    const [answers, setAnswers] = useState([])
 
 
   return (
@@ -83,13 +81,9 @@ function Row({ survey, onParticipate}) {
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell>{survey.title || '-'}</TableCell>
-        <TableCell>{survey.author || '-'}</TableCell>
-        <TableCell align="right">
-          <IconButton size="small" onClick={() => onParticipate(survey.pinCode)}>
-                      <BorderColorIcon fontSize="small" />
-                    </IconButton>
-        </TableCell>
+        <TableCell>{survey.surveyTitle || '-'}</TableCell>
+        <TableCell>{survey.surveyAuthor || '-'}</TableCell>
+        <TableCell>{survey.updatedAt || '-'}</TableCell>
       </TableRow>
       <TableRow>
         <TableCell colSpan={7} style={{ paddingBottom: 0, paddingTop: 0 }}>
@@ -101,32 +95,28 @@ function Row({ survey, onParticipate}) {
               <Table size="small" aria-label="questions">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Question Text</TableCell>
+                    <TableCell>Question</TableCell>
+                    <TableCell>Your answer</TableCell>
                     <TableCell>Question Type</TableCell>
-                    <TableCell>Options</TableCell>
                   </TableRow>
                 </TableHead>
-                <TableBody>
-                  {survey.questions && survey.questions.length > 0 ? (
-                    survey.questions.map((q, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{q.questionText || '-'}</TableCell>
-                        <TableCell>{q.questionType || '-'}</TableCell>
-                        <TableCell>
-                          {q.options && q.options.length > 0
-                            ? q.options.join(', ')
-                            : '-'}
+                  <TableBody>
+                  {survey.surveyQuestions && survey.surveyQuestions.length > 0 ? (
+                      survey.surveyQuestions.map((q, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{q.questionText || '-'}</TableCell>
+                          <TableCell>{survey.answers.answer || '-'}</TableCell>
+                          <TableCell>{q.questionType || '-'}</TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={3} align="center">
+                          No questions available.
                         </TableCell>
                       </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={3} align="center">
-                        No questions available.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
+                    )}
+                  </TableBody>
               </Table>
             </Box>
           </Collapse>
@@ -136,22 +126,22 @@ function Row({ survey, onParticipate}) {
   );
 }
 
-export default function SurveyList() {
+export default function SavedSurveys() {
   const { user } = useUserContext();
   const [surveys, setSurveys] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [answers, setAnswers] = useState([])
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState('all'); // 'own' or 'all'
   const navigate=useNavigate()
 
   useEffect(() => {
     const fetchSurveys = async () => {
       setLoading(true);
       try {
-        let res = await getPublicSurveys();
-        setSurveys(res.data);
+        let res = await getSavedSurveyAnswers(!!user?.guest, user.userId);
+        setSurveys(res.data)
       } catch (err) {
         console.error('Failed to fetch surveys:', err);
       } finally {
@@ -160,7 +150,7 @@ export default function SurveyList() {
     };
 
     fetchSurveys();
-  }, [user, viewMode]);
+  }, [user]);
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value.toLowerCase());
@@ -173,52 +163,10 @@ export default function SurveyList() {
     setPage(0);
   };
 
-  const handleParticipate = async (pin) => {
-    const response = await getSurveyByPinCode(pin);
-    const survey = response.data;
-    // Update surveyAccess for the user in the database
-    if (user.userId && survey._id) {
-        await addSurveyAccess(user.userId, survey._id);
-    }
-    try {
-      const answerData = {
-        surveyId: survey._id,
-        respondentType: user && user.userId ? "user" : "guest",
-        ...(user && user.userId && { respondentId: user.userId })
-      };
-      const createRes = await createAnswer(answerData);
-      navigate("/welcome", {
-        state: {
-          pinCode: survey.pinCode,
-          survey,
-          answerId: createRes.data._id
-        }
-      });
-    } catch (error) {
-      if (error.response?.status === 400) {
-        const existingAnswer = await getAnswer(survey._id, !!user?.guest, user.userId);
-        const completed = existingAnswer.data[0].completed;
-        if (!completed) {
-          navigate("/welcome", {
-            state: {
-              pinCode: survey.pinCode,
-              survey,
-              answerId: existingAnswer.data[0]._id
-            }
-          });
-        } else {
-          alert('Survey already completed!');
-        }
-      } else {
-        alert('Error creating answer.');
-      }
-    }
-  };
-
   const filteredSurveys = surveys.filter(
     (survey) =>
-      survey.title?.toLowerCase().includes(searchTerm) ||
-      survey.author?.toLowerCase().includes(searchTerm)
+      survey.surveyTitle?.toLowerCase().includes(searchTerm) ||
+      survey.surveyAuthor?.toLowerCase().includes(searchTerm)
   );
 
   const paginatedSurveys = filteredSurveys.slice(
@@ -259,7 +207,7 @@ export default function SurveyList() {
                 <TableCell />
                 <TableCell>Title</TableCell>
                 <TableCell>Author</TableCell>
-                <TableCell align="right">Participate</TableCell>
+                <TableCell>Last Updated</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -267,13 +215,12 @@ export default function SurveyList() {
                 <Row
                   key={survey._id}
                   survey={survey}
-                  onParticipate={handleParticipate}
                 />
               ))}
               {paginatedSurveys.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={7} align="center">
-                    <Typography variant="body2">No surveys found.</Typography>
+                    <Typography variant="body2">You have not started any surveys. Join a new survey using the menu on the left to see it here. Once you have completed it, you will see it under completed surveys</Typography>
                   </TableCell>
                 </TableRow>
               )}
@@ -298,99 +245,3 @@ export default function SurveyList() {
   );
 }
 
-
-
-
-
-
-
-{/* export default function PublicSurveys() {
-    const [surveys, setSurveys] = useState([]);
-    const [users, setUsers] = useState([]);
-
-    const handleSearchChange = (event) => {
-        setSearchTerm(event.target.value.toLowerCase());
-        setPage(0);
-    };
-
-    const handleChangePage = (_, newPage) => setPage(newPage);
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
-
-    const filteredData = users.filter(
-        (user) =>
-        user.name?.toLowerCase().includes(searchTerm)
-    );
-
-    const paginatedData = filteredData.slice(
-        page * rowsPerPage,
-        page * rowsPerPage + rowsPerPage
-    );
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [surveyRes] = await Promise.all([
-                    getPublicSurveys(),
-                ]);
-                setSurveys(surveyRes.data);
-            } catch (err) {
-                console.error("Error fetching data:", err);
-            }
-        };
-        fetchData();
-    }, []);
-
-    return (
-    <Box sx={{ marginTop: '30px' }}>
-      <TextField
-        label="Search by Experimenter Name"
-        variant="outlined"
-        size="small"
-        sx={{ mb: 2 }}
-        onChange={handleSearchChange}
-      />
-      {loading ? (
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-          <CircularProgress />
-        </Box>
-      ) : (
-        <TableContainer component={Paper}>
-          <Table aria-label="account manager table">
-            <TableHead>
-              <TableRow>
-                <TableCell>Survey Name</TableCell>
-                <TableCell>Experimenter</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {paginatedData.map((user) => (
-                <TableRow key={user._id}>
-                  <TableCell>{user.name || '-'}</TableCell>
-                </TableRow>
-              ))}
-              {paginatedData.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={5} align="center">
-                    <Typography variant="body2">No accounts found.</Typography>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-          <TablePagination
-            component="div"
-            count={filteredData.length}
-            page={page}
-            onPageChange={handleChangePage}
-            rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            rowsPerPageOptions={[5, 10, 25]}
-          />
-        </TableContainer>
-      )}
-    </Box>
-  );
-}; */}

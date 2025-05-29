@@ -150,13 +150,17 @@ export default function ExperimenteeNavbar() {
                             </ListItemButton>
                             <Collapse in={surveysExpanded} timeout="auto" unmountOnExit>
                                 <List component="div" disablePadding>
-                                    <ListItemButton sx={{ pl: open ? 6 : 4 }}>
+                                    <ListItemButton 
+                                    onClick={() => navigate("/savedsurveys")}
+                                    sx={{ pl: open ? 6 : 4 }}>
                                         <ListItemText
                                             primary="Saved Surveys"
                                             sx={{ opacity: open ? 1 : 0 }}
                                         />
                                     </ListItemButton>
-                                    <ListItemButton sx={{ pl: open ? 6 : 4 }}>
+                                    <ListItemButton 
+                                    onClick={() => navigate("/completedsurveys")}
+                                    sx={{ pl: open ? 6 : 4 }}>
                                         <ListItemText
                                             primary="Completed Surveys"
                                             sx={{ opacity: open ? 1 : 0 }}
@@ -224,21 +228,12 @@ export default function ExperimenteeNavbar() {
                             </ListItemIcon>
                             <ListItemText
                                 primary={user.name}
-                                secondary={user.email}
                                 sx={{
                                     maxWidth: 300,
                                     "& .MuiListItemText-primary": {
                                         whiteSpace: accountOpen ? "normal" : "nowrap",
                                         overflow: accountOpen ? "visible" : "hidden",
                                         textOverflow: accountOpen ? "initial" : "ellipsis",
-                                    },
-                                    "& .MuiListItemText-secondary": {
-                                        display: accountOpen ? "block" : "none",
-                                        //     whiteSpace: 'normal',          ATTEMPTS AT BREAKING NICELY :'((((
-                                        //     wordBreak: 'break-word',
-                                        //     overflowWrap: 'break-word',
-                                        //     lineBreak: 'strict',
-                                        //     hyphens: 'auto',
                                     },
                                 }}
                             />
@@ -249,7 +244,7 @@ export default function ExperimenteeNavbar() {
                         <Collapse in={accountOpen} timeout="auto" unmountOnExit>
                             <List component="div" disablePadding sx={{ pl: 4 }}>
                                 {!user?.guest && (
-                                    <ListItem button onClick={() => navigate("/settings")}>
+                                    <ListItem button onClick={() => navigate("/settingsExperimentee")}>
                                         <ListItemIcon>
                                             <Settings />
                                         </ListItemIcon>
