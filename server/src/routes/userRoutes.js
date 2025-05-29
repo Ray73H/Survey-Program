@@ -14,13 +14,16 @@ const router = express.Router();
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
+
+// ADMIN ROUTES
+router.get("/all", getAllUsers);
+
 router.put("/:id", authMiddleware, updateUser);
 router.get("/:id", authMiddleware, getUser);
 router.delete("/:id", authMiddleware, deleteUser);
 
 router.post("/:id/surveyAccess", authMiddleware, addSurveyAccess);
 
-// ADMIN ROUTES
-router.get("/all", getAllUsers);
+
 
 export default router;
