@@ -7,7 +7,25 @@ import api from "./api";
 //     respondentId,     (only include if respondentType="user")
 //     guestId,          (only include if respondentType="guest")
 // }
+
+export const getResponseStatsByUser = () => api.get("/answers/responseStats");
+
+export const getMetricsPerQuestion = () => api.get('answers/metrics-per-question');
+
+export const getMetricsPerSurvey = () => api.get('answers/metrics-per-survey');
+
+export const fetchAnswerMetrics = () => api.get('/answers/metrics');
+
+export const getSurveyMetrics = () => api.get('answers/stats');
+
+export const getAllAnswers = () => api.get("/answers/get_answers");
+
 export const createAnswer = (answerData) => api.post("/answers", answerData, { public: true });
+
+export const getTotalResponses = () => api.get('answers/total-responses');
+export const getAverageCompletionRate = () => api.get('answers/average-completion-rate');
+export const getAverageCompletionTime = () => api.get('answers/average-completion-time');
+export const getAverageUsersPerSurvey = () => api.get('answers/average-users-per-survey');
 
 // updatedAnswer:
 // answerData = {

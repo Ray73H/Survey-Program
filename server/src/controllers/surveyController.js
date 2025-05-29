@@ -83,17 +83,23 @@ export const updateSurvey = async (req, res) => {
 export const deleteSurvey = async (req, res) => {
 	try {
 		const { id } = req.params;
-		const deletedSurvey = await Survey.findByIdAndDelete(id);
+
+		const deletedSurvey = await Survey.findByIdAndUpdate(
+		id,
+		{ deleted_at: new Date() },
+		{ new: true }
+		);
 
 		if (!deletedSurvey) {
-			return res.status(404).json({ message: "Survey not found" });
+		return res.status(404).json({ message: "Survey not found" });
 		}
 
-		res.status(200).json({ message: "Survey deleted successfully" });
+		res.status(200).json({ message: "Survey marked as deleted successfully" });
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error: " + error.message });
 	}
-};
+	};
+
 
 export const getAllSurveys = async (req, res) => {
 	try {
@@ -187,3 +193,16 @@ export const getSurveyByPinCode = async (req, res) => {
 		res.status(500).json({ message: "Internal server error: " + error.message });
 	}
 };
+
+export const getRecentSurveyActivity = async (req, res) => {
+  try {
+    const recentSurveys = await Survey.find()
+      .sort({ updatedAt: -1 }) // sort by most recent updates
+      .limit(10); // fetch last 10 actions
+
+    res.status(200).json(recentSurveys);
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error: " + error.message });
+  }
+};
+
