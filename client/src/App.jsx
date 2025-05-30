@@ -35,7 +35,7 @@ const ProtectedRoute = ({ children, allowedAccountTypes }) => {
 
 const getDefaultRoute = (accountType) => {
     const routes = {
-        superuser: "/superuser",
+        superuser: "/experimenter",
         experimenter: "/experimenter",
         experimentee: "/experimentee",
     };
@@ -63,7 +63,7 @@ const experimenteeRoutes = [
 ];
 
 const superuserRoutes = [
-    { path: "/superuser", element: <AdminOverviewSuperUser /> },
+    { path: "/experimenter", element: <Experimenter /> },
     { path: "/admin_overview", element: <AdminOverviewSuperUser /> },
     { path: "/account_manager", element: <AccountManagerTable /> },
 ];

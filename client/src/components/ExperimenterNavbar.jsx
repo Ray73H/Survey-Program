@@ -50,16 +50,28 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" 
         flexShrink: 0,
         whiteSpace: "nowrap",
         boxSizing: "border-box",
+        position: "fixed", //fixed instead of relative or absolute
+        height: "100vh",
+        zIndex: 1200,
         ...(open && {
-            ...openedMixin(theme),
-            "& .MuiDrawer-paper": openedMixin(theme),
+            "& .MuiDrawer-paper": {
+                ...openedMixin(theme),
+                position: "fixed", //
+                height: "100vh",
+                zIndex: 1200,
+            },
         }),
         ...(!open && {
-            ...closedMixin(theme),
-            "& .MuiDrawer-paper": closedMixin(theme),
+            "& .MuiDrawer-paper": {
+                ...closedMixin(theme),
+                position: "fixed",
+                height: "100vh",
+                zIndex: 1200,
+            },
         }),
-    }),
+    })
 );
+
 
 export default function ExperimenterNavbar() {
     const theme = useTheme();
@@ -151,32 +163,6 @@ export default function ExperimenterNavbar() {
                         </ListItem>
                         )}
 
-                        
-                        
-                        <ListItem disablePadding sx={{ display: "block" }}>
-                            <ListItemButton
-                                onClick={() => navigate("/join")}
-                                sx={{
-                                    minHeight: 48,
-                                    justifyContent: open ? "initial" : "center",
-                                    px: 2.5,
-                                }}
-                            >
-                                <ListItemIcon
-                                    sx={{
-                                        minWidth: 0,
-                                        mr: open ? 3 : "auto",
-                                        justifyContent: "center",
-                                    }}
-                                >
-                                    <InboxIcon />
-                                </ListItemIcon>
-                                <ListItemText
-                                    primary="Join New Survey"
-                                    sx={{ opacity: open ? 1 : 0 }}
-                                />
-                            </ListItemButton>
-                        </ListItem>
                     </List>
                     <Divider />
                     {user?.accountType === 'superuser' && (

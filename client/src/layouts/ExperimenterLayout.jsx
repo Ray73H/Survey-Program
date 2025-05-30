@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import { Outlet } from "react-router-dom";
 import ExperimenterNavbar from "../components/ExperimenterNavbar";
 
 function ExperimenterLayout() {
     return (
-        <div className="flex">
+        <div style={{ position: "relative" }}>
             <ExperimenterNavbar />
-            <main className="flex-1">
+            <main style={{ paddingLeft: 64 }}> {/* Leave space for collapsed drawer */}
                 <Outlet />
             </main>
         </div>

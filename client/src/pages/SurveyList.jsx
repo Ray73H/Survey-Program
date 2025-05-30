@@ -214,6 +214,8 @@ export default function SurveyList() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [surveyToDelete, setSurveyToDelete] = useState(null);
 
+
+
   const navigate = useNavigate();
 
 
@@ -238,6 +240,7 @@ export default function SurveyList() {
 
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
+
 
 
 
@@ -424,21 +427,21 @@ const handleToggleColumn = (column) => {
           </Menu>
 
           <Dialog open={deleteDialogOpen} onClose={cancelDelete}>
-  <DialogTitle>Confirm Deletion</DialogTitle>
-  <DialogContent>
-    <DialogContentText>
-      Are you sure you want to delete this survey? This action cannot be undone.
-    </DialogContentText>
-  </DialogContent>
-  <DialogActions>
-    <Button onClick={cancelDelete} color="primary">
-      Cancel
-    </Button>
-    <Button onClick={confirmDelete} color="error">
-      Delete
-    </Button>
-  </DialogActions>
-</Dialog>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Are you sure you want to delete this survey? This action cannot be undone.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={cancelDelete} color="primary">
+                Cancel
+              </Button>
+              <Button onClick={confirmDelete} color="error">
+                Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
 
     </Box>
       {loading ? (
