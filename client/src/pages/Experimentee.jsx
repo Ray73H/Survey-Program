@@ -66,7 +66,8 @@ const Experimentee = () => {
     };
 
     const displaySurveys = (surveyList) => {
-        alert(surveyList.length)
+        if (!surveyList || surveyList.length === 0) return null;
+        console.log(surveyList.length)
         return (
         
 
@@ -105,7 +106,6 @@ const Experimentee = () => {
 
                         <CardMedia
                             sx={{ height: 140, backgroundColor: "#ccc" }}
-                            image=""
                             title="Survey Preview"
                         />
 
@@ -139,12 +139,13 @@ const Experimentee = () => {
                     </Card>
                 ))}
             </Box>
-        )
+        ) 
     }
 
     const fetchSurveys = async () => {
         try {
             const response = await getThreeUncompletedSurveyAnswers(user?.guest, user.userId);
+            console.log(response)
             setSurveys(response.data);
         }
         catch (error) {
@@ -204,8 +205,8 @@ const Experimentee = () => {
                 {surveys == null || surveys.length === 0 ? "No unfinished surveys. click above to start a new public survey or enter a pin code."
                 : "your unfinished surveys"}
             </Typography>
-
-            {surveys != null && surveys.length > 0 && displaySurveys()}
+                
+            {surveys != null && surveys.length > 0 && displaySurveys(surveys)}
 
             
         </Box>
