@@ -1,14 +1,16 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
-import ExperimenterNavbar from "../components/ExperimenterNavbar"; // reuse side navbar
+import ExperimenterNavbar from "../components/ExperimenterNavbar"; // Reuses same navbar
 
-export default function SuperUserLayout() {
+function SuperUserLayout() {
     return (
-         <div className="flex">
-                    <ExperimenterNavbar />
-                    <main className="flex-1">
-                        <Outlet />
-                    </main>
-                </div>
+        <div style={{ position: "relative" }}>
+            <ExperimenterNavbar />
+            <main style={{ paddingLeft: 64 }}> {/* Leave space for collapsed drawer */}
+                <Outlet />
+            </main>
+        </div>
     );
 }
+
+export default SuperUserLayout;

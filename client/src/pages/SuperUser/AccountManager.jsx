@@ -14,8 +14,13 @@ import {
   Typography,
   Chip,
   CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
 } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { getAllUsers, deleteUser } from '../../services/users';
 
@@ -25,6 +30,9 @@ const AccountManagerTable = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -52,8 +60,29 @@ const AccountManagerTable = () => {
     setPage(0);
   };
 
-  const handleEdit = (id) => console.log("Edit account with ID:", id);
-  const handleDelete = (id) => console.log("Delete account with ID:", id);
+  
+  const handleDelete = (id) => {
+      setUserToDelete(id);
+      setDeleteDialogOpen(true);
+    };
+
+  const confirmDelete = async () => {
+        try {
+          await deleteUser(userToDelete);
+            setUsers((prev) => prev.filter((s) => s._id !== userToDelete));
+          } catch (err) {
+              console.error("Failed to delete user:", err);
+          } finally {
+              setDeleteDialogOpen(false);
+              setUserToDelete(null);
+          }
+          };
+  
+    const cancelDelete = () => {
+          setDeleteDialogOpen(false);
+          setUserToDelete(null);
+        };
+
 
   const filteredData = users.filter(
     (user) =>
@@ -75,6 +104,24 @@ const AccountManagerTable = () => {
         sx={{ mb: 2 }}
         onChange={handleSearchChange}
       />
+
+      <Dialog open={deleteDialogOpen} onClose={cancelDelete}>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Are you sure you want to delete this user? This action cannot be undone.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={cancelDelete} color="primary">
+                Cancel
+              </Button>
+              <Button onClick={confirmDelete} color="error">
+                Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
+
       {loading ? (
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
           <CircularProgress />
@@ -105,12 +152,11 @@ const AccountManagerTable = () => {
                       />
                   </TableCell>
                   <TableCell align="right">
-                    <IconButton size="small" onClick={() => handleEdit(user._id)}>
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton size="small" onClick={() => handleDelete(user._id)}>
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
+                    {user.accountType !== 'superuser' && (
+                      <IconButton size="small" onClick={() => handleDelete(user._id)}>
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
