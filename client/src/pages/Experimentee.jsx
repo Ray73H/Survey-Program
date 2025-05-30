@@ -18,6 +18,8 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../contexts/UserContext";
 import { getThreeUncompletedSurveyAnswers } from "../services/answers.js"
+import { format } from 'date-fns';
+
 
 /* const surveys = [
     {
@@ -65,6 +67,47 @@ const Experimentee = () => {
         setMenuSurveyId(null);
     };
 
+    const displayStartButton = () => {
+        return (
+            <Box>
+             <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
+                Continue answering surveys
+            </Typography>
+
+            <Box
+                sx={{
+                    display: "flex",
+                    gap: 2,
+                    overflowX: "auto",
+                    pb: 2,
+                    scrollSnapType: "x mandatory",
+                }}
+            >
+                <Box
+                    onClick={() => navigate("/join")}
+                    sx={{
+                        minWidth: 250,
+                        height: 180,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: "#e3f2fd",
+                        cursor: "pointer",
+                        borderRadius: 2,
+                        scrollSnapAlign: "start",
+                        flexShrink: 0,
+                        transition: "0.2s",
+                        "&:hover": {
+                            backgroundColor: "#bbdefb",
+                        },
+                    }}
+                >
+                </Box>
+            </Box>
+        </Box>
+        )
+    }
+
     const displaySurveys = (surveyList) => {
         if (!surveyList || surveyList.length === 0) return null;
         console.log(surveyList.length)
@@ -82,7 +125,7 @@ const Experimentee = () => {
             >
                 {surveyList.map((survey) => (
                     <Card
-                        key={survey.id}
+                        key={survey.surveyId}
                         sx={{
                             minWidth: 280,
                             flexShrink: 0,
@@ -93,7 +136,7 @@ const Experimentee = () => {
                         {/* 🆕 Top-right IconButton */}
                         <IconButton
                             size="small"
-                            onClick={(e) => handleMenuOpen(e, survey.id)}
+                            onClick={(e) => handleMenuOpen(e, survey.surveyId)}
                             sx={{
                                 position: "absolute",
                                 top: 8,
@@ -111,11 +154,11 @@ const Experimentee = () => {
 
                         <CardContent>
                             <Typography variant="subtitle2" color="textSecondary">
-                                {survey.author} • {survey.date}
+                                {survey.surveyAuthor} • {format(survey.createdAt, "dd MMM yyyy")}
                             </Typography>
-                            <Typography variant="h6">{survey.title}</Typography>
+                            <Typography variant="h6">{survey.surveyTitle}</Typography>
                             <Typography variant="body2" color="text.secondary">
-                                {survey.description}
+                                {survey.surveyDescription}
                             </Typography>
                         </CardContent>
 
@@ -126,7 +169,7 @@ const Experimentee = () => {
                         </CardActions>
 
                         {/* 🆕 Menu logic stays */}
-                        {menuSurveyId === survey.id && (
+                        {menuSurveyId === survey.surveyId && (
                             <Menu
                                 anchorEl={anchorEl}
                                 open={Boolean(anchorEl)}
@@ -166,43 +209,9 @@ const Experimentee = () => {
             </Typography>
 
 
-            <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
-                Continue answering surveys
-            </Typography>
-
-            <Box
-                sx={{
-                    display: "flex",
-                    gap: 2,
-                    overflowX: "auto",
-                    pb: 2,
-                    scrollSnapType: "x mandatory",
-                }}
-            >
-                <Box
-                    onClick={() => navigate("/join")}
-                    sx={{
-                        minWidth: 250,
-                        height: 180,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        backgroundColor: "#e3f2fd",
-                        cursor: "pointer",
-                        borderRadius: 2,
-                        scrollSnapAlign: "start",
-                        flexShrink: 0,
-                        transition: "0.2s",
-                        "&:hover": {
-                            backgroundColor: "#bbdefb",
-                        },
-                    }}
-                >
-                </Box>
-            </Box>
 
             <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
-                {surveys == null || surveys.length === 0 ? "No unfinished surveys. click above to start a new public survey or enter a pin code."
+                {surveys == null || surveys.length === 0 ? "No unfinished surveys. start a new survey below."
                 : "your unfinished surveys"}
             </Typography>
                 
