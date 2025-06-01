@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
@@ -29,7 +29,7 @@ export default function Login() {
     const navigate = useNavigate();
 
     const handleLogin = async (event) => {
-        event.preventDefault(); 
+        event.preventDefault();
         const userData = {
             email,
             password,
@@ -41,16 +41,13 @@ export default function Login() {
             const decoded = jwtDecode(response.data.token);
             setUser(decoded);
             navigate("/");
-
-        }
-        catch (error) {
+        } catch (error) {
             //handling of wrong login credentials
             if (error.response) {
                 setErrMsgPwd(error.response.data.message);
             }
         }
     };
-
 
     // const mode =
     //     user.user === "experimenter" || user.user === "experimentee" || user.user == "superuser"
@@ -125,9 +122,11 @@ export default function Login() {
                 }}
                 onSubmit={handleLogin}
             >
-                <Typography variant="h5" gutterBottom>
-                    E-mail
-                </Typography>
+                <label htmlFor="emailfield">
+                    <Typography variant="h5" gutterBottom>
+                        E-mail
+                    </Typography>
+                </label>
                 <FormControl
                     sx={{ height: "10vh", width: "100%" }}
                     variant="outlined"
@@ -146,9 +145,11 @@ export default function Login() {
                         </FormHelperText>
                     )}
                 </FormControl>
-                <Typography variant="h5" gutterBottom>
-                    Password
-                </Typography>
+                <label htmlFor="pwdfield">
+                    <Typography variant="h5" gutterBottom>
+                        Password
+                    </Typography>
+                </label>
                 <FormControl
                     sx={{ height: "10vh", width: "100%" }}
                     variant="outlined"
