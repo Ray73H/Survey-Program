@@ -34,9 +34,9 @@ export default function JoinSurvey() {
       }
       try {
         const answerData = {
-          surveyId: survey._id,
-          respondentType: user && user.userId ? "user" : "guest",
-          ...(user && user.userId && { respondentId: user.userId })
+            surveyId: survey._id,
+            respondentType: user?.guest ? "guest" : "user",
+            ...(user?.guest ? { guestId: user.userId } : { respondentId: user.userId }),
         };
         const createRes = await createAnswer(answerData);
         navigate("/welcome", {
