@@ -154,6 +154,7 @@ const AccountManagerTable = () => {
                   <TableCell align="right">
                     {user.accountType !== 'superuser' && (
                       <IconButton size="small" onClick={() => handleDelete(user._id)}>
+                        data-testid={`delete-user-${user._id}`}
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     )}

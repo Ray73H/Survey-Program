@@ -27,25 +27,6 @@ function StatCard({ title, value, icon: Icon, description, children }) {
 }
 
 export default function SuperUserCardGroup({ metrics }) {
-  const [timeFilter, setTimeFilter] = useState('overall');
-
-  const getTimeValue = () => {
-    switch (timeFilter) {
-      case 'mc':
-        return metrics.averageTimeMultipleChoice;
-      case 'text':
-        return metrics.averageTimeOpenText;
-      case 'overall':
-      default:
-        return metrics.averageCompletionTimeInMinutes;
-    }
-  };
-
-  const timeLabels = {
-    overall: 'Overall average time to complete any survey',
-    mc: 'Average time for surveys with Multiple Choice questions',
-    text: 'Average time for surveys with Open Text questions',
-  };
 
   return (
     <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mt: 5, flexWrap: 'wrap' }}>
