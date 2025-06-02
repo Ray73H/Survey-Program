@@ -10,15 +10,12 @@ const api = axios.create({
 
 api.interceptors.request.use(
     (config) => {
-        if (config.public) {
-            return config;
-        }
-
         const token = sessionStorage.getItem("authToken");
-        if (!token) {
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        } else if (!config.public) {
             return Promise.reject("No token found");
         }
-        config.headers.Authorization = `Bearer ${token}`;
         return config;
     },
     (error) => Promise.reject(error),

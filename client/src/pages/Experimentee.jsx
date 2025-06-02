@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     Box,
     Typography,
@@ -17,8 +17,11 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../contexts/UserContext";
+import { getThreeUncompletedSurveyAnswers } from "../services/answers.js"
+import { format } from 'date-fns';
 
-const surveys = [
+
+/* const surveys = [
     {
         id: 1,
         title: "Survey on Motorbikes 1",
@@ -44,10 +47,13 @@ const surveys = [
         date: "24 Mar 2022",
     },
 ];
+*/ 
 
 const Experimentee = () => {
     const [anchorEl, setAnchorEl] = useState(null);
     const [menuSurveyId, setMenuSurveyId] = useState(null);
+    const [surveys, setSurveys] = useState([]);
+
     const navigate = useNavigate();
     const { user } = useUserContext();
 
@@ -61,13 +67,10 @@ const Experimentee = () => {
         setMenuSurveyId(null);
     };
 
-    return (
-        <Box sx={{ padding: 4, flexGrow: 1 }}>
-            <Typography variant="h5" gutterBottom>
-                Welcome {user.name}
-            </Typography>
-
-            <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
+    const displayStartButton = () => {
+        return (
+            <Box>
+             <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
                 Continue answering surveys
             </Typography>
 
@@ -101,12 +104,17 @@ const Experimentee = () => {
                 >
                 </Box>
             </Box>
+        </Box>
+        )
+    }
 
-            <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
-                View Your Completed Surveys
-            </Typography>
+    const displaySurveys = (surveyList) => {
+        if (!surveyList || surveyList.length === 0) return null;
+        console.log(surveyList.length)
+        return (
+        
 
-            <Box
+        <Box
                 sx={{
                     display: "flex",
                     gap: 2,
@@ -115,9 +123,9 @@ const Experimentee = () => {
                     scrollSnapType: "x mandatory",
                 }}
             >
-                {surveys.map((survey) => (
+                {surveyList.map((survey) => (
                     <Card
-                        key={survey.id}
+                        key={survey.surveyId}
                         sx={{
                             minWidth: 280,
                             flexShrink: 0,
@@ -127,7 +135,7 @@ const Experimentee = () => {
                     >
                         <IconButton
                             size="small"
-                            onClick={(e) => handleMenuOpen(e, survey.id)}
+                            onClick={(e) => handleMenuOpen(e, survey.surveyId)}
                             sx={{
                                 position: "absolute",
                                 top: 8,
@@ -140,17 +148,16 @@ const Experimentee = () => {
 
                         <CardMedia
                             sx={{ height: 140, backgroundColor: "#ccc" }}
-                            image=""
                             title="Survey Preview"
                         />
 
                         <CardContent>
                             <Typography variant="subtitle2" color="textSecondary">
-                                {survey.author} • {survey.date}
+                                {survey.surveyAuthor} • {format(survey.createdAt, "dd MMM yyyy")}
                             </Typography>
-                            <Typography variant="h6">{survey.title}</Typography>
+                            <Typography variant="h6">{survey.surveyTitle}</Typography>
                             <Typography variant="body2" color="text.secondary">
-                                {survey.description}
+                                {survey.surveyDescription}
                             </Typography>
                         </CardContent>
 
@@ -160,7 +167,8 @@ const Experimentee = () => {
                             </IconButton>
                         </CardActions>
 
-                        {menuSurveyId === survey.id && (
+                        {/* 🆕 Menu logic stays */}
+                        {menuSurveyId === survey.surveyId && (
                             <Menu
                                 anchorEl={anchorEl}
                                 open={Boolean(anchorEl)}
@@ -173,6 +181,42 @@ const Experimentee = () => {
                     </Card>
                 ))}
             </Box>
+        ) 
+    }
+
+    const fetchSurveys = async () => {
+        try {
+            const response = await getThreeUncompletedSurveyAnswers(user?.guest, user.userId);
+            console.log(response)
+            setSurveys(response.data);
+        }
+        catch (error) {
+            alert(error);
+            setSurveys([]);
+        }
+        
+    }
+
+    useEffect(() => {
+        fetchSurveys();
+    }, [user.userId]);
+
+    return (
+        <Box sx={{ padding: 4, flexGrow: 1 }}>
+            <Typography variant="h5" gutterBottom>
+                Welcome {user.name}
+            </Typography>
+
+
+
+            <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
+                {surveys == null || surveys.length === 0 ? "No unfinished surveys. start a new survey below."
+                : "your unfinished surveys"}
+            </Typography>
+                
+            {surveys != null && surveys.length > 0 && displaySurveys(surveys)}
+
+            
         </Box>
     );
 };

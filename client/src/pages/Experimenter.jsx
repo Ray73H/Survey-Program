@@ -58,6 +58,8 @@ const Experimenter = () => {
 
     useEffect(() => {
         fetchSurveys();
+        fetchOngoingSurveys();
+        fetchUnpublishedSurveys();
     }, [user.userId]);
 
     const handleMenuOpen = (event, id) => {
@@ -154,7 +156,8 @@ const Experimenter = () => {
                 </Box>
 
                 <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
-                    Ongoing Surveys
+                    {ongoingSurveys == null || ongoingSurveys.length === 0 ? "no ongoing surveys. Publish a survey to start it" : "ongoing surveys"}
+                    
                 </Typography>
 
                 <Box

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Collapse,
@@ -17,6 +18,17 @@ import {
   CircularProgress,
   Button,
   Stack,
+  Chip,
+  Menu,
+  MenuItem,
+  Checkbox,
+  ListItemText,
+  Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from '@mui/material';
 import {
   KeyboardArrowDown as KeyboardArrowDownIcon,
@@ -28,8 +40,12 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useTheme } from '@mui/material/styles';
-import { getAllSurveys, getSurveysByUserId } from '../services/surveys';
+import { getAllSurveys, getSurveysByUserId, deleteSurvey } from '../services/surveys';
+import { getMetricsPerSurvey, getMetricsPerQuestion, getTotalResponses, getAverageCompletionRate, getAverageCompletionTime, getAverageUsersPerSurvey, } from '../services/answers';
+import StatisticsCards from '../components/StatisticsCardsSurveyList';
+
 import { useUserContext } from '../contexts/UserContext';
 
 // Pagination control buttons
@@ -66,34 +82,64 @@ function TablePaginationActions({ count, page, rowsPerPage, onPageChange }) {
   );
 }
 
+
 // Collapsible row component
-function Row({ survey, onEdit, onDelete }) {
+function Row({ survey, metrics, onEdit, onDelete, visibleColumns, metricsQuestion, user, viewMode }) {
   const [open, setOpen] = useState(false);
 
   return (
     <>
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
         <TableCell>
-          <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
+          <IconButton size="small" onClick={() => setOpen(!open)}>
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell>{survey.title || '-'}</TableCell>
-        <TableCell>{survey.author || '-'}</TableCell>
-        <TableCell>{survey.public ? 'Public' : 'Private'}</TableCell>
-        <TableCell>{survey.pinCode || '-'}</TableCell>
-        <TableCell>{survey.imported ? 'Yes' : 'No'}</TableCell>
-        <TableCell align="right">
-          <IconButton size="small" onClick={() => onEdit(survey._id)}>
-            <EditIcon fontSize="small" />
-          </IconButton>
-          <IconButton size="small" onClick={() => onDelete(survey._id)}>
-            <DeleteIcon fontSize="small" />
-          </IconButton>
-        </TableCell>
+        {visibleColumns.title && <TableCell>{survey.title || '-'}</TableCell>}
+        {visibleColumns.author && <TableCell>{survey.author || '-'}</TableCell>}
+        {visibleColumns.public && <TableCell>{survey.public ? 'Public' : 'Private'}</TableCell>}
+        {visibleColumns.pinCode && <TableCell>{survey.pinCode || '-'}</TableCell>}
+        {visibleColumns.imported && <TableCell>{survey.imported ? 'Yes' : 'No'}</TableCell>}
+        {visibleColumns.status && (
+          <TableCell>
+            {survey.deleted_at ? (
+              <Chip label="Deleted" color="error" size="small" />
+            ) : survey.published ? (
+              <Chip label="Published" color="success" size="small" />
+            ) : (
+              <Chip label="Draft" color="info" size="small" />
+            )}
+          </TableCell>
+        )}
+        {visibleColumns.deadline && (
+          <TableCell>
+            {survey.deadline ? new Date(survey.deadline).toLocaleDateString('en-GB') : '-'}
+          </TableCell>
+        )}
+        {visibleColumns.completionRate && (
+          <TableCell>{metrics.completionRate || '-'}</TableCell>
+        )}
+        {visibleColumns.averageTime && (
+          <TableCell>{metrics.averageCompletionTimeInMinutes || '-'}</TableCell>
+        )}
+        {visibleColumns.uniqueParticipants && (
+          <TableCell>{survey.uniqueParticipants || '-'}</TableCell>
+        )}
+        {visibleColumns.actions && (
+          <TableCell align="right">
+            {!(user.accountType === 'superuser' && viewMode === 'all') && (
+              <IconButton size="small" onClick={() => onEdit(survey._id)}>
+                <EditIcon fontSize="small" />
+              </IconButton>
+            )}
+            <IconButton size="small" onClick={() => onDelete(survey._id)}>
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          </TableCell>
+        )}
       </TableRow>
       <TableRow>
-        <TableCell colSpan={7} style={{ paddingBottom: 0, paddingTop: 0 }}>
+        <TableCell colSpan={12} style={{ paddingBottom: 0, paddingTop: 0 }}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
               <Typography variant="h6" gutterBottom component="div">
@@ -105,24 +151,39 @@ function Row({ survey, onEdit, onDelete }) {
                     <TableCell>Question Text</TableCell>
                     <TableCell>Question Type</TableCell>
                     <TableCell>Options</TableCell>
+                    <TableCell>Completion Rate (%)</TableCell>
+                    <TableCell>Avg. Completion Time (min)</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {survey.questions && survey.questions.length > 0 ? (
-                    survey.questions.map((q, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{q.questionText || '-'}</TableCell>
-                        <TableCell>{q.questionType || '-'}</TableCell>
-                        <TableCell>
-                          {q.options && q.options.length > 0
-                            ? q.options.join(', ')
-                            : '-'}
-                        </TableCell>
-                      </TableRow>
-                    ))
+                    survey.questions.map((q, index) => {
+                      const qMetrics = metricsQuestion?.[q.questionNumber] || {};
+                      return (
+                        <TableRow key={index}>
+                          <TableCell>{q.questionText || '-'}</TableCell>
+                          <TableCell>{q.questionType || '-'}</TableCell>
+                          <TableCell>
+                            {q.options && q.options.length > 0
+                              ? q.options.join(', ')
+                              : '-'}
+                          </TableCell>
+                          <TableCell>
+                            {qMetrics.completionRate
+                              ? `${qMetrics.completionRate.toFixed(2)}%`
+                              : '-'}
+                          </TableCell>
+                          <TableCell>
+                            {qMetrics.averageTime
+                              ? `${qMetrics.averageTime.toFixed(2)}`
+                              : '-'}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={3} align="center">
+                      <TableCell colSpan={5} align="center">
                         No questions available.
                       </TableCell>
                     </TableRow>
@@ -132,10 +193,12 @@ function Row({ survey, onEdit, onDelete }) {
             </Box>
           </Collapse>
         </TableCell>
+
       </TableRow>
     </>
   );
 }
+
 
 export default function SurveyList() {
   const { user } = useUserContext();
@@ -145,9 +208,44 @@ export default function SurveyList() {
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('all'); // 'own' or 'all'
+  const [surveyMetrics, setSurveyMetrics] = useState({});
+  const [surveyMetricsPerQuestion, setSurveyMetricsPerQuestion] = useState({})
+  const [stats, setStats] = useState({});
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [surveyToDelete, setSurveyToDelete] = useState(null);
+
+
+
+  const navigate = useNavigate();
+
+
+  const defaultVisibleColumns = {
+  title: true,
+  author: true,
+  public: true,
+  pinCode: true,
+  imported: true,
+  status: true,
+  deadline: true,
+  completionRate: true,
+  averageTime: true,
+  uniqueParticipants: true,
+  actions: true,
+};
+
+  const [visibleColumns, setVisibleColumns] = useState(() => {
+    const saved = localStorage.getItem('surveyVisibleColumns');
+    return saved ? JSON.parse(saved) : defaultVisibleColumns;
+  });
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const menuOpen = Boolean(anchorEl);
+
+
+
 
   useEffect(() => {
-    const fetchSurveys = async () => {
+    const fetchData = async () => {
       setLoading(true);
       try {
         let res;
@@ -157,15 +255,47 @@ export default function SurveyList() {
           res = await getSurveysByUserId(user.userId);
         }
         setSurveys(res.data);
+
+        const metricsRes = await getMetricsPerSurvey();
+        const metricsMap = {};
+        metricsRes.data.forEach((metric) => {
+          metricsMap[metric.surveyId] = metric;
+        });
+        setSurveyMetrics(metricsMap);
+
+        const metricsQuestionRes = await getMetricsPerQuestion();
+        setSurveyMetricsPerQuestion(metricsQuestionRes.data);
+
+        const [userSurveysRes, totalResponsesRes, avgCompletionRateRes, avgCompletionTimeRes, avgUsersRes, surveysPerMonthRes] = await Promise.all([
+          getSurveysByUserId(user.userId),
+          getTotalResponses(),
+          getAverageCompletionRate(),
+          getAverageCompletionTime(),
+          getAverageUsersPerSurvey(),
+        ]);
+
+        setStats({
+          totalSurveys: userSurveysRes.data.length,
+          totalResponses: totalResponsesRes.data.totalResponses,
+          averageCompletionRate: avgCompletionRateRes.data.averageCompletionRate,
+          averageCompletionTime: avgCompletionTimeRes.data.averageCompletionTime,
+          averageUsersPerSurvey: avgUsersRes.data.averageUsersPerSurvey,
+        });
+
+
+
       } catch (err) {
-        console.error('Failed to fetch surveys:', err);
+        console.error('Failed to fetch surveys or metrics:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchSurveys();
-  }, [user, viewMode]);
+    localStorage.setItem('surveyVisibleColumns', JSON.stringify(visibleColumns));
+    fetchData();
+  }, [user, viewMode, visibleColumns]);
+
+
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value.toLowerCase());
@@ -178,8 +308,34 @@ export default function SurveyList() {
     setPage(0);
   };
 
-  const handleEdit = (id) => console.log('Edit survey with ID:', id);
-  const handleDelete = (id) => console.log('Delete survey with ID:', id);
+  const handleEdit = (id) => {
+    navigate(`/survey-builder/${id}`);
+  };
+
+
+  const handleDelete = (id) => {
+    setSurveyToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+
+  const confirmDelete = async () => {
+      try {
+        await deleteSurvey(surveyToDelete);
+          setSurveys((prev) => prev.filter((s) => s._id !== surveyToDelete));
+        } catch (err) {
+            console.error("Failed to delete survey:", err);
+        } finally {
+            setDeleteDialogOpen(false);
+            setSurveyToDelete(null);
+        }
+        };
+
+  const cancelDelete = () => {
+        setDeleteDialogOpen(false);
+        setSurveyToDelete(null);
+      };
+
 
   const filteredSurveys = surveys.filter(
     (survey) =>
@@ -192,8 +348,33 @@ export default function SurveyList() {
     page * rowsPerPage + rowsPerPage
   );
 
+  const handleMenuOpen = (event) => {
+  setAnchorEl(event.currentTarget);
+};
+
+const handleMenuClose = () => {
+  setAnchorEl(null);
+};
+
+const handleToggleColumn = (column) => {
+  setVisibleColumns((prev) => {
+    const updated = { ...prev, [column]: !prev[column] };
+    localStorage.setItem('surveyVisibleColumns', JSON.stringify(updated));
+    return updated;
+  });
+};
+
+
+
+
   return (
     <Box sx={{ marginTop: '30px' }}>
+      {(user.accountType === 'experimenter' || (user.accountType === 'superuser' && viewMode === 'own')) && (
+        <>
+          <StatisticsCards stats={stats} />
+        </>
+      )}
+        
         <Box
             sx={{
                 display: 'flex',
@@ -228,6 +409,40 @@ export default function SurveyList() {
                 </Button>
             </Box>
         )}
+        <Tooltip title="Visible Fields">
+            <Button 
+            onClick={handleMenuOpen}
+            variant="contained"
+            startIcon={<VisibilityIcon />}>
+              Visible Columns
+            </Button>
+          </Tooltip>
+          <Menu anchorEl={anchorEl} open={menuOpen} onClose={handleMenuClose}>
+            {Object.keys(defaultVisibleColumns).map((column) => (
+              <MenuItem key={column} onClick={() => handleToggleColumn(column)}>
+                <Checkbox checked={visibleColumns[column]} />
+                <ListItemText primary={column} />
+              </MenuItem>
+            ))}
+          </Menu>
+
+          <Dialog open={deleteDialogOpen} onClose={cancelDelete}>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Are you sure you want to delete this survey? This action cannot be undone.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={cancelDelete} color="primary">
+                Cancel
+              </Button>
+              <Button onClick={confirmDelete} color="error">
+                Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
+
     </Box>
       {loading ? (
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
@@ -239,12 +454,17 @@ export default function SurveyList() {
             <TableHead>
               <TableRow>
                 <TableCell />
-                <TableCell>Title</TableCell>
-                <TableCell>Author</TableCell>
-                <TableCell>Public</TableCell>
-                <TableCell>Pin Code</TableCell>
-                <TableCell>Imported</TableCell>
-                <TableCell align="right">Actions</TableCell>
+                {visibleColumns.title && <TableCell>Title</TableCell>}
+                {visibleColumns.author && <TableCell>Author</TableCell>}
+                {visibleColumns.public && <TableCell>Public</TableCell>}
+                {visibleColumns.pinCode && <TableCell>Pin Code</TableCell>}
+                {visibleColumns.imported && <TableCell>Imported</TableCell>}
+                {visibleColumns.status && <TableCell>Status</TableCell>}
+                {visibleColumns.deadline && <TableCell>Survey Deadline</TableCell>}
+                {visibleColumns.completionRate && <TableCell>Completion Rate (%)</TableCell>}
+                {visibleColumns.averageTime && <TableCell>Avg. Completion Time (min)</TableCell>}
+                {visibleColumns.uniqueParticipants && <TableCell>Unique Participants</TableCell>}
+                {visibleColumns.actions && <TableCell align="right">Actions</TableCell>}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -252,13 +472,18 @@ export default function SurveyList() {
                 <Row
                   key={survey._id}
                   survey={survey}
+                  metrics={surveyMetrics[survey._id] || {}}
+                  metricsQuestion={surveyMetricsPerQuestion[survey._id] || {}}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
+                  visibleColumns={visibleColumns}
+                  user={user}
+                  viewMode={viewMode}
                 />
               ))}
               {paginatedSurveys.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} align="center">
+                  <TableCell colSpan={11} align="center">
                     <Typography variant="body2">No surveys found.</Typography>
                   </TableCell>
                 </TableRow>
@@ -277,6 +502,7 @@ export default function SurveyList() {
                 />
               </TableRow>
             </TableFooter>
+            
           </Table>
         </TableContainer>
       )}

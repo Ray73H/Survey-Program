@@ -13,6 +13,8 @@ export const getPublicSurveys = () => api.get("/surveys/public", { public: true 
 export const getSurveyByPinCode = (pinCode) =>
     api.get(`/surveys/pinCode/${pinCode}`, { public: true });
 export const getAllSurveys = () => api.get("/surveys");
+export const getRecentSurveyActivity = () => api.get("/surveys/recent-activity");
+
 
 // Import and Export Functions
 export const exportSurvey = async (surveyId) => {
