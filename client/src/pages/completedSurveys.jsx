@@ -71,7 +71,7 @@ function TablePaginationActions({ count, page, rowsPerPage, onPageChange }) {
 // Collapsible row component
 function Row({ survey }) {
     const [open, setOpen] = useState(false);
-    const [answers, setAnswers] = useState([])
+    //const [answers, setAnswers] = useState([])
 
 
   return (
@@ -142,6 +142,7 @@ export default function CompletedSurveys() {
       setLoading(true);
       try {
         let res = await getCompletedSurveyAnswers(!!user?.guest, user.userId);
+        console.log(res.data)
         setSurveys(res.data)
       } catch (err) {
         console.error('Failed to fetch surveys:', err);

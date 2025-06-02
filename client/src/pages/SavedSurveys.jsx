@@ -70,7 +70,7 @@ function TablePaginationActions({ count, page, rowsPerPage, onPageChange }) {
 // Collapsible row component
 function Row({ survey }) {
     const [open, setOpen] = useState(false);
-    const [answers, setAnswers] = useState([])
+    //const [answers, setAnswers] = useState([])
 
 
   return (
