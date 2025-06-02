@@ -7,7 +7,7 @@ import { useUserContext } from '../contexts/UserContext';
 import * as surveyService from '../services/surveys';
 import * as answerService from '../services/answers';
 import PublicSurveys from '../pages/PublicSurvey';
-import { vi } from 'vitest';
+import { beforeEach, vi } from 'vitest';
 
 vi.mock('../contexts/UserContext', () => ({
   useUserContext: vi.fn(),
@@ -47,54 +47,75 @@ const renderComponent = () => {
   );
 };
 
-beforeEach(() => {
-  useUserContext.mockReturnValue({ user: { accountType: 'experimentee', userId: 'u1' } });
-  surveyService.getSurveysByUserId.mockResolvedValue({ data: mockSurveys });
-  //answerService.getMetricsPerSurvey.mockResolvedValue({ data: mockMetrics });
-  //answerService.getMetricsPerQuestion.mockResolvedValue({ data: mockMetricsPerQuestion });
-  //answerService.getTotalResponses.mockResolvedValue({ data: { totalResponses: mockStats.totalResponses } });
-  //answerService.getAverageCompletionRate.mockResolvedValue({ data: { averageCompletionRate: mockStats.averageCompletionRate } });
-  //answerService.getAverageCompletionTime.mockResolvedValue({ data: { averageCompletionTime: mockStats.averageCompletionTime } });
-  //answerService.getAverageUsersPerSurvey.mockResolvedValue({ data: { averageUsersPerSurvey: mockStats.averageUsersPerSurvey } });
-});
-
-test('renders PublicSuverys and displays survey', async () => {
-  renderComponent();
-  await waitFor(() => {
-    expect(screen.getByText('Survey A')).toBeInTheDocument();
-    expect(screen.getByText('Author A')).toBeInTheDocument();
-  });
-});
-
-test('filters surveys by title', async () => {
-  renderComponent();
-  await screen.findByText('Survey A');
-
-  fireEvent.change(screen.getByLabelText(/search by title or author/i), {
-    target: { value: 'Survey A' },
+describe('Public Surveys - exists', () => {
+  beforeEach(() => {
+    useUserContext.mockReturnValue({ user: { accountType: 'experimentee', userId: 'u1' } });
+    surveyService.getPublicSurveys.mockResolvedValue({ data: mockSurveys });
   });
 
-  expect(screen.queryByText('Survey A')).toBeInTheDocument();
-});
+  test('renders PublicSuverys and displays survey', async () => {
+    renderComponent();
+    await waitFor(() => {
+      expect(screen.getByText('Survey A')).toBeInTheDocument();
+      expect(screen.getByText('Author A')).toBeInTheDocument();
+    });
+  });
 
 
-test('expands survey to show questions', async () => {
-  renderComponent();
+  test('filters surveys by title', async () => {
+    renderComponent();
+    await screen.findByText('Survey A');
 
-  // Wait for a known survey title to appear
-  await screen.findByText('Survey A');
+    fireEvent.change(screen.getByLabelText(/search by title or author/i), {
+      target: { value: 'Survey A' },
+    });
 
-  // Find the expand button (first cell in the row has the IconButton)
-  const expandButtons = screen.getAllByRole('button');
-  const expandButton = expandButtons.find((btn) =>
-    btn.querySelector('svg[data-testid="KeyboardArrowDownIcon"]')
-  );
+    expect(screen.queryByText('Survey A')).toBeInTheDocument();
+  });
 
-  expect(expandButton).toBeTruthy();
-  fireEvent.click(expandButton);
+  test('Dont show survey on bad search', async () => {
+    renderComponent();
+    await screen.findByText('Survey A');
 
-  // Assert that question section appears
-  await waitFor(() => {
-    expect(screen.getByText(/questions/i)).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText(/search by title or author/i), {
+      target: { value: 'Survey B' },
+    });
+
+    expect(screen.queryByText('Survey A')).not.toBeInTheDocument();
+  });
+
+  test('expands survey to show questions', async () => {
+    renderComponent();
+
+    // Wait for a known survey title to appear
+    await screen.findByText('Survey A');
+
+    // Find the expand button (first cell in the row has the IconButton)
+    const expandButtons = screen.getAllByRole('button');
+    const expandButton = expandButtons.find((btn) =>
+      btn.querySelector('svg[data-testid="KeyboardArrowDownIcon"]')
+    );
+
+    expect(expandButton).toBeTruthy();
+    fireEvent.click(expandButton);
+
+    // Assert that question section appears
+    await waitFor(() => {
+      expect(screen.getByText(/questions/i)).toBeInTheDocument();
+    });
+  });
+}); 
+
+describe('Public Surveys does not exist', () => {
+  beforeEach(() => {
+    useUserContext.mockReturnValue({ user: { accountType: 'experimentee', userId: 'u1' } });
+    surveyService.getPublicSurveys.mockResolvedValue({ data: [] });
+  }); 
+
+  test('Display no surveys', async () => {
+    renderComponent();
+    await waitFor(() => {
+      expect(screen.getByText(/no survey/i)).toBeInTheDocument();
+    });
   });
 });
