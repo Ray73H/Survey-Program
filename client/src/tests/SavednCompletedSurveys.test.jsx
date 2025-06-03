@@ -166,7 +166,7 @@ describe('Completed Surveys', () => {
   });
 
 
-  test('filters surveys by title', async () => {
+  test('filters surveys by title', async () => { 
     renderComponentCompleted();
     await screen.findByText('Survey B');
 
