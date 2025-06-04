@@ -171,8 +171,8 @@ function SurveyBuilder() {
         // add unpublish version
         setSurvey((prevSurvey) => ({
             ...prevSurvey,
-            published : true
-        }))
+            published : !prevSurvey.published
+        }));
     }
 
     const handleSaveSurvey = async (e) => {
@@ -202,13 +202,24 @@ function SurveyBuilder() {
                         Survey Builder
                     </Typography>
                     <Box className="space-x-2">
-                        <Button
+                        {!survey.published && (<Button
                             color="secondary"
                             onClick={handlePublish}
                             variant="outlined"
+                            
                             >
                                 Publish Survey
+                        </Button>)}
+                        {survey.published && (
+                        <Button
+                            color="secondary"
+                            onClick={handlePublish}
+                            variant="contained"
+                            >
+                                Unpublish Survey
+
                         </Button>
+                        )}
                         <Button
                             type="submit"
                             form="survey-form"
