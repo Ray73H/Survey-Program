@@ -1,0 +1,32 @@
+services:
+    client:
+        build:
+            context: .
+            dockerfile: client/Dockerfile
+        ports:
+            - "3000:80" # React served by Nginx
+        depends_on:
+            - server
+
+    server:
+        build:
+            context: .
+            dockerfile: server/Dockerfile
+        ports:
+            - "8080:8080"
+        volumes:
+            - ./server:/app
+        env_file:
+            - ./server/.env
+        depends_on:
+            - mongo
+
+    mongo:
+        image: mongo:6
+        ports:
+            - "27017:27017"
+        volumes:
+            - mongo-data:/data/db
+
+volumes:
+    mongo-data:
