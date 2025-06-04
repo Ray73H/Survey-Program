@@ -69,6 +69,8 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" 
     }),
 );
 
+
+
 export default function ExperimenterNavbar() {
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
@@ -89,12 +91,33 @@ export default function ExperimenterNavbar() {
     };
 
     return (
-        <Box sx={{ display: "flex" }}>
-            <CssBaseline />
+        <Box
+            sx={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                height: "100vh",
+                width: open ? drawerWidth : 12,
+                zIndex: 1200,
+                
+            }}
+            >
+            <Box
+            sx={{
+                position: "absolute",
+                left: 0,
+                width: 24, // Wider and more stable
+                height: "100vh",
+                zIndex: 1300,
+                backgroundColor: "transparent",
+                cursor: "pointer",
+            }}
+            onMouseMove={() => setOpen(true)} // More responsive
+            />
+
             <Drawer
                 variant="permanent"
                 open={open}
-                onMouseEnter={() => setOpen(true)}
                 onMouseLeave={() => {
                     setOpen(false);
                     setAccountOpen(false);
@@ -107,6 +130,7 @@ export default function ExperimenterNavbar() {
                         },
                     },
                 }}
+                sx={{ pointerEvents: open ? 'auto' : 'none' }} // Allow clicking only when expanded
             >
                 {/* Logo */}
                 <Divider />

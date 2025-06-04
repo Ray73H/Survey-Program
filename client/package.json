@@ -52,9 +52,10 @@
         "autoprefixer": "^10.4.21",
         "eslint": "^9.25.1",
         "jsdom": "^26.1.0",
+        "mockingoose": "^2.16.2",
         "postcss": "^8.5.3",
         "prettier": "^3.5.3",
         "tailwindcss": "^3.4.17",
-        "vitest": "^3.1.4"
+        "vitest": "^3.2.0"
     }
 }
