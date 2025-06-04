@@ -28,10 +28,6 @@ export default function JoinSurvey() {
     try {
       const response = await getSurveyByPinCode(itemId.trim());
       const survey = response.data;
-      // Update surveyAccess for the user in the database
-      if (user.userId && survey._id) {
-        await addSurveyAccess(user.userId, survey._id);
-      }
       try {
         const answerData = {
             surveyId: survey._id,
