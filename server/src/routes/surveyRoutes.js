@@ -22,10 +22,9 @@ router.get("/", getAllSurveys);
 // ADMIN ROUTES
 router.get("/recent-activity", getRecentSurveyActivity);
 
-
 // EXPERIMENTEE ROUTES
 router.get("/public", getPublicSurveys);
-router.get("/pinCode/:pinCode", authOptional, getSurveyByPinCode);
+router.get("/pinCode/:pinCode", getSurveyByPinCode);
 
 // EXPERIMENTER ROUTES
 router.post("/", authMiddleware, createSurvey);
@@ -36,7 +35,5 @@ router.get("/unpublished/user/:userId", authMiddleware, getUnpublishedSurveys);
 router.get("/ongoing/user/:userId", authMiddleware, getOngoingSurveys);
 router.get("/:id", authMiddleware, getSurveyById);
 router.post("/import", authMiddleware, importSurvey);
-
-
 
 export default router;

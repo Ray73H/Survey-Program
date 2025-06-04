@@ -46,32 +46,28 @@ const closedMixin = (theme) => ({
 
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" })(
     ({ theme, open }) => ({
-        width: drawerWidth,
+        // Base styles for the Drawer component itself
         flexShrink: 0,
         whiteSpace: "nowrap",
         boxSizing: "border-box",
-        position: "fixed", //fixed instead of relative or absolute
+        position: "fixed",
         height: "100vh",
         zIndex: 1200,
-        ...(open && {
-            "& .MuiDrawer-paper": {
-                ...openedMixin(theme),
-                position: "fixed", //
-                height: "100vh",
-                zIndex: 1200,
-            },
-        }),
-        ...(!open && {
-            "& .MuiDrawer-paper": {
-                ...closedMixin(theme),
-                position: "fixed",
-                height: "100vh",
-                zIndex: 1200,
-            },
-        }),
-    })
-);
 
+        // Apply width, transition, and overflow from mixins to the Drawer component itself
+        ...(open ? openedMixin(theme) : closedMixin(theme)),
+
+        // Styles for the MuiDrawer-paper child component
+        "& .MuiDrawer-paper": {
+            // The paper should also reflect the open/closed state visually using the mixins
+            ...(open ? openedMixin(theme) : closedMixin(theme)),
+            // Ensure these specific paper styles are maintained
+            position: "fixed",
+            height: "100vh",
+            zIndex: 1200, // This zIndex is on the paper, consistent with original
+        },
+    }),
+);
 
 
 
@@ -123,8 +119,16 @@ export default function ExperimenterNavbar() {
                 variant="permanent"
                 open={open}
                 onMouseLeave={() => {
-                setOpen(false);
-                setAccountOpen(false);
+                    setOpen(false);
+                    setAccountOpen(false);
+                }}
+                slotProps={{
+                    paper: {
+                        sx: {
+                            display: "flex",
+                            flexDirection: "column",
+                        },
+                    },
                 }}
                 sx={{ pointerEvents: open ? 'auto' : 'none' }} // Allow clicking only when expanded
             >
@@ -153,85 +157,93 @@ export default function ExperimenterNavbar() {
                                 <ListItemText primary="Dashboard" sx={{ opacity: open ? 1 : 0 }} />
                             </ListItemButton>
                         </ListItem>
-                        
-                        {user && (
-                        <ListItem disablePadding sx={{ display: "block" }}>
-                            <ListItemButton
-                            onClick={() => navigate(`/experimenter_survey_list`)}
-                            sx={{
-                                minHeight: 48,
-                                justifyContent: open ? "initial" : "center",
-                                px: 2.5,
-                            }}
-                            >
-                            <ListItemIcon
-                                sx={{
-                                minWidth: 0,
-                                mr: open ? 3 : "auto",
-                                justifyContent: "center",
-                                }}
-                            >
-                                <InboxIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Survey List" sx={{ opacity: open ? 1 : 0 }} />
-                            </ListItemButton>
-                        </ListItem>
-                        )}
 
+                        {user && (
+                            <ListItem disablePadding sx={{ display: "block" }}>
+                                <ListItemButton
+                                    onClick={() => navigate(`/experimenter_survey_list`)}
+                                    sx={{
+                                        minHeight: 48,
+                                        justifyContent: open ? "initial" : "center",
+                                        px: 2.5,
+                                    }}
+                                >
+                                    <ListItemIcon
+                                        sx={{
+                                            minWidth: 0,
+                                            mr: open ? 3 : "auto",
+                                            justifyContent: "center",
+                                        }}
+                                    >
+                                        <InboxIcon />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary="Survey List"
+                                        sx={{ opacity: open ? 1 : 0 }}
+                                    />
+                                </ListItemButton>
+                            </ListItem>
+                        )}
                     </List>
                     <Divider />
-                    {user?.accountType === 'superuser' && (
-                   <>
-                    <ListItem disablePadding sx={{ display: "block" }}>
-                    <ListItemButton
-                        onClick={() => navigate("/admin_overview")}
-                        sx={{
-                        minHeight: 48,
-                        justifyContent: open ? "initial" : "center",
-                        px: 2.5,
-                        }}
-                    >
-                        <ListItemIcon
-                        sx={{
-                            minWidth: 0,
-                            mr: open ? 3 : "auto",
-                            justifyContent: "center",
-                        }}
-                        >
-                        <InboxIcon />
-                        </ListItemIcon>
-                        <ListItemText primary="Admin Overview" sx={{ opacity: open ? 1 : 0 }} />
-                    </ListItemButton>
-                    </ListItem>
+                    {user?.accountType === "superuser" && (
+                        <>
+                            <ListItem disablePadding sx={{ display: "block" }}>
+                                <ListItemButton
+                                    onClick={() => navigate("/admin_overview")}
+                                    sx={{
+                                        minHeight: 48,
+                                        justifyContent: open ? "initial" : "center",
+                                        px: 2.5,
+                                    }}
+                                >
+                                    <ListItemIcon
+                                        sx={{
+                                            minWidth: 0,
+                                            mr: open ? 3 : "auto",
+                                            justifyContent: "center",
+                                        }}
+                                    >
+                                        <InboxIcon />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary="Admin Overview"
+                                        sx={{ opacity: open ? 1 : 0 }}
+                                    />
+                                </ListItemButton>
+                            </ListItem>
 
-                    <ListItem disablePadding sx={{ display: "block" }}>
-                    <ListItemButton
-                        onClick={() => navigate("/account_manager")}
-                        sx={{
-                        minHeight: 48,
-                        justifyContent: open ? "initial" : "center",
-                        px: 2.5,
-                        }}
-                    >
-                        <ListItemIcon
-                        sx={{
-                            minWidth: 0,
-                            mr: open ? 3 : "auto",
-                            justifyContent: "center",
-                        }}
-                        >
-                        <InboxIcon />
-                        </ListItemIcon>
-                        <ListItemText primary="Account Manager" sx={{ opacity: open ? 1 : 0 }} />
-                    </ListItemButton>
-                    </ListItem>
-                </>
-                )}
+                            <ListItem disablePadding sx={{ display: "block" }}>
+                                <ListItemButton
+                                    onClick={() => navigate("/account_manager")}
+                                    sx={{
+                                        minHeight: 48,
+                                        justifyContent: open ? "initial" : "center",
+                                        px: 2.5,
+                                    }}
+                                >
+                                    <ListItemIcon
+                                        sx={{
+                                            minWidth: 0,
+                                            mr: open ? 3 : "auto",
+                                            justifyContent: "center",
+                                        }}
+                                    >
+                                        <InboxIcon />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary="Account Manager"
+                                        sx={{ opacity: open ? 1 : 0 }}
+                                    />
+                                </ListItemButton>
+                            </ListItem>
+                        </>
+                    )}
                 </Box>
                 <Box>
                     <Divider />
                     <List>
-                           <ListItem button onClick={handleAccountClick}>
+                        <ListItem button onClick={handleAccountClick}>
                             <ListItemIcon>
                                 <Avatar sx={{ bgcolor: "primary.main" }}>{firstLetter}</Avatar>
                             </ListItemIcon>
@@ -246,11 +258,11 @@ export default function ExperimenterNavbar() {
                                     },
                                     //"& .MuiListItemText-secondary": {
                                     //    display: accountOpen ? "block" : "none",
-                                        //     whiteSpace: 'normal',          ATTEMPTS AT BREAKING NICELY :'((((
-                                        //     wordBreak: 'break-word',
-                                        //     overflowWrap: 'break-word',
-                                        //     lineBreak: 'strict',
-                                        //     hyphens: 'auto',
+                                    //     whiteSpace: 'normal',          ATTEMPTS AT BREAKING NICELY :'((((
+                                    //     wordBreak: 'break-word',
+                                    //     overflowWrap: 'break-word',
+                                    //     lineBreak: 'strict',
+                                    //     hyphens: 'auto',
                                     //},
                                 }}
                             />
@@ -261,7 +273,10 @@ export default function ExperimenterNavbar() {
                         <Collapse in={accountOpen} timeout="auto" unmountOnExit>
                             <List component="div" disablePadding sx={{ pl: 4 }}>
                                 {!user?.guest && (
-                                    <ListItem button onClick={() => navigate("/settingsExperimenter")}>
+                                    <ListItem
+                                        button
+                                        onClick={() => navigate("/settingsExperimenter")}
+                                    >
                                         <ListItemIcon>
                                             <Settings />
                                         </ListItemIcon>

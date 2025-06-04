@@ -1,5 +1,0 @@
-describe("SurveyBuilder", () => {
-    it("should", () => {
-        
-    });
-});
