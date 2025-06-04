@@ -60,7 +60,7 @@ export default function FillSurvey() {
         setSurvey(surveyResponse.data);
         
         // Then get the answers using the survey's _id
-        const answersResponse = await getAnswer(surveyResponse.data._id, !!user?.guest, user?.userId);
+        const answersResponse = await getAnswer(surveyResponse.data._id, !user?.userId, user?.userId);
         console.log("Answers response:", answersResponse.data);
         
         // If there are existing answers, load them into the state
@@ -143,12 +143,12 @@ export default function FillSurvey() {
       }));
 
       const answerData = {
-          surveyId: survey._id,
-          respondentType: user?.guest ? "guest" : "user",
-          ...(user?.guest ? { guestId: user.userId } : { respondentId: user.userId }),
-          answers: formattedAnswers,
-          completed: true,
-          completedAt: new Date(),
+        surveyId: survey._id,
+        respondentType: user && user.userId ? "user" : "guest",
+        ...(user && user.userId && { respondentId: user.userId }),
+        answers: formattedAnswers,
+        completed: true,
+        completedAt: new Date()
       };
 
       if (!answerId) {
