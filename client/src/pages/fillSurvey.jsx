@@ -1,5 +1,6 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import HomeIcon from '@mui/icons-material/Home';
 import {
   Container,
   Paper,
@@ -212,6 +213,21 @@ export default function FillSurvey() {
             </Typography>
           </Box>
           <Box textAlign="right" minWidth={120}>
+               <Button
+          variant="contained"
+          color="error"
+          size="small"
+          onClick={() => {
+            const f = window.confirm("Go back to the dashboard without submitting?"); 
+            
+            f && navigate('/experimentee')}}
+
+          sx={{ mt: 0 }}
+        >
+          <HomeIcon/>
+    
+          </Button>
+        <Box sx={{ height: 16 }} />
             <Paper elevation={0} sx={{ p: 1.5, background: "#f5f7fa", borderRadius: 2 }}>
               <Typography variant="body2" color="text.secondary" fontWeight={600}>
                 Author: {survey.author || 'Unknown'}
