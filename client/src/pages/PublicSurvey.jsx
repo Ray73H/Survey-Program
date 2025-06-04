@@ -134,15 +134,16 @@ function Row({ survey, onParticipate }) {
     );
 }
 
-export default function SurveyList() {
-    const { user } = useUserContext();
-    const [surveys, setSurveys] = useState([]);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [rowsPerPage, setRowsPerPage] = useState(5);
-    const [page, setPage] = useState(0);
-    const [loading, setLoading] = useState(true);
-    const [viewMode, setViewMode] = useState("all"); // 'own' or 'all'
-    const navigate = useNavigate();
+
+export default function PublicSurveys() {
+  const { user } = useUserContext();
+  const [surveys, setSurveys] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [page, setPage] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState('all'); // 'own' or 'all'
+  const navigate=useNavigate()
 
     useEffect(() => {
         const fetchSurveys = async () => {
@@ -291,95 +292,3 @@ export default function SurveyList() {
     );
 }
 
-{
-    /* export default function PublicSurveys() {
-    const [surveys, setSurveys] = useState([]);
-    const [users, setUsers] = useState([]);
-
-    const handleSearchChange = (event) => {
-        setSearchTerm(event.target.value.toLowerCase());
-        setPage(0);
-    };
-
-    const handleChangePage = (_, newPage) => setPage(newPage);
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
-
-    const filteredData = users.filter(
-        (user) =>
-        user.name?.toLowerCase().includes(searchTerm)
-    );
-
-    const paginatedData = filteredData.slice(
-        page * rowsPerPage,
-        page * rowsPerPage + rowsPerPage
-    );
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [surveyRes] = await Promise.all([
-                    getPublicSurveys(),
-                ]);
-                setSurveys(surveyRes.data);
-            } catch (err) {
-                console.error("Error fetching data:", err);
-            }
-        };
-        fetchData();
-    }, []);
-
-    return (
-    <Box sx={{ marginTop: '30px' }}>
-      <TextField
-        label="Search by Experimenter Name"
-        variant="outlined"
-        size="small"
-        sx={{ mb: 2 }}
-        onChange={handleSearchChange}
-      />
-      {loading ? (
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-          <CircularProgress />
-        </Box>
-      ) : (
-        <TableContainer component={Paper}>
-          <Table aria-label="account manager table">
-            <TableHead>
-              <TableRow>
-                <TableCell>Survey Name</TableCell>
-                <TableCell>Experimenter</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {paginatedData.map((user) => (
-                <TableRow key={user._id}>
-                  <TableCell>{user.name || '-'}</TableCell>
-                </TableRow>
-              ))}
-              {paginatedData.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={5} align="center">
-                    <Typography variant="body2">No accounts found.</Typography>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-          <TablePagination
-            component="div"
-            count={filteredData.length}
-            page={page}
-            onPageChange={handleChangePage}
-            rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            rowsPerPageOptions={[5, 10, 25]}
-          />
-        </TableContainer>
-      )}
-    </Box>
-  );
-}; */
-}
