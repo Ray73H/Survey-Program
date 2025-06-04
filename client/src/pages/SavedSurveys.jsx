@@ -105,7 +105,7 @@ function Row({ survey }) {
                       survey.surveyQuestions.map((q, index) => (
                         <TableRow key={index}>
                           <TableCell>{q.questionText || '-'}</TableCell>
-                          <TableCell>{survey.answers.answer || '-'}</TableCell>
+                          <TableCell>{survey.answers[index]?.answer || '-'}</TableCell>
                           <TableCell>{q.questionType || '-'}</TableCell>
                         </TableRow>
                       ))
