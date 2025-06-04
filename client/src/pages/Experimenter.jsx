@@ -44,12 +44,12 @@ const Experimenter = () => {
     const fetchOngoingSurveys = async () => {
         const response = await getOngoingSurveys(user.userId);
         setOngoingSurveys(response.data);
-    }
+    };
 
     const fetchUnpublishedSurveys = async () => {
         const response = await getUnpublishedSurveys(user.userId);
         setUnpublishedSurveys(response.data);
-    }
+    };
 
     const fetchSurveys = async () => {
         const response = await getUnpublishedSurveys(user.userId);
@@ -120,7 +120,7 @@ const Experimenter = () => {
                 </Typography>
 
                 <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
-                    Create new survey
+                    Create New Survey
                 </Typography>
 
                 <Box
@@ -156,9 +156,13 @@ const Experimenter = () => {
                 </Box>
 
                 <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
-                    {ongoingSurveys == null || ongoingSurveys.length === 0 ? "no ongoing surveys. Publish a survey to start it" : "ongoing surveys"}
-                    
+                    Ongoing Surveys
                 </Typography>
+                {(ongoingSurveys == null || ongoingSurveys.length === 0) && (
+                    <Typography variant="subtitle2" sx={{ marginBottom: 2 }}>
+                        No ongoing surveys. Publish a survey to start it.
+                    </Typography>
+                )}
 
                 <Box
                     sx={{
@@ -276,6 +280,11 @@ const Experimenter = () => {
                 <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
                     Unpublished Surveys
                 </Typography>
+                {(unpublishedSurveys == null || unpublishedSurveys.length === 0) && (
+                    <Typography variant="subtitle2" sx={{ marginBottom: 2 }}>
+                        No unpublished surveys. Create a survey to start editing.
+                    </Typography>
+                )}
 
                 <Box
                     sx={{

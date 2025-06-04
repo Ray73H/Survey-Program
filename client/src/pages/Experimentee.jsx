@@ -17,9 +17,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../contexts/UserContext";
-import { getThreeUncompletedSurveyAnswers } from "../services/answers.js"
-import { format } from 'date-fns';
-
+import { getThreeUncompletedSurveyAnswers } from "../services/answers.js";
+import { format } from "date-fns";
 
 /* const surveys = [
     {
@@ -47,7 +46,7 @@ import { format } from 'date-fns';
         date: "24 Mar 2022",
     },
 ];
-*/ 
+*/
 
 const Experimentee = () => {
     const [anchorEl, setAnchorEl] = useState(null);
@@ -70,51 +69,48 @@ const Experimentee = () => {
     const displayStartButton = () => {
         return (
             <Box>
-             <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
-                Continue answering surveys
-            </Typography>
+                <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
+                    Continue answering surveys
+                </Typography>
 
-            <Box
-                sx={{
-                    display: "flex",
-                    gap: 2,
-                    overflowX: "auto",
-                    pb: 2,
-                    scrollSnapType: "x mandatory",
-                }}
-            >
                 <Box
-                    onClick={() => navigate("/join")}
                     sx={{
-                        minWidth: 250,
-                        height: 180,
                         display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        backgroundColor: "#e3f2fd",
-                        cursor: "pointer",
-                        borderRadius: 2,
-                        scrollSnapAlign: "start",
-                        flexShrink: 0,
-                        transition: "0.2s",
-                        "&:hover": {
-                            backgroundColor: "#bbdefb",
-                        },
+                        gap: 2,
+                        overflowX: "auto",
+                        pb: 2,
+                        scrollSnapType: "x mandatory",
                     }}
                 >
+                    <Box
+                        onClick={() => navigate("/join")}
+                        sx={{
+                            minWidth: 250,
+                            height: 180,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            backgroundColor: "#e3f2fd",
+                            cursor: "pointer",
+                            borderRadius: 2,
+                            scrollSnapAlign: "start",
+                            flexShrink: 0,
+                            transition: "0.2s",
+                            "&:hover": {
+                                backgroundColor: "#bbdefb",
+                            },
+                        }}
+                    ></Box>
                 </Box>
             </Box>
-        </Box>
-        )
-    }
+        );
+    };
 
     const displaySurveys = (surveyList) => {
         if (!surveyList || surveyList.length === 0) return null;
-        console.log(surveyList.length)
+        console.log(surveyList.length);
         return (
-        
-
-        <Box
+            <Box
                 sx={{
                     display: "flex",
                     gap: 2,
@@ -130,7 +126,7 @@ const Experimentee = () => {
                             minWidth: 280,
                             flexShrink: 0,
                             scrollSnapAlign: "start",
-                            position: "relative", 
+                            position: "relative",
                         }}
                     >
                         <IconButton
@@ -181,21 +177,19 @@ const Experimentee = () => {
                     </Card>
                 ))}
             </Box>
-        ) 
-    }
+        );
+    };
 
     const fetchSurveys = async () => {
         try {
             const response = await getThreeUncompletedSurveyAnswers(user?.guest, user.userId);
-            console.log(response)
+            console.log(response);
             setSurveys(response.data);
-        }
-        catch (error) {
+        } catch (error) {
             alert(error);
             setSurveys([]);
         }
-        
-    }
+    };
 
     useEffect(() => {
         fetchSurveys();
@@ -207,16 +201,16 @@ const Experimentee = () => {
                 Welcome {user.name}
             </Typography>
 
-
-
             <Typography variant="h6" sx={{ marginTop: 4, marginBottom: 2 }}>
-                {surveys == null || surveys.length === 0 ? "No unfinished surveys. start a new survey below."
-                : "your unfinished surveys"}
+                Your Unfinished Surveys
             </Typography>
-                
-            {surveys != null && surveys.length > 0 && displaySurveys(surveys)}
+            {(surveys == null || surveys.length === 0) && (
+                <Typography variant="subtitle2" sx={{ marginBottom: 2 }}>
+                    No unfinished surveys. Join new surveys in the navigation bar.
+                </Typography>
+            )}
 
-            
+            {surveys != null && surveys.length > 0 && displaySurveys(surveys)}
         </Box>
     );
 };
