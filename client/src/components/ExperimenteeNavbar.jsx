@@ -41,18 +41,26 @@ const closedMixin = (theme) => ({
 
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" })(
     ({ theme, open }) => ({
-        width: drawerWidth,
+        // Base styles for the Drawer component itself
         flexShrink: 0,
         whiteSpace: "nowrap",
         boxSizing: "border-box",
-        ...(open && {
-            ...openedMixin(theme),
-            "& .MuiDrawer-paper": openedMixin(theme),
-        }),
-        ...(!open && {
-            ...closedMixin(theme),
-            "& .MuiDrawer-paper": closedMixin(theme),
-        }),
+        position: "fixed",
+        height: "100vh",
+        zIndex: 1200,
+
+        // Apply width, transition, and overflow from mixins to the Drawer component itself
+        ...(open ? openedMixin(theme) : closedMixin(theme)),
+
+        // Styles for the MuiDrawer-paper child component
+        "& .MuiDrawer-paper": {
+            // The paper should also reflect the open/closed state visually using the mixins
+            ...(open ? openedMixin(theme) : closedMixin(theme)),
+            // Ensure these specific paper styles are maintained
+            position: "fixed",
+            height: "100vh",
+            zIndex: 1200, // This zIndex is on the paper, consistent with original
+        },
     }),
 );
 
@@ -80,12 +88,33 @@ export default function ExperimenteeNavbar() {
     };
 
     return (
-        <Box sx={{ display: "flex" }}>
-            <CssBaseline />
+        <Box
+            sx={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                height: "100vh",
+                width: open ? drawerWidth : 12,
+                zIndex: 1200,
+                
+            }}
+            >
+            <Box
+            sx={{
+                position: "absolute",
+                left: 0,
+                width: 24, // Wider and more stable
+                height: "100vh",
+                zIndex: 1300,
+                backgroundColor: "transparent",
+                cursor: "pointer",
+            }}
+            onMouseMove={() => setOpen(true)} // More responsive
+            />
+
             <Drawer
                 variant="permanent"
                 open={open}
-                onMouseEnter={() => setOpen(true)}
                 onMouseLeave={() => {
                     setOpen(false);
                     setAccountOpen(false);
@@ -95,10 +124,10 @@ export default function ExperimenteeNavbar() {
                         sx: {
                             display: "flex",
                             flexDirection: "column",
-                            width: 240,
                         },
                     },
                 }}
+                sx={{ pointerEvents: open ? 'auto' : 'none' }} // Allow clicking only when expanded
             >
                 <Divider />
                 <Box sx={{ flex: 1 }}>
