@@ -106,7 +106,7 @@ function Row({ survey }) {
                       survey.surveyQuestions.map((q, index) => (
                         <TableRow key={index}>
                           <TableCell>{q.questionText || '-'}</TableCell>
-                          <TableCell>{survey.answers.answer || '-'}</TableCell>
+                          <TableCell>{survey.answers[index]?.answer || '-'}</TableCell>
                           <TableCell>{q.questionType || '-'}</TableCell>
                         </TableRow>
                       ))
@@ -142,7 +142,7 @@ export default function CompletedSurveys() {
       setLoading(true);
       try {
         let res = await getCompletedSurveyAnswers(!!user?.guest, user.userId);
-        console.log(res.data)
+        // console.log(res.data)
         setSurveys(res.data)
       } catch (err) {
         console.error('Failed to fetch surveys:', err);
