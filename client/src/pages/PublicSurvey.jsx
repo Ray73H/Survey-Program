@@ -71,7 +71,6 @@ function TablePaginationActions({ count, page, rowsPerPage, onPageChange }) {
 // Collapsible row component
 function Row({ survey, onParticipate }) {
     const [open, setOpen] = useState(false);
-    console.log("survey", survey);
 
     return (
         <>
@@ -175,7 +174,6 @@ export default function PublicSurveys() {
     const handleParticipate = async (pin) => {
         const response = await getSurveyByPinCode(pin);
         const survey = response.data;
-        console.log("surver",survey)
         try {
             const answerData = {
                 surveyId: survey._id,
@@ -193,6 +191,8 @@ export default function PublicSurveys() {
         } catch (error) {
             if (error.response?.status === 400) {
                 const existingAnswer = await getAnswer(survey._id, !!user?.guest, user.userId);
+                console.log("surveypublic",survey)
+                console.log("publicanser", existingAnswer)
                 const completed = existingAnswer.data[0]?.completed;
                 if (existingAnswer.data.length == 0 || completed) {
                     alert("Survey already completed!");

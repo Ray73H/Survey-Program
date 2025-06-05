@@ -28,6 +28,7 @@ import { getSurveyById } from "../services/surveys.js";
 const Experimentee = () => {
     const [anchorEl, setAnchorEl] = useState(null);
     const [menuSurveyId, setMenuSurveyId] = useState(null);
+    const [surveyID, setSurveyId] = useState(null);
     const [surveys, setSurveys] = useState([]);
 
     const navigate = useNavigate();
@@ -43,13 +44,15 @@ const Experimentee = () => {
         setMenuSurveyId(null);
     };
 
-    const handleGoToSurvey = async (survey) => {
+    const handleGoToSurvey = async (id) => {
          try {
-            const existingAnswer = await getAnswer(survey.surveyId, !!user?.guest, user.userId);
-                navigate("/welcome", {
+            const res = await getSurveyById(id);
+            const sur = res.data;
+            const existingAnswer = await getAnswer(id, !!user?.guest, user.userId);
+                navigate("/fillSurvey", {
                                 state: {
-                                    pinCode: survey.pinCode,
-                                    survey,
+                                    pinCode: sur.pinCode,
+                                    sur,
                                     answerId: existingAnswer.data[0]._id,
                                 },
                             });
@@ -100,7 +103,6 @@ const Experimentee = () => {
 
     const displaySurveys = (surveyList) => {
         if (!surveyList || surveyList.length === 0) return null;
-        console.log(surveyList.length);
         return (
             <Box
                 sx={{
@@ -124,7 +126,7 @@ const Experimentee = () => {
                         <Tooltip title="Continue taking survey">
                         <IconButton
                             size="small"
-                            onClick={() => handleGoToSurvey(survey)}
+                            onClick={() => handleGoToSurvey(survey.surveyId)}
                             sx={{
                                 position: "absolute",
                                 top: 8,
@@ -158,7 +160,6 @@ const Experimentee = () => {
     const fetchSurveys = async () => {
         try {
             const response = await getThreeUncompletedSurveyAnswers(user?.guest, user.userId);
-            console.log(response);
             setSurveys(response.data);
         } catch (error) {
             alert(error);
