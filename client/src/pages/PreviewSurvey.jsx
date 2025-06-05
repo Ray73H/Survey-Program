@@ -13,11 +13,14 @@ import {
   Stack,
   TextField,
   Button,
-  LinearProgress
+  LinearProgress,
+  Tooltip,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import CloseIcon from '@mui/icons-material/Close';
 import { getSurveyById } from "../services/surveys";
+import { useNavigate } from "react-router-dom";
 
 export default function PreviewSurvey() {
   const { surveyId } = useParams();
@@ -28,6 +31,7 @@ export default function PreviewSurvey() {
   const [focusedIdx, setFocusedIdx] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [elapsed, setElapsed] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchSurvey = async () => {
@@ -111,6 +115,18 @@ export default function PreviewSurvey() {
             </Typography>
           </Box>
           <Box textAlign="right" minWidth={120}>
+              <Button
+                      variant="contained"
+                      color="error"
+                      size="small"
+                      onClick={() => {navigate('/experimenter')}}          
+                      sx={{ mt: 0 }}
+                    >
+                      <Tooltip title="Exit preview mode">
+                        <CloseIcon/>
+                      </Tooltip>
+                      </Button>
+                      <Box sx={{ height: 16 }} />
             <Paper elevation={0} sx={{ p: 1.5, background: "#f5f7fa", borderRadius: 2 }}>
               <Typography variant="body2" color="text.secondary" fontWeight={600}>
                 Author: {survey.author || 'Unknown'}
