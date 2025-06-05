@@ -28,10 +28,10 @@ const Experimentee = () => {
             const res = await getSurveyById(id);
             const sur = res.data;
             const existingAnswer = await getAnswer(id, !!user?.guest, user.userId);
-                navigate("/fillSurvey", {
+                navigate("/welcome", {
                                 state: {
                                     pinCode: sur.pinCode,
-                                    sur,
+                                    survey: sur,
                                     answerId: existingAnswer.data[0]._id,
                                 },
                             });
