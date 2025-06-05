@@ -76,7 +76,7 @@ function Row({ survey, onParticipate }) {
         const fetchAnswer = async () => {
             try {
                 const answer = await getAnswer(survey._id, !!user?.guest, user.userId);
-                console.log("Answer fetched:", answer.data);
+                // console.log("Answer fetched:", answer.data);
                 setExistingAnswer(answer.data[0]); // Store the answer in state
             } catch (error) {
                 console.error("Error fetching answer:", error);
