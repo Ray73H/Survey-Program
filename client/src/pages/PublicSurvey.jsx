@@ -69,6 +69,23 @@ function TablePaginationActions({ count, page, rowsPerPage, onPageChange }) {
 function Row({ survey, onParticipate }) {
     const [open, setOpen] = useState(false);
 
+    const [existingAnswer, setExistingAnswer] = useState(null); 
+    const { user } = useUserContext(); 
+
+    useEffect(() => {
+        const fetchAnswer = async () => {
+            try {
+                const answer = await getAnswer(survey._id, !!user?.guest, user.userId);
+                console.log("Answer fetched:", answer.data);
+                setExistingAnswer(answer.data[0]); // Store the answer in state
+            } catch (error) {
+                console.error("Error fetching answer:", error);
+            }
+        };
+
+        fetchAnswer(); 
+    }, [survey._id, user]); 
+
     return (
         <>
             <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
@@ -80,9 +97,15 @@ function Row({ survey, onParticipate }) {
                 <TableCell>{survey.title || "-"}</TableCell>
                 <TableCell>{survey.author || "-"}</TableCell>
                 <TableCell align="right">
-                    <IconButton size="small" onClick={() => onParticipate(survey.pinCode)}>
-                        <BorderColorIcon fontSize="small" />
-                    </IconButton>
+                    {existingAnswer?.completed ? (
+                        <Typography variant="body2" color="success.main">
+                            Completed
+                        </Typography>
+                    ) : (
+                        <IconButton size="small" onClick={() => onParticipate(survey.pinCode)}>
+                            <BorderColorIcon fontSize="small" />
+                        </IconButton>
+                    )}
                 </TableCell>
             </TableRow>
             <TableRow>
