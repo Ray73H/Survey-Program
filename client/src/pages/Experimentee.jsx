@@ -6,6 +6,7 @@ import {
     CardContent,
     CardActions,
     Button,
+    Tooltip,
     IconButton,
     Menu,
     MenuItem,
@@ -15,38 +16,14 @@ import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import ContentPasteGoIcon from '@mui/icons-material/ContentPasteGo';
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../contexts/UserContext";
 import { getThreeUncompletedSurveyAnswers } from "../services/answers.js";
+import { getAnswer } from "../services/answers";
 import { format } from "date-fns";
+import { getSurveyById } from "../services/surveys.js";
 
-/* const surveys = [
-    {
-        id: 1,
-        title: "Survey on Motorbikes 1",
-        description:
-            "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.",
-        author: "Max Muster",
-        date: "24 Mar 2022",
-    },
-    {
-        id: 2,
-        title: "Survey on Motorbikes 2",
-        description:
-            "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.",
-        author: "Max Muster",
-        date: "24 Mar 2022",
-    },
-    {
-        id: 3,
-        title: "Survey on Motorbikes 3",
-        description:
-            "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.",
-        author: "Max Muster",
-        date: "24 Mar 2022",
-    },
-];
-*/
 
 const Experimentee = () => {
     const [anchorEl, setAnchorEl] = useState(null);
@@ -64,6 +41,21 @@ const Experimentee = () => {
     const handleMenuClose = () => {
         setAnchorEl(null);
         setMenuSurveyId(null);
+    };
+
+    const handleGoToSurvey = async (survey) => {
+         try {
+            const existingAnswer = await getAnswer(survey.surveyId, !!user?.guest, user.userId);
+                navigate("/welcome", {
+                                state: {
+                                    pinCode: survey.pinCode,
+                                    survey,
+                                    answerId: existingAnswer.data[0]._id,
+                                },
+                            });
+        } catch {
+            alert("Something went wrong");
+            }
     };
 
     const displayStartButton = () => {
@@ -129,9 +121,10 @@ const Experimentee = () => {
                             position: "relative",
                         }}
                     >
+                        <Tooltip title="Continue taking survey">
                         <IconButton
                             size="small"
-                            onClick={(e) => handleMenuOpen(e, survey.surveyId)}
+                            onClick={() => handleGoToSurvey(survey)}
                             sx={{
                                 position: "absolute",
                                 top: 8,
@@ -139,9 +132,9 @@ const Experimentee = () => {
                                 zIndex: 1,
                             }}
                         >
-                            <MoreVertIcon />
+                            <ContentPasteGoIcon/>
                         </IconButton>
-
+                        </Tooltip>
                         <CardMedia
                             sx={{ height: 140, backgroundColor: "#ccc" }}
                             title="Survey Preview"
@@ -156,24 +149,6 @@ const Experimentee = () => {
                                 {survey.surveyDescription}
                             </Typography>
                         </CardContent>
-
-                        <CardActions sx={{ justifyContent: "right" }}>
-                            <IconButton color="error">
-                                <DeleteIcon />
-                            </IconButton>
-                        </CardActions>
-
-                        {/* 🆕 Menu logic stays */}
-                        {menuSurveyId === survey.surveyId && (
-                            <Menu
-                                anchorEl={anchorEl}
-                                open={Boolean(anchorEl)}
-                                onClose={handleMenuClose}
-                            >
-                                <MenuItem onClick={handleMenuClose}>Share Survey</MenuItem>
-                                <MenuItem onClick={handleMenuClose}>Preview</MenuItem>
-                            </Menu>
-                        )}
                     </Card>
                 ))}
             </Box>
@@ -206,7 +181,7 @@ const Experimentee = () => {
             </Typography>
             {(surveys == null || surveys.length === 0) && (
                 <Typography variant="subtitle2" sx={{ marginBottom: 2 }}>
-                    No unfinished surveys. Join new surveys in the navigation bar.
+                    You have no unfinished surveys. Join new surveys in the navigation bar.
                 </Typography>
             )}
 

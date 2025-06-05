@@ -175,6 +175,7 @@ export default function PublicSurveys() {
     const handleParticipate = async (pin) => {
         const response = await getSurveyByPinCode(pin);
         const survey = response.data;
+        console.log("surver",survey)
         try {
             const answerData = {
                 surveyId: survey._id,
