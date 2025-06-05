@@ -4,18 +4,10 @@ import {
     Typography,
     Card,
     CardContent,
-    CardActions,
-    Button,
     Tooltip,
     IconButton,
-    Menu,
-    MenuItem,
     CardMedia,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ContentPasteGoIcon from '@mui/icons-material/ContentPasteGo';
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../contexts/UserContext";
@@ -26,23 +18,10 @@ import { getSurveyById } from "../services/surveys.js";
 
 
 const Experimentee = () => {
-    const [anchorEl, setAnchorEl] = useState(null);
-    const [menuSurveyId, setMenuSurveyId] = useState(null);
-    const [surveyID, setSurveyId] = useState(null);
     const [surveys, setSurveys] = useState([]);
 
     const navigate = useNavigate();
     const { user } = useUserContext();
-
-    const handleMenuOpen = (event, id) => {
-        setAnchorEl(event.currentTarget);
-        setMenuSurveyId(id);
-    };
-
-    const handleMenuClose = () => {
-        setAnchorEl(null);
-        setMenuSurveyId(null);
-    };
 
     const handleGoToSurvey = async (id) => {
          try {

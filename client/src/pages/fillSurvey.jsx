@@ -14,7 +14,8 @@ import {
   TextField,
   Button,
   Stack,
-  LinearProgress
+  LinearProgress,
+  Tooltip,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
@@ -166,8 +167,6 @@ export default function FillSurvey() {
           survey, 
           time_taken: formatTime(elapsed)
         } } ); 
-      // alert(`Survey submitted! Time taken: ${formatTime(elapsed)}`);
-      // navigate("/experimentee");
     } catch (error) {
       setError("Failed to submit survey. Please try again.");
       setSubmitting(false);
@@ -228,8 +227,9 @@ export default function FillSurvey() {
 
           sx={{ mt: 0 }}
         >
-          <HomeIcon/>
-    
+          <Tooltip title="Save and return to dashboard">
+            <HomeIcon/>
+          </Tooltip>
           </Button>
         <Box sx={{ height: 16 }} />
             <Paper elevation={0} sx={{ p: 1.5, background: "#f5f7fa", borderRadius: 2 }}>
