@@ -26,7 +26,7 @@ import {
   KeyboardArrowRight,
   LastPage as LastPageIcon,
 } from '@mui/icons-material';
-import BorderColorIcon from '@mui/icons-material/BorderColor';
+import { format } from "date-fns";
 import { useTheme } from '@mui/material/styles';
 import {getSavedSurveyAnswers } from '../services/answers';
 import { useUserContext } from '../contexts/UserContext';
@@ -83,7 +83,7 @@ function Row({ survey }) {
         </TableCell>
         <TableCell>{survey.surveyTitle || '-'}</TableCell>
         <TableCell>{survey.surveyAuthor || '-'}</TableCell>
-        <TableCell>{survey.updatedAt || '-'}</TableCell>
+        <TableCell>{format(survey.updatedAt, "dd MMM yyyy") || '-'}</TableCell>
       </TableRow>
       <TableRow>
         <TableCell colSpan={7} style={{ paddingBottom: 0, paddingTop: 0 }}>

@@ -15,8 +15,6 @@ import {
     TablePagination,
     TextField,
     CircularProgress,
-    Button,
-    Stack,
 } from "@mui/material";
 import {
     KeyboardArrowDown as KeyboardArrowDownIcon,
@@ -30,7 +28,6 @@ import BorderColorIcon from "@mui/icons-material/BorderColor";
 import { useTheme } from "@mui/material/styles";
 import { getPublicSurveys, getSurveyByPinCode } from "../services/surveys";
 import { useUserContext } from "../contexts/UserContext";
-import { addSurveyAccess } from "../services/users";
 import { useNavigate } from "react-router-dom";
 import { createAnswer, getAnswer } from "../services/answers";
 
@@ -71,7 +68,6 @@ function TablePaginationActions({ count, page, rowsPerPage, onPageChange }) {
 // Collapsible row component
 function Row({ survey, onParticipate }) {
     const [open, setOpen] = useState(false);
-    console.log("survey", survey);
 
     return (
         <>

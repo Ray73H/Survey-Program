@@ -254,7 +254,6 @@ const Experimenter = () => {
                                     open={Boolean(anchorEl)}
                                     onClose={handleMenuClose}
                                 >
-                                    <MenuItem onClick={handleMenuClose}>Share Survey</MenuItem>
                                     <MenuItem
                                         onClick={() => {
                                             exportSurvey(survey._id);
@@ -376,7 +375,6 @@ const Experimenter = () => {
                                     open={Boolean(anchorEl)}
                                     onClose={handleMenuClose}
                                 >
-                                    <MenuItem onClick={handleMenuClose}>Share Survey</MenuItem>
                                     <MenuItem
                                         onClick={() => {
                                             exportSurvey(survey._id);

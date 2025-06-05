@@ -12,7 +12,6 @@ import {
   Divider,
 } from '@mui/material';
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useNavigate } from "react-router-dom";
 import { deleteUser} from "../services/users";
 import { DeleteUserDialog } from "../components/DeleteUserDialog";
 import { useUserContext } from "../contexts/UserContext";
@@ -20,7 +19,6 @@ import { useUserContext } from "../contexts/UserContext";
 
 
 export default function SettingsExperimentee() {
-    const navigate = useNavigate();
     const { user, logout } = useUserContext();
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
@@ -34,7 +32,6 @@ export default function SettingsExperimentee() {
         } finally {
           setOpenDeleteDialog(false);
           logout();
-          //navigate("/signup");
         }}
 
   return (

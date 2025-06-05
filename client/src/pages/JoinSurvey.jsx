@@ -12,7 +12,6 @@ import { getSurveyByPinCode} from "../services/surveys";
 import { createAnswer } from "../services/answers";
 import { getAnswer } from "../services/answers";
 import { useUserContext } from "../contexts/UserContext";
-import { addSurveyAccess } from "../services/users";
 
 export default function JoinSurvey() {
   const [itemId, setItemId] = useState("");

@@ -255,15 +255,7 @@ export default function ExperimenterNavbar() {
                                         whiteSpace: accountOpen ? "normal" : "nowrap",
                                         overflow: accountOpen ? "visible" : "hidden",
                                         textOverflow: accountOpen ? "initial" : "ellipsis",
-                                    },
-                                    //"& .MuiListItemText-secondary": {
-                                    //    display: accountOpen ? "block" : "none",
-                                    //     whiteSpace: 'normal',          ATTEMPTS AT BREAKING NICELY :'((((
-                                    //     wordBreak: 'break-word',
-                                    //     overflowWrap: 'break-word',
-                                    //     lineBreak: 'strict',
-                                    //     hyphens: 'auto',
-                                    //},
+                                    }
                                 }}
                             />
                             <IconButton size="small">
