@@ -29,6 +29,7 @@ import {
 import { format } from "date-fns";
 import { useTheme } from '@mui/material/styles';
 import {getSavedSurveyAnswers } from '../services/answers';
+import { getSurveyById } from '../services/surveys';
 import { useUserContext } from '../contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
 // Pagination control buttons
@@ -70,8 +71,22 @@ function TablePaginationActions({ count, page, rowsPerPage, onPageChange }) {
 // Collapsible row component
 function Row({ survey }) {
     const [open, setOpen] = useState(false);
-    //const [answers, setAnswers] = useState([])
 
+    const navigate = useNavigate();
+    const handleContinue = async () => {
+        try {
+            const response = await getSurveyById(survey.surveyId);
+            const surveyData = response.data;
+            navigate("/welcome", {
+                state: {
+                    survey: surveyData
+                }
+            });
+        } catch (error) {
+            console.error("Error fetching survey:", error);
+            alert("Error loading survey. Please try again.");
+        }
+    };
 
   return (
     <>
@@ -84,6 +99,21 @@ function Row({ survey }) {
         <TableCell>{survey.surveyTitle || '-'}</TableCell>
         <TableCell>{survey.surveyAuthor || '-'}</TableCell>
         <TableCell>{format(survey.updatedAt, "dd MMM yyyy") || '-'}</TableCell>
+        <TableCell>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            onClick={handleContinue}
+          >
+            Continue Survey
+          </Button>
+        </TableCell>
+      <TableCell>
+      {survey.answers && survey.surveyQuestions && survey.surveyQuestions.length > 0 ? 
+      `${Math.round((survey.answers.length / survey.surveyQuestions.length) * 100)}%` 
+      : '-'}
+</TableCell>
       </TableRow>
       <TableRow>
         <TableCell colSpan={7} style={{ paddingBottom: 0, paddingTop: 0 }}>
@@ -208,6 +238,8 @@ export default function SavedSurveys() {
                 <TableCell>Title</TableCell>
                 <TableCell>Author</TableCell>
                 <TableCell>Last Updated</TableCell>
+                <TableCell></TableCell>
+                <TableCell>Completion Rate</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
