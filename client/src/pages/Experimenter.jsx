@@ -197,7 +197,7 @@ const Experimenter = () => {
                             </IconButton>
 
                             <CardMedia
-                                sx={{ height: 140, backgroundColor: "#ccc" }}
+                                sx={{ height: 140, backgroundColor: "#bbe5f0" }}
                                 image=""
                                 title="Survey Preview"
                             />
@@ -318,7 +318,7 @@ const Experimenter = () => {
                             </IconButton>
 
                             <CardMedia
-                                sx={{ height: 140, backgroundColor: "#ccc" }}
+                                sx={{ height: 140, backgroundColor: "#f5e4eb" }}
                                 image=""
                                 title="Survey Preview"
                             />

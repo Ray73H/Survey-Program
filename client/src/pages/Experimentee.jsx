@@ -117,7 +117,7 @@ const Experimentee = () => {
                         </IconButton>
                         </Tooltip>
                         <CardMedia
-                            sx={{ height: 140, backgroundColor: "#ccc" }}
+                            sx={{ height: 140, backgroundColor: "#94d5e7" }}
                             title="Survey Preview"
                         />
 
