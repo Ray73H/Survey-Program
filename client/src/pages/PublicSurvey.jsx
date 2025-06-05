@@ -191,8 +191,6 @@ export default function PublicSurveys() {
         } catch (error) {
             if (error.response?.status === 400) {
                 const existingAnswer = await getAnswer(survey._id, !!user?.guest, user.userId);
-                console.log("surveypublic",survey)
-                console.log("publicanser", existingAnswer)
                 const completed = existingAnswer.data[0]?.completed;
                 if (existingAnswer.data.length == 0 || completed) {
                     alert("Survey already completed!");
