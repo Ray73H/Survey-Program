@@ -31,10 +31,10 @@ router.get('/stats', calculateSurveyMetrics);
 router.get("/get_answers", getAllAnswers);
 router.post("/", createAnswer);
 router.put("/:id", updateAnswer);
-router.get("/", getAnswer);
 router.get("/completed", getCompletedSurveyAnswers);
 router.get("/saved", getSavedSurveyAnswers);
 router.get("/three", getThreeUncompletedSurveyAnswers);
+router.get("/", getAnswer);
 
 // Experimenter
 router.get("/survey/:surveyId", getAnswersBySurveyId);
