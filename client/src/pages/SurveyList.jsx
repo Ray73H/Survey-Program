@@ -244,56 +244,54 @@ export default function SurveyList() {
 
 
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        let res;
-        if (user.accountType === 'superuser' && viewMode === 'all') {
-          res = await getAllSurveys();
-        } else {
-          res = await getSurveysByUserId(user.userId);
-        }
-        setSurveys(res.data);
-
-        const metricsRes = await getMetricsPerSurvey();
-        const metricsMap = {};
-        metricsRes.data.forEach((metric) => {
-          metricsMap[metric.surveyId] = metric;
-        });
-        setSurveyMetrics(metricsMap);
-
-        const metricsQuestionRes = await getMetricsPerQuestion();
-        setSurveyMetricsPerQuestion(metricsQuestionRes.data);
-
-        const [userSurveysRes, totalResponsesRes, avgCompletionRateRes, avgCompletionTimeRes, avgUsersRes, surveysPerMonthRes] = await Promise.all([
-          getSurveysByUserId(user.userId),
-          getTotalResponses(),
-          getAverageCompletionRate(),
-          getAverageCompletionTime(),
-          getAverageUsersPerSurvey(),
-        ]);
-
-        setStats({
-          totalSurveys: userSurveysRes.data.length,
-          totalResponses: totalResponsesRes.data.totalResponses,
-          averageCompletionRate: avgCompletionRateRes.data.averageCompletionRate,
-          averageCompletionTime: avgCompletionTimeRes.data.averageCompletionTime,
-          averageUsersPerSurvey: avgUsersRes.data.averageUsersPerSurvey,
-        });
-
-
-
-      } catch (err) {
-        console.error('Failed to fetch surveys or metrics:', err);
-      } finally {
-        setLoading(false);
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      let res;
+      if (user.accountType === 'superuser' && viewMode === 'all') {
+        res = await getAllSurveys();
+      } else {
+        res = await getSurveysByUserId(user.userId);
       }
-    };
+      setSurveys(res.data);
 
-    localStorage.setItem('surveyVisibleColumns', JSON.stringify(visibleColumns));
-    fetchData();
-  }, [user, viewMode, visibleColumns]);
+      const metricsRes = await getMetricsPerSurvey();
+      const metricsMap = {};
+      metricsRes.data.forEach((metric) => {
+        metricsMap[metric.surveyId] = metric;
+      });
+      setSurveyMetrics(metricsMap);
+
+      const metricsQuestionRes = await getMetricsPerQuestion();
+      setSurveyMetricsPerQuestion(metricsQuestionRes.data);
+
+      const [userSurveysRes, totalResponsesRes, avgCompletionRateRes, avgCompletionTimeRes, avgUsersRes] = await Promise.all([
+        getSurveysByUserId(user.userId),
+        getTotalResponses(),
+        getAverageCompletionRate(),
+        getAverageCompletionTime(),
+        getAverageUsersPerSurvey(),
+      ]);
+
+      setStats({
+        totalSurveys: userSurveysRes.data.length,
+        totalResponses: totalResponsesRes.data.totalResponses,
+        averageCompletionRate: avgCompletionRateRes.data.averageCompletionRate,
+        averageCompletionTime: avgCompletionTimeRes.data.averageCompletionTime,
+        averageUsersPerSurvey: avgUsersRes.data.averageUsersPerSurvey,
+      });
+    } catch (err) {
+      console.error('Failed to fetch surveys or metrics:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+  localStorage.setItem('surveyVisibleColumns', JSON.stringify(visibleColumns));
+  fetchData();
+}, [user, viewMode, visibleColumns]);
+
 
 
 
@@ -320,16 +318,17 @@ export default function SurveyList() {
 
 
   const confirmDelete = async () => {
-      try {
-        await deleteSurvey(surveyToDelete);
-          setSurveys((prev) => prev.filter((s) => s._id !== surveyToDelete));
-        } catch (err) {
-            console.error("Failed to delete survey:", err);
-        } finally {
-            setDeleteDialogOpen(false);
-            setSurveyToDelete(null);
-        }
-        };
+    try {
+      await deleteSurvey(surveyToDelete);
+      await fetchData(); 
+    } catch (err) {
+      console.error("Failed to delete survey:", err);
+    } finally {
+      setDeleteDialogOpen(false);
+      setSurveyToDelete(null);
+    }
+  };
+
 
   const cancelDelete = () => {
         setDeleteDialogOpen(false);
