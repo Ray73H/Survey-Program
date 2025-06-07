@@ -21,16 +21,23 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-
+import SurveyBuilderNavbar from "../components/SurveyBuilderNavbar";
 import { getSurveyById, updateSurvey, deleteSurvey } from "../services/surveys";
 import { useParams } from "react-router-dom";
 import { useUserContext } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 import { DeleteSurveyDialog } from "../components/DeleteSurveyDialog";
 import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault('Europe/Copenhagen');
+const now = dayjs.utc();
 
 function SurveyBuilder() {
     const navigate = useNavigate();
@@ -42,13 +49,16 @@ function SurveyBuilder() {
         public: false,
         pinCode: "",
         questions: [],
-        deadline: Date.now,
+        deadline: now.add(7, 'day'),
         published: false
     });
     const [originalSurvey, setOriginalSurvey] = React.useState(survey);
     const [isChanged, setIsChanged] = React.useState(false);
     const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
-    const [datePickerVal, setDatePickerVal] = React.useState(dayjs());
+    const [deadline, setDeadline] = React.useState(dayjs.utc().add(7, 'day'));
+    const [showAlert, setShowAlert] = React.useState(false);
+    const [updateSucces, setUpdateSucces] = React.useState(true);
+    const [serverMsg, setServerMsg] = React.useState("");
 
     // Initial get call for survey
     React.useEffect(() => {
@@ -64,7 +74,6 @@ function SurveyBuilder() {
     // Change state if there is unsaved data
     React.useEffect(() => {
         setIsChanged(JSON.stringify(survey) !== JSON.stringify(originalSurvey));
-        
     }, [survey, originalSurvey]);
 
     // Block on tab close or refresh
@@ -159,33 +168,103 @@ function SurveyBuilder() {
         }));
     };
 
-    const handleDeadlineChange = (newDeadline) => {
+    const handleDateChange = ((newDate) => {
+        setDeadline(newDate);
         setSurvey((prevSurvey) => ({
-            ...prevSurvey,
-            deadline : newDeadline,
-            }
-        ))
+                ...prevSurvey,
+                deadline: newDate.toJSON(),
+        }))
+    })
+
+
+    const catchUpdateErr = (err) => {
+        let serverMessage = "";
+        if (!err?.response) {
+            setServerMsg("No Server Response")
+            setUpdateSucces(false);
+            setShowAlert(true);
+        } else if (err.response?.status===404) {
+            serverMessage = err.response?.data?.message ?? "Survey not found";
+            setServerMsg(serverMessage);
+            setUpdateSucces(false);
+            setShowAlert(true);
+        } else {
+            serverMessage = err.response?.data?.message ?? "Internal server error";
+            setServerMsg(serverMessage);
+            setUpdateSucces(false);
+            setShowAlert(true);
+        }
     }
 
-    const handlePublish = () => {
-        // add unpublish version
-        setSurvey((prevSurvey) => ({
-            ...prevSurvey,
-            published : !prevSurvey.published
-        }));
+    const handlePublishSurvey = async (e) => {
+        e.preventDefault();
+
+        // No title
+        if (!survey.title) {
+            setServerMsg("The survey must have a title.");
+            setUpdateSucces(false);
+            setShowAlert(true);
+            return;
+        }
+
+        // No questions
+        if (survey.questions.length === 0) {
+            setServerMsg("The survey has no questions");
+            setUpdateSucces(false);
+            setShowAlert(true);
+            return;
+        }
+        
+        // No deadline
+        if (!survey.deadline) {
+            setServerMsg("Deadline required");
+            setUpdateSucces(false);
+            setShowAlert(true);
+            return;
+        }
+
+        try {
+            const newPublishedStatus = !survey.published;
+
+            
+            const surveyData = {
+                userId: user.userId,
+                ...survey,
+                published: newPublishedStatus,
+            };
+
+            const data = await updateSurvey(surveyId, surveyData);
+
+            setSurvey((prevSurvey) => ({
+                    ...prevSurvey,
+                    published: newPublishedStatus,
+            }))
+
+            if (newPublishedStatus) { setServerMsg("Survey Published") } else { setServerMsg("Survey Unpublished") }
+            setUpdateSucces(true);
+            setShowAlert(true);
+
+        } catch (err) {
+            catchUpdateErr(err);
+        }
     }
 
     const handleSaveSurvey = async (e) => {
         e.preventDefault();
-
-        const surveyData = {
-            userId: user.userId,
-            ...survey,
-        };
-
-        const data = await updateSurvey(surveyId, surveyData);
-        setOriginalSurvey(survey);
-        console.log(data);
+        try {
+            const surveyData = {
+                userId: user.userId,
+                ...survey,
+            };
+    
+            const data = await updateSurvey(surveyId, surveyData);
+            setSurvey(survey);
+            setUpdateSucces(true);
+            setServerMsg("Survey Saved")
+            setShowAlert(true);
+        } catch (err) {
+            catchUpdateErr(err);
+        }
     };
 
     const handleDeleteSurvey = async () => {
@@ -197,46 +276,16 @@ function SurveyBuilder() {
     return (
         <>
             <Box className="p-4">
-                <Box className="flex justify-between items-center mb-4">
-                    <Typography variant="h5" fontWeight="bold">
-                        Survey Builder
-                    </Typography>
-                    <Box className="space-x-2">
-                        {!survey.published && (<Button
-                            color="secondary"
-                            onClick={handlePublish}
-                            variant="outlined"
-                            
-                            >
-                                Publish Survey
-                        </Button>)}
-                        {survey.published && (
-                        <Button
-                            color="secondary"
-                            onClick={handlePublish}
-                            variant="contained"
-                            >
-                                Unpublish Survey
-
-                        </Button>
-                        )}
-                        <Button
-                            type="submit"
-                            form="survey-form"
-                            variant="contained"
-                            color="primary"
-                        >
-                            Save
-                        </Button>
-                        <Button
-                            onClick={() => setOpenDeleteDialog(true)}
-                            variant="outlined"
-                            color="error"
-                        >
-                            Delete Survey
-                        </Button>
-                    </Box>
-                </Box>
+                <SurveyBuilderNavbar 
+                    onDeleteDialogChange={() => setOpenDeleteDialog(true)}
+                    handlePublish={handlePublishSurvey}
+                    published={survey.published}
+                    onSave={handleSaveSurvey}
+                    showAlert={showAlert}
+                    onCloseAlert={() => {setShowAlert(false); setServerMsg("");}}
+                    updateSucces={updateSucces}
+                    serverMsg={serverMsg}
+                />
 
                 <Divider className="mb-4" />
 
@@ -304,19 +353,16 @@ function SurveyBuilder() {
                             <Box className="flex flex-col space-y-1">
                                 <Typography variant="h6">Deadline </Typography>
                                     <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                        <DatePicker
-                                        label="Pick a date"
-                                        value={datePickerVal}
-                                        onChange={(newValue) => {
-                                            setDatePickerVal(newValue);
-                                            setSurvey({...survey, deadline: newValue});
-                                          }}
-                                        renderInput={(params) => <TextField {...params} />}
-                                        inputFormat="DD/MM/YYYY"
+                                        <DateTimePicker 
+                                            name="deadline"
+                                            id="deadlineID"
+                                            minDateTime={now}
+                                            value={deadline}
+                                            label="Deadline *"
+                                            onChange={handleDateChange}
+                                            // timezone="system"
                                         />
                                     </LocalizationProvider>
-                                
-                      
                             </Box>
                             <Box className="flex flex-col space-y-2">
                                 <Typography variant="h6">Questions</Typography>
