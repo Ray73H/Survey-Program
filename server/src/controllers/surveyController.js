@@ -98,32 +98,38 @@ export const deleteSurvey = async (req, res) => {
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error: " + error.message });
 	}
-	};
+};
 
 
 export const getAllSurveys = async (req, res) => {
-	try {
-		const surveys = await Survey.find();
-		res.status(200).json(surveys);
-	} catch (error) {
-		res.status(500).json({ message: "Internal server error: " + error.message });
-	}
+  try {
+    const surveys = await Survey.find({ deleted_at: { $exists: false } });
+    res.status(200).json(surveys);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch surveys', error: err.message });
+  }
 };
+
 
 export const getSurveysByUserId = async (req, res) => {
 	try {
 		const { userId } = req.params;
-		const surveys = await Survey.find({ userId });
+		const surveys = await Survey.find({
+			userId,
+			deleted_at: { $exists: false },
+		});
 		res.status(200).json(surveys);
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error: " + error.message });
 	}
 };
 
+
 export const getUnpublishedSurveys = async (req, res) => {
 	try {
 		const { userId } = req.params;
-		const surveys = await Survey.find({ userId, published: false }).sort({ updatedAt: -1 });
+		const surveys = await Survey.find({ 
+			userId, published: false, deleted_at: { $exists: false }, }).sort({ updatedAt: -1 });
 		res.status(200).json(surveys);
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error: " + error.message });
@@ -137,6 +143,7 @@ export const getOngoingSurveys = async (req, res) => {
 		const surveys = await Survey.find({
 			userId,
 			deadline: { $gt: now },
+			deleted_at: { $exists: false },
 		}).sort({ deadline: 1 });
 		res.status(200).json(surveys);
 	} catch (error) {

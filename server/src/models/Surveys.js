@@ -22,6 +22,7 @@ const surveySchema = new Schema(
 		imported: { type: Boolean, default: false },
 		published: { type: Boolean, default: false },
 		deadline: { type: Date, default: Date.now },
+		deleted_at: { type: Date, default: null },
 	},
 	{ timestamps: true }
 );

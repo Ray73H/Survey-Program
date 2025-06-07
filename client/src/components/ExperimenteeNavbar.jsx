@@ -9,7 +9,7 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
+import HomeIcon from "@mui/icons-material/Home";
 import MailIcon from "@mui/icons-material/Mail";
 import { Settings, Logout, ExpandLess, ExpandMore, AccountCircle } from "@mui/icons-material";
 import { Collapse, Avatar, Typography, IconButton } from "@mui/material";
@@ -148,7 +148,7 @@ export default function ExperimenteeNavbar() {
                                         justifyContent: "center",
                                     }}
                                 >
-                                    <InboxIcon />
+                                    <HomeIcon />
                                 </ListItemIcon>
                                 <ListItemText primary="Dashboard" sx={{ opacity: open ? 1 : 0 }} />
                             </ListItemButton>

@@ -167,24 +167,28 @@ export const calculateSurveyMetrics = async (req, res) => {
 		const startedAnswers = await Answer.find({ startedAt: { $ne: null } });
 		const completedAnswers = await Answer.find({ completedAt: { $ne: null } });
 
-		const completionRate = startedAnswers.length ? (completedAnswers.length / startedAnswers.length) * 100 : 0;
+		const startedCount = startedAnswers.length || 0;
+		const completedCount = completedAnswers.length || 0;
+
+		const completionRate = startedCount ? (completedCount / startedCount) * 100 : 0;
 
 		const totalCompletionTime = completedAnswers.reduce((acc, answer) => {
 			if (answer.startedAt && answer.completedAt) {
-				return acc + (answer.completedAt - answer.startedAt);
+				return acc + (new Date(answer.completedAt) - new Date(answer.startedAt));
 			}
 			return acc;
 		}, 0);
 
-		const avgCompletionTime = completedAnswers.length
-			? totalCompletionTime / completedAnswers.length / (1000 * 60)
+		const avgCompletionTime = completedCount
+			? totalCompletionTime / completedCount / (1000 * 60)
 			: 0;
 
 		const allAnswers = await Answer.find({}).select("surveyId").lean();
-		const uniqueSurveys = new Set(allAnswers.map((a) => a.surveyId.toString()));
-		const avgUsersPerSurvey = uniqueSurveys.size ? allAnswers.length / uniqueSurveys.size : 0;
+		const uniqueSurveys = new Set(allAnswers.map((a) => a.surveyId?.toString()).filter(Boolean));
+		const avgUsersPerSurvey = uniqueSurveys.size
+			? allAnswers.length / uniqueSurveys.size
+			: 0;
 
-		// Question-type specific completion times
 		const detailedAnswers = await Answer.find({ completed: true })
 			.populate({
 				path: "surveyId",
@@ -196,18 +200,23 @@ export const calculateSurveyMetrics = async (req, res) => {
 			textTimes = [];
 
 		detailedAnswers.forEach((ans) => {
-			if (!ans.startedAt || !ans.completedAt || !ans.surveyId) return; // 💡 Safe guard
-			const duration = ans.completedAt - ans.startedAt;
+			if (!ans.startedAt || !ans.completedAt || !ans.surveyId?.questions) return;
+			const duration = new Date(ans.completedAt) - new Date(ans.startedAt);
 
-			const hasMC = ans.surveyId.questions?.some((q) => q.questionType === "multipleChoice");
-			const hasText = ans.surveyId.questions?.some((q) => q.questionType === "openText");
+			const hasMC = ans.surveyId.questions.some((q) => q.questionType === "multipleChoice");
+			const hasText = ans.surveyId.questions.some((q) => q.questionType === "openText");
 
 			if (hasMC) mcTimes.push(duration);
 			if (hasText) textTimes.push(duration);
 		});
 
-		const avgTimeMC = mcTimes.length ? mcTimes.reduce((a, b) => a + b) / mcTimes.length / (1000 * 60) : 0;
-		const avgTimeText = textTimes.length ? textTimes.reduce((a, b) => a + b) / textTimes.length / (1000 * 60) : 0;
+		const avgTimeMC = mcTimes.length
+			? mcTimes.reduce((a, b) => a + b, 0) / mcTimes.length / (1000 * 60)
+			: 0;
+
+		const avgTimeText = textTimes.length
+			? textTimes.reduce((a, b) => a + b, 0) / textTimes.length / (1000 * 60)
+			: 0;
 
 		res.json({
 			completionRate: completionRate.toFixed(2),
@@ -222,15 +231,15 @@ export const calculateSurveyMetrics = async (req, res) => {
 	}
 };
 
+
 export const getAnswerMetricsPerSurvey = async (req, res) => {
 	try {
 		const answers = await Answer.find({}).lean();
-
 		const surveyMetrics = {};
 
 		answers.forEach((answer) => {
 			const surveyId = answer.surveyId?.toString();
-			if (!surveyId) return; // Skip invalid entries
+			if (!surveyId) return;
 
 			if (!surveyMetrics[surveyId]) {
 				surveyMetrics[surveyId] = {
@@ -241,22 +250,29 @@ export const getAnswerMetricsPerSurvey = async (req, res) => {
 				};
 			}
 
-			if (answer.started) surveyMetrics[surveyId].started += 1;
-			if (answer.completed) {
-				surveyMetrics[surveyId].completed += 1;
-				if (answer.startedAt && answer.completedAt) {
-					const duration = new Date(answer.completedAt) - new Date(answer.startedAt);
+			if (answer.startedAt) surveyMetrics[surveyId].started++;
+			if (answer.startedAt && answer.completedAt) {
+				surveyMetrics[surveyId].completed++;
+
+				const duration = new Date(answer.completedAt) - new Date(answer.startedAt);
+				if (duration > 0) {
 					surveyMetrics[surveyId].totalTime += duration;
 				}
 			}
-			if (answer.respondentId) {
-				surveyMetrics[surveyId].respondents.add(answer.respondentId.toString());
+
+			// Support both user and guest respondents
+			const respondentKey =
+				answer.respondentType === "guest" ? answer.guestId : answer.respondentId?.toString();
+			if (respondentKey) {
+				surveyMetrics[surveyId].respondents.add(respondentKey);
 			}
 		});
 
 		const result = Object.entries(surveyMetrics).map(([surveyId, data]) => {
 			const completionRate = data.started ? (data.completed / data.started) * 100 : 0;
-			const avgCompletionTime = data.completed ? data.totalTime / data.completed / (1000 * 60) : 0;
+			const avgCompletionTime = data.completed
+				? data.totalTime / data.completed / (1000 * 60)
+				: 0;
 
 			return {
 				surveyId,
@@ -272,6 +288,8 @@ export const getAnswerMetricsPerSurvey = async (req, res) => {
 		res.status(500).json({ message: "Internal server error" });
 	}
 };
+
+
 
 export const getAnswerMetricsPerQuestion = async (req, res) => {
 	try {
@@ -301,22 +319,23 @@ export const getAnswerMetricsPerQuestion = async (req, res) => {
 				}
 
 				const qStat = questionMetrics[surveyId][questionNumber];
-
-				qStat.count += 1;
+				qStat.count++;
 				qStat.answers.push(answer);
 
 				const timeTaken = new Date(timestamp) - startedAt;
 				if (timeTaken > 0) {
 					qStat.timeSumMs += timeTaken;
-					qStat.answeredCount += 1;
+					qStat.answeredCount++;
 				}
 			});
 		});
 
-		// Finalize metrics
+		// Finalize calculations
 		Object.entries(questionMetrics).forEach(([surveyId, questions]) => {
 			Object.entries(questions).forEach(([questionNumber, stats]) => {
-				const completionRate = stats.count ? (stats.answeredCount / stats.count) * 100 : 0;
+				const completionRate = stats.count
+					? (stats.answeredCount / stats.count) * 100
+					: 0;
 				const averageTimeInMinutes = stats.answeredCount
 					? stats.timeSumMs / stats.answeredCount / (1000 * 60)
 					: 0;
@@ -332,6 +351,8 @@ export const getAnswerMetricsPerQuestion = async (req, res) => {
 		res.status(500).json({ message: "Internal server error" });
 	}
 };
+
+
 
 // controllers/AnswerController.js
 export const getTotalResponses = async (req, res) => {
@@ -352,15 +373,16 @@ export const getAverageCompletionRate = async (req, res) => {
 	try {
 		const userId = req.user._id;
 		const surveys = await Survey.find({ userId }, "_id");
-		const surveyIds = surveys.map((survey) => survey._id);
+		const surveyIds = surveys.map((s) => s._id);
+
 		const answers = await Answer.find({ surveyId: { $in: surveyIds } });
 
 		let total = 0;
 		let completed = 0;
 
-		answers.forEach((answer) => {
-			if (answer.started) total += 1;
-			if (answer.completed) completed += 1;
+		answers.forEach((ans) => {
+			if (ans.startedAt) total++;
+			if (ans.startedAt && ans.completedAt) completed++;
 		});
 
 		const averageCompletionRate = total ? (completed / total) * 100 : 0;
@@ -372,26 +394,29 @@ export const getAverageCompletionRate = async (req, res) => {
 	}
 };
 
+
+
 // controllers/AnswerController.js
 export const getAverageCompletionTime = async (req, res) => {
 	try {
 		const userId = req.user._id;
 		const surveys = await Survey.find({ userId }, "_id");
-		const surveyIds = surveys.map((survey) => survey._id);
+		const surveyIds = surveys.map((s) => s._id);
+
 		const answers = await Answer.find({
 			surveyId: { $in: surveyIds },
-			startedAt: { $exists: true },
-			completedAt: { $exists: true },
+			startedAt: { $ne: null },
+			completedAt: { $ne: null },
 		});
 
 		let totalTime = 0;
 		let count = 0;
 
-		answers.forEach((answer) => {
-			const time = answer.completedAt - answer.startedAt;
+		answers.forEach((ans) => {
+			const time = new Date(ans.completedAt) - new Date(ans.startedAt);
 			if (time > 0) {
 				totalTime += time;
-				count += 1;
+				count++;
 			}
 		});
 
@@ -404,12 +429,14 @@ export const getAverageCompletionTime = async (req, res) => {
 	}
 };
 
+
+
 // controllers/AnswerController.js
 export const getAverageUsersPerSurvey = async (req, res) => {
 	try {
 		const userId = req.user._id;
 		const surveys = await Survey.find({ userId }, "_id");
-		const surveyIds = surveys.map((survey) => survey._id);
+		const surveyIds = surveys.map((s) => s._id);
 
 		const answers = await Answer.aggregate([
 			{ $match: { surveyId: { $in: surveyIds } } },
@@ -427,7 +454,7 @@ export const getAverageUsersPerSurvey = async (req, res) => {
 			},
 		]);
 
-		const totalUsers = answers.reduce((sum, item) => sum + item.uniqueUserCount, 0);
+		const totalUsers = answers.reduce((sum, a) => sum + a.uniqueUserCount, 0);
 		const averageUsers = answers.length ? totalUsers / answers.length : 0;
 
 		res.json({ averageUsersPerSurvey: averageUsers.toFixed(2) });

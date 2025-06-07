@@ -31,7 +31,8 @@ export default function WelcomeSurvey() {
 
         if (!started){
           const answerData = {
-            started : true
+            started : true,
+            startedAt: new Date()
           };
 
           await updateAnswer(answerId, answerData);
