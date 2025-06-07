@@ -128,7 +128,8 @@ export const getSurveysByUserId = async (req, res) => {
 export const getUnpublishedSurveys = async (req, res) => {
 	try {
 		const { userId } = req.params;
-		const surveys = await Survey.find({ userId, published: false }).sort({ updatedAt: -1 });
+		const surveys = await Survey.find({ 
+			userId, published: false, deleted_at: { $exists: false }, }).sort({ updatedAt: -1 });
 		res.status(200).json(surveys);
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error: " + error.message });
@@ -142,6 +143,7 @@ export const getOngoingSurveys = async (req, res) => {
 		const surveys = await Survey.find({
 			userId,
 			deadline: { $gt: now },
+			deleted_at: { $exists: false },
 		}).sort({ deadline: 1 });
 		res.status(200).json(surveys);
 	} catch (error) {
