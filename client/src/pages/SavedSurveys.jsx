@@ -111,7 +111,7 @@ function Row({ survey }) {
         </TableCell>
       <TableCell>
       {survey.answers && survey.surveyQuestions && survey.surveyQuestions.length > 0 ? 
-      `${Math.round((survey.answers.length / survey.surveyQuestions.length) * 100)}%` 
+      `${survey.answers.length} / ${survey.surveyQuestions.length}`
       : '-'}
 </TableCell>
       </TableRow>
