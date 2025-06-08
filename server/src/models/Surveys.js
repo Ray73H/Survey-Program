@@ -1,4 +1,12 @@
 import { Schema, model } from "mongoose";
+import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc.js';
+import timezone from 'dayjs/plugin/timezone.js';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault('Europe/Copenhagen');
+
 
 const questionSchema = new Schema({
 	questionType: String,
@@ -21,7 +29,7 @@ const surveySchema = new Schema(
 		author: { type: String, required: true },
 		imported: { type: Boolean, default: false },
 		published: { type: Boolean, default: false },
-		deadline: { type: Date, default: Date.now },
+		deadline: { type: Date, default: dayjs.utc().add(7, 'day') },
 		deleted_at: { type: Date, default: null },
 	},
 	{ timestamps: true }
