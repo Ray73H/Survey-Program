@@ -8,4 +8,4 @@ export const deleteUser = (userId) => api.delete(`/users/${userId}`);
 
 export const getAllUsers = () => api.get("/users/all");
 export const addSurveyAccess = (userId, surveyId) =>
-  api.post(`/users/${userId}/surveyAccess`, { surveyId });
+  api.put(`/users/${userId}/surveyAccess`, { surveyId });

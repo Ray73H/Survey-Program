@@ -89,7 +89,7 @@ describe("Login Page", () => {
         fireEvent.click(screen.getByRole("button", { name: /log in/i }));
 
         await waitFor(() => {
-            expect(screen.getByText(/invalid credentials/i)).toBeInTheDocument();
+            expect(screen.getByRole('alert', /invalid credentials/i)).toBeInTheDocument();
         });
     });
 

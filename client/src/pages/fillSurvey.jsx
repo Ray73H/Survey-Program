@@ -57,7 +57,7 @@ export default function FillSurvey() {
       try {
         // First get the survey
         const surveyResponse = await getSurveyByPinCode(pinCode);
-        console.log("Survey response:", surveyResponse.data);
+        // console.log("Survey response:", surveyResponse.data);
         setSurvey(surveyResponse.data);
         
         // Then get the answers using the survey's _id
@@ -66,7 +66,7 @@ export default function FillSurvey() {
             !!user?.guest,
             user?.userId,
         );
-        console.log("Answers response:", answersResponse.data);
+        // console.log("Answers response:", answersResponse.data);
         
         // If there are existing answers, load them into the state
         if (answersResponse.data && Array.isArray(answersResponse.data)) {
@@ -80,7 +80,7 @@ export default function FillSurvey() {
               });
             }
           });
-          console.log("Processed answers to load:", loadedAnswers);
+          // console.log("Processed answers to load:", loadedAnswers);
           setAnswers(loadedAnswers);
         }
       } catch (err) {
@@ -94,9 +94,9 @@ export default function FillSurvey() {
   }, [pinCode, user]);
 
   // Add a useEffect to monitor answers state changes
-  React.useEffect(() => {
-    console.log("Current answers state:", answers);
-  }, [answers]);
+  // React.useEffect(() => {
+  //   console.log("Current answers state:", answers);
+  // }, [answers]);
 
   const handleChange = (value) => {
     setAnswers((prev) => {
@@ -147,10 +147,13 @@ export default function FillSurvey() {
         timestamp: new Date()
       }));
 
+      const guestSessionId = sessionStorage.getItem("guestSessionId");
+
       const answerData = {
         surveyId: survey._id,
-        respondentType: user && user.userId ? "user" : "guest",
-        ...(user && user.userId && { respondentId: user.userId }),
+        respondentType: guestSessionId ? "guest" : "user",
+        respondentId: !guestSessionId ? user.userId : null,
+        guestId: guestSessionId ? user.userId : null,
         answers: formattedAnswers,
         completed: true,
         completedAt: new Date()
