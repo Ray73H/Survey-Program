@@ -308,6 +308,7 @@ function SurveyBuilder() {
                                                 title: e.target.value,
                                             }))
                                         }
+                                        label="Title"
                                         variant="outlined"
                                         required
                                     />
