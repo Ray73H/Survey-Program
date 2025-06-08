@@ -28,6 +28,16 @@ export default function Login() {
     const { setUser } = useUserContext();
     const navigate = useNavigate();
 
+    useEffect(() => {
+            setErrMsgEmail('');
+            setErrMsgServer('');
+        }, [email])
+
+    useEffect(() => {
+            setErrMsgPwd('');
+            setErrMsgServer('');
+        }, [password])
+
     const handleLogin = async (event) => {
         event.preventDefault();
         const userData = {
@@ -41,10 +51,28 @@ export default function Login() {
             const decoded = jwtDecode(response.data.token);
             setUser(decoded);
             navigate("/");
-        } catch (error) {
+        } catch (err) {
             //handling of wrong login credentials
-            if (error.response) {
-                setErrMsgPwd(error.response.data.message);
+            if (!err?.response) {
+                setErrMsgServer("No Server Response")
+            } else {
+                let serverMessage = ""
+                switch (err.response?.status) {
+                    case 401:
+                        serverMessage = err.response?.data?.message ?? "Incorrect Password";
+                        setErrMsgPwd(serverMessage);
+                        break;
+                    case 404:
+                        serverMessage = err.response?.data?.message ?? "No account registred with this email";
+                        setErrMsgEmail(serverMessage);
+                        break;
+                    case 500:
+                        serverMessage = err.response?.data?.message ?? "Unknown server error occurred.";
+                        setErrMsgServer(serverMessage);
+                        break;
+                    default:
+                        setErrMsgServer("Registration Failed");
+                }
             }
         }
     };
@@ -145,7 +173,7 @@ export default function Login() {
                         type={showPassword ? "text" : "password"}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        autocomplete="current-password"
+                        autoComplete="current-password"
                         required
                         endAdornment={
                             <InputAdornment position="end">
