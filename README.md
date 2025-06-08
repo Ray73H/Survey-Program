@@ -12,6 +12,20 @@ Run line
 
     docker-compose up --build
 
+## Sample Users you can login to
+
+    (Super User)
+    E-mail: superuser@gmail.com
+    Password: 1234
+
+    (Experimenter)
+    E-mail: experimenter@gmail.com
+    Password: 1234
+
+    (Experimentee)
+    E-mail: experimentee@gmail.com
+    Password: 1234
+
 ## Script to create a new superuser account
 
 Replace email, password, and name with your custom values
