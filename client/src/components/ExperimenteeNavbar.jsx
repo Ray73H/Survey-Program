@@ -251,7 +251,7 @@ export default function ExperimenteeNavbar() {
                 <Box>
                     <Divider />
                     <List>
-                        <ListItem button onClick={handleAccountClick}>
+                        <ListItem button onClick={handleAccountClick} sx={{ cursor: 'pointer' }}>
                             <ListItemIcon>
                                 <Avatar sx={{ bgcolor: "primary.main" }}>{firstLetter}</Avatar>
                             </ListItemIcon>
@@ -280,11 +280,11 @@ export default function ExperimenteeNavbar() {
                                         <ListItemText primary="Settings" />
                                     </ListItem>
                                 )}
-                                <ListItem button onClick={handleLogout}>
+                                <ListItem button onClick={handleLogout} sx={{ cursor: 'pointer' }}>
                                     <ListItemIcon>
                                         <Logout />
                                     </ListItemIcon>
-                                    <ListItemText primary="Logout" />
+                                    <ListItemText primary="Logout"/>
                                 </ListItem>
                             </List>
                         </Collapse>

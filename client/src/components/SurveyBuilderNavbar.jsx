@@ -16,16 +16,15 @@ export default function SurveyBuilderNavbar({onDeleteDialogChange, handlePublish
                 <Box className="space-x-2">
                     {!published && 
                     <Button
-                        color="secondary"
+                        color="success"
                         onClick={handlePublish}
-                        variant="outlined"
-                        
+                        variant="contained"
                         >
                             Publish Survey
                     </Button>}
                     {published && 
                     <Button
-                        color="secondary"
+                        color="error"
                         onClick={handlePublish}
                         variant="contained"
                         >

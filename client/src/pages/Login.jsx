@@ -49,21 +49,6 @@ export default function Login() {
         }
     };
 
-    // const mode =
-    //     user.user === "experimenter" || user.user === "experimentee" || user.user == "superuser"
-    //         ? user.user
-    //         : "unknown";
-
-    // const leftOpp = mode === "experimentee" ? "experimenter" : "experimentee";
-    // const rightOpp = mode === "superuser" ? "experimenter" : "superuser";
-
-    // const modifyTitle = (mode) => {
-    //     if (mode === "superuser") {
-    //         return "Super User";
-    //     }
-    //     return mode.charAt(0).toUpperCase() + mode.substring(1);
-    // };
-
     const handleClickShowPassword = () => setShowPassword((show) => !show);
 
     const handleMouseDownPassword = (event) => {
@@ -160,6 +145,7 @@ export default function Login() {
                         type={showPassword ? "text" : "password"}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        autocomplete="current-password"
                         required
                         endAdornment={
                             <InputAdornment position="end">

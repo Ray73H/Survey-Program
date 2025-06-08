@@ -244,7 +244,7 @@ export default function ExperimenterNavbar() {
                 <Box>
                     <Divider />
                     <List>
-                        <ListItem button onClick={handleAccountClick}>
+                        <ListItem button onClick={handleAccountClick} sx={{ cursor: 'pointer' }}>
                             <ListItemIcon>
                                 <Avatar sx={{ bgcolor: "primary.main" }}>{firstLetter}</Avatar>
                             </ListItemIcon>
@@ -264,7 +264,7 @@ export default function ExperimenterNavbar() {
                             </IconButton>
                         </ListItem>
                         <Collapse in={accountOpen} timeout="auto" unmountOnExit>
-                            <List component="div" disablePadding sx={{ pl: 4 }}>
+                            <List component="div" disablePadding sx={{ pl: 4, cursor: 'pointer' }}>
                                 {!user?.guest && (
                                     <ListItem
                                         button
