@@ -18,9 +18,57 @@ vi.mock('../services/surveys');
 vi.mock('../services/answers');
 
 
+// surveyId: {
+//       type: Schema.Types.ObjectId,
+//       ref: "Survey",
+//       required: true,
+//     },
+//     respondentType: {
+//       type: String,
+//       enum: ["user", "guest"],
+//       required: true,
+//     },
+//     respondentId: {
+//       type: Schema.Types.ObjectId,
+//       ref: "User",
+//       required: function () {
+//         return this.respondentType === "user";
+//       },
+//     },
+//     guestId: {
+//       type: String,
+//       required: function () {
+//         return this.respondentType === "guest";
+//       },
+//     },
+//     answers: {
+//       type: [
+//         {
+//           questionNumber: Number,
+//           answer: Schema.Types.Mixed,
+//           timestamp: Date,
+//         },
+//       ],
+//       default: [],
+//     },
+//     started: {
+//       type: Boolean,
+//       default: false,
+//     },
+//     completed: {
+//       type: Boolean,
+//       default: false,
+//     },
+//     startedAt: Date,
+//     completedAt: Date,
+
 
 const mockSurveysSaved = [
   {
+    surveyId: '1',
+    respondentType: 'guest',
+    respondentId: null,
+    guestId: '34',
     answers: [
         {
             questionNumber: 1,
@@ -29,12 +77,13 @@ const mockSurveysSaved = [
             _id: '11'
         }
     ],
-    completed: true,
-    completedAt: "2025-05-29T11:23:46.399Z",
     started: true,
+    startedAt: '2025-05-29T11:22:46.399Z',
+    completed: false,
+    completedAt: null,
+    updatedAt: "2025-05-29T11:23:47.399Z",
     surveyAuthor: "Author A", 
     surveyDescription: "Description A",
-    _id: '1',
     surveyTitle: 'Survey A',
     surveyQuestions: [
       {
@@ -43,6 +92,7 @@ const mockSurveysSaved = [
         options: ['Option 1', 'Option 2'],
       },
     ],
+    _id: '1',
   },
 ];
 
@@ -91,7 +141,7 @@ const renderComponentCompleted = () => {
 
 describe('Saved Surveys', () => {
   beforeEach(() => {
-    useUserContext.mockReturnValue({ user: { accountType: 'experimentee', userId: 'u1' } });
+    useUserContext.mockReturnValue({ user: { accountType: 'experimentee', _id: 'u1' } });
     answerService.getSavedSurveyAnswers.mockResolvedValue({ data: mockSurveysSaved });
   });
 
