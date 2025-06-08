@@ -28,7 +28,6 @@ import {
     getUnpublishedSurveys,
     importSurvey,
 } from "../services/surveys";
-import { addSurveyAccess } from "../services/users";
 import { DeleteSurveyDialog } from "../components/DeleteSurveyDialog";
 
 const Experimenter = () => {
@@ -36,17 +35,18 @@ const Experimenter = () => {
     const [menuSurveyId, setMenuSurveyId] = useState(null);
     const [ongoingSurveys, setOngoingSurveys] = useState([]);
     const [unpublishedSurveys, setUnpublishedSurveys] = useState([]);
-    // const [surveys, setSurveys] = useState([]);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [deleteSurveyId, setDeleteSurveyId] = useState("");
     const navigate = useNavigate();
     const { user } = useUserContext();
 
     const fetchOngoingSurveys = async () => {
-        const response = await getOngoingSurveys(user.userId);
-        console.log(response.status);
-        console.log(response);
-        setOngoingSurveys(response.data);
+        try {
+            const response = await getOngoingSurveys(user.userId);
+            setOngoingSurveys(response.data);
+        } catch (err) {
+            console.error(err);
+        }
     };
 
     const fetchUnpublishedSurveys = async () => {
@@ -57,11 +57,6 @@ const Experimenter = () => {
             console.error(err);
         }
     };
-
-    // const fetchSurveys = async () => {
-    //     const response = await getUnpublishedSurveys(user.userId);
-    //     setSurveys(response.data);
-    // };
 
     useEffect(() => {
         fetchOngoingSurveys();
