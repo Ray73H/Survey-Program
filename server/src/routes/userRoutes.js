@@ -7,6 +7,7 @@ import {
 	getAllUsers,
 	deleteUser,
 	getUser,
+	addSurveyAccess,
 } from "../controllers/userController.js";
 
 const router = express.Router();
@@ -20,6 +21,8 @@ router.get("/all", getAllUsers);
 router.put("/:id", authMiddleware, updateUser);
 router.get("/:id", authMiddleware, getUser);
 router.delete("/:id", authMiddleware, deleteUser);
+
+router.put("/:id/surveyAccess", authMiddleware, addSurveyAccess);
 
 
 

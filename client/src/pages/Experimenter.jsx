@@ -28,6 +28,7 @@ import {
     getUnpublishedSurveys,
     importSurvey,
 } from "../services/surveys";
+import { addSurveyAccess } from "../services/users";
 import { DeleteSurveyDialog } from "../components/DeleteSurveyDialog";
 
 const Experimenter = () => {
@@ -35,7 +36,7 @@ const Experimenter = () => {
     const [menuSurveyId, setMenuSurveyId] = useState(null);
     const [ongoingSurveys, setOngoingSurveys] = useState([]);
     const [unpublishedSurveys, setUnpublishedSurveys] = useState([]);
-    const [surveys, setSurveys] = useState([]);
+    // const [surveys, setSurveys] = useState([]);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [deleteSurveyId, setDeleteSurveyId] = useState("");
     const navigate = useNavigate();
@@ -43,24 +44,29 @@ const Experimenter = () => {
 
     const fetchOngoingSurveys = async () => {
         const response = await getOngoingSurveys(user.userId);
+        console.log(response.status);
+        console.log(response);
         setOngoingSurveys(response.data);
     };
 
     const fetchUnpublishedSurveys = async () => {
-        const response = await getUnpublishedSurveys(user.userId);
-        setUnpublishedSurveys(response.data);
+        try {
+            const response = await getUnpublishedSurveys(user.userId);
+            setUnpublishedSurveys(response.data);
+        } catch (err) {
+            console.error(err);
+        }
     };
 
-    const fetchSurveys = async () => {
-        const response = await getUnpublishedSurveys(user.userId);
-        setSurveys(response.data);
-    };
+    // const fetchSurveys = async () => {
+    //     const response = await getUnpublishedSurveys(user.userId);
+    //     setSurveys(response.data);
+    // };
 
     useEffect(() => {
-        fetchSurveys();
         fetchOngoingSurveys();
         fetchUnpublishedSurveys();
-    }, [user.userId]);
+    }, [JSON.stringify(user.surveyAccess)]);
 
     const handleMenuOpen = (event, id) => {
         setAnchorEl(event.currentTarget);
@@ -82,7 +88,8 @@ const Experimenter = () => {
     const handleDeleteSurvey = async () => {
         await deleteSurvey(deleteSurveyId);
         setOpenDeleteDialog(false);
-        fetchSurveys();
+        fetchOngoingSurveys();
+        fetchUnpublishedSurveys();
     };
 
     const handleFileSelect = async (event) => {
@@ -90,7 +97,8 @@ const Experimenter = () => {
             const file = event.target.files[0];
             if (file) {
                 const surveyData = await importSurvey(user.userId, file);
-                fetchSurveys();
+                fetchOngoingSurveys();
+                fetchUnpublishedSurveys();
             }
         } catch (error) {
             console.error("Failed to import survey:", error);
@@ -104,7 +112,8 @@ const Experimenter = () => {
             const file = event.target.files[0];
             if (file) {
                 await importSurvey(user.userId, file);
-                fetchSurveys();
+                fetchOngoingSurveys();
+                fetchUnpublishedSurveys();
             }
         } catch (error) {
             console.error("Failed to import survey:", error);
