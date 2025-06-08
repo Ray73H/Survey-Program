@@ -18,51 +18,6 @@ vi.mock('../services/surveys');
 vi.mock('../services/answers');
 
 
-// surveyId: {
-//       type: Schema.Types.ObjectId,
-//       ref: "Survey",
-//       required: true,
-//     },
-//     respondentType: {
-//       type: String,
-//       enum: ["user", "guest"],
-//       required: true,
-//     },
-//     respondentId: {
-//       type: Schema.Types.ObjectId,
-//       ref: "User",
-//       required: function () {
-//         return this.respondentType === "user";
-//       },
-//     },
-//     guestId: {
-//       type: String,
-//       required: function () {
-//         return this.respondentType === "guest";
-//       },
-//     },
-//     answers: {
-//       type: [
-//         {
-//           questionNumber: Number,
-//           answer: Schema.Types.Mixed,
-//           timestamp: Date,
-//         },
-//       ],
-//       default: [],
-//     },
-//     started: {
-//       type: Boolean,
-//       default: false,
-//     },
-//     completed: {
-//       type: Boolean,
-//       default: false,
-//     },
-//     startedAt: Date,
-//     completedAt: Date,
-
-
 const mockSurveysSaved = [
   {
     surveyId: '1',
@@ -195,7 +150,7 @@ describe('Saved Surveys', () => {
     // Assert that question section appears
     await waitFor(() => {
       expect(screen.getByText(/Question 1/i)).toBeInTheDocument();
-      //expect(screen.getByText(/Answer 1/i)).toBeInTheDocument();
+      expect(screen.getByText(/Answer 1/i)).toBeInTheDocument();
     });
   });
 }); 
@@ -256,7 +211,7 @@ describe('Completed Surveys', () => {
     // Assert that question section appears
     await waitFor(() => {
       expect(screen.getByText(/Question 2/i)).toBeInTheDocument();
-      //expect(screen.getByText(/Answer 2/i)).toBeInTheDocument();
+      expect(screen.getByText(/Answer 2/i)).toBeInTheDocument();
     });
   });
 }); 
