@@ -18,9 +18,12 @@ vi.mock('../services/surveys');
 vi.mock('../services/answers');
 
 
-
 const mockSurveysSaved = [
   {
+    surveyId: '1',
+    respondentType: 'guest',
+    respondentId: null,
+    guestId: '34',
     answers: [
         {
             questionNumber: 1,
@@ -29,12 +32,13 @@ const mockSurveysSaved = [
             _id: '11'
         }
     ],
-    completed: true,
-    completedAt: "2025-05-29T11:23:46.399Z",
     started: true,
+    startedAt: '2025-05-29T11:22:46.399Z',
+    completed: false,
+    completedAt: null,
+    updatedAt: "2025-05-29T11:23:47.399Z",
     surveyAuthor: "Author A", 
     surveyDescription: "Description A",
-    _id: '1',
     surveyTitle: 'Survey A',
     surveyQuestions: [
       {
@@ -43,6 +47,7 @@ const mockSurveysSaved = [
         options: ['Option 1', 'Option 2'],
       },
     ],
+    _id: '1',
   },
 ];
 
@@ -91,7 +96,7 @@ const renderComponentCompleted = () => {
 
 describe('Saved Surveys', () => {
   beforeEach(() => {
-    useUserContext.mockReturnValue({ user: { accountType: 'experimentee', userId: 'u1' } });
+    useUserContext.mockReturnValue({ user: { accountType: 'experimentee', _id: 'u1' } });
     answerService.getSavedSurveyAnswers.mockResolvedValue({ data: mockSurveysSaved });
   });
 
@@ -145,7 +150,7 @@ describe('Saved Surveys', () => {
     // Assert that question section appears
     await waitFor(() => {
       expect(screen.getByText(/Question 1/i)).toBeInTheDocument();
-      //expect(screen.getByText(/Answer 1/i)).toBeInTheDocument();
+      expect(screen.getByText(/Answer 1/i)).toBeInTheDocument();
     });
   });
 }); 
@@ -206,7 +211,7 @@ describe('Completed Surveys', () => {
     // Assert that question section appears
     await waitFor(() => {
       expect(screen.getByText(/Question 2/i)).toBeInTheDocument();
-      //expect(screen.getByText(/Answer 2/i)).toBeInTheDocument();
+      expect(screen.getByText(/Answer 2/i)).toBeInTheDocument();
     });
   });
 }); 

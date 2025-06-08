@@ -109,17 +109,4 @@ describe('Experimenter settingspage', () => {
         userEvent.click(cancelbtn);
         expect(deletebtn);
     });
-
-    /*test('Displayes dialog when pressing delete, sends alert when confirmed', async () => {
-        userService.deleteUser.mockResolvedValue({ });
-        const deletebtn = screen.getByRole('button', { name: /delete/i });
-        userEvent.click(deletebtn);
-        expect(screen.getByRole('dialog', {name: /confirm/i}));
-        const confirmbtn = screen.getByRole('button', { name: /delete/i });
-        userEvent.click(confirmbtn);
-        expect(screen.getByRole('alert', {description: /delete/i}));
-    }); 
-        NOTE: CANNOT FIND THE DIALOG. PERHAPS HANDLEUSERDELETE FROM SETTINGS NEEDS TO ME MOCKED
-    
-    */
 })
