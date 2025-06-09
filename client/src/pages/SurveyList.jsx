@@ -158,28 +158,23 @@ function Row({ survey, metrics, onEdit, onDelete, visibleColumns, metricsQuestio
                 <TableBody>
                   {survey.questions && survey.questions.length > 0 ? (
                     survey.questions.map((q, index) => {
-                      const qMetrics = metricsQuestion?.[q.questionNumber] || {};
+                      const questionNumber = String(q.questionNumber ?? index + 1);
+                      const qMetrics = metricsQuestion?.[questionNumber] || {};
+
+
                       return (
-                        <TableRow key={index}>
-                          <TableCell>{q.questionText || '-'}</TableCell>
-                          <TableCell>{q.questionType || '-'}</TableCell>
-                          <TableCell>
-                            {q.options && q.options.length > 0
-                              ? q.options.join(', ')
-                              : '-'}
-                          </TableCell>
-                          <TableCell>
-                            {qMetrics.completionRate
-                              ? `${qMetrics.completionRate.toFixed(2)}%`
-                              : '-'}
-                          </TableCell>
-                          <TableCell>
-                            {qMetrics.averageTime
-                              ? `${qMetrics.averageTime.toFixed(2)}`
-                              : '-'}
-                          </TableCell>
-                        </TableRow>
-                      );
+                      <TableRow key={index}>
+                        <TableCell>{q.questionText || '-'}</TableCell>
+                        <TableCell>{q.questionType || '-'}</TableCell>
+                        <TableCell>{q.options?.length ? q.options.join(', ') : '-'}</TableCell>
+                        <TableCell>
+                          {qMetrics.completionRate ? `${qMetrics.completionRate}%` : '-'}
+                        </TableCell>
+                        <TableCell>
+                          {qMetrics.averageTimeInMinutes ? `${qMetrics.averageTimeInMinutes}` : '-'}
+                        </TableCell>
+                      </TableRow>
+                    );
                     })
                   ) : (
                     <TableRow>
@@ -280,6 +275,13 @@ export default function SurveyList() {
         averageCompletionTime: avgCompletionTimeRes.data.averageCompletionTime,
         averageUsersPerSurvey: avgUsersRes.data.averageUsersPerSurvey,
       });
+      console.log("📊 Stats being set:", {
+        totalSurveys: userSurveysRes.data.length,
+        totalResponses: totalResponsesRes.data.totalResponses,
+        averageCompletionRate: avgCompletionRateRes.data.averageCompletionRate,
+        averageCompletionTime: avgCompletionTimeRes.data.averageCompletionTime,
+        averageUsersPerSurvey: avgUsersRes.data.averageUsersPerSurvey,
+      });
     } catch (err) {
       console.error('Failed to fetch surveys or metrics:', err);
     } finally {
@@ -368,11 +370,6 @@ const handleToggleColumn = (column) => {
 
   return (
     <Box sx={{ marginTop: '30px' }}>
-      {(user.accountType === 'experimenter' || (user.accountType === 'superuser' && viewMode === 'own')) && (
-        <>
-          <StatisticsCards stats={stats} />
-        </>
-      )}
         
         <Box
             sx={{

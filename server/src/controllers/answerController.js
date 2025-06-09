@@ -344,7 +344,7 @@ export const getAnswerMetricsPerQuestion = async (req, res) => {
 				stats.averageTimeInMinutes = averageTimeInMinutes.toFixed(2);
 			});
 		});
-
+		console.log("Per-question metrics:", JSON.stringify(questionMetrics, null, 2));
 		res.status(200).json(questionMetrics);
 	} catch (error) {
 		console.error("Error calculating per-question metrics:", error);
